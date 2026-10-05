@@ -1,7 +1,6 @@
 import streamlit as st
-
 from login import login, logout, has_permission
-
+from dashboard import render_dashboard
 
 # Set default login status
 if "logged_in" not in st.session_state:

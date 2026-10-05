@@ -1,0 +1,61 @@
+Worker ID,Department,Job role,Shift,PPE compliance,Safety training status,Fatigue level,Safety observations,Near misses,Previous incidents
+WRK-001,Logistics,Stores Controller,Day,86,Current,Low,1,4,0
+WRK-002,Health & Safety,Safety Representative,Day,78,Current,Low,0,4,1
+WRK-003,Logistics,Heavy Vehicle Driver,Day,92,Current,Moderate,0,1,3
+WRK-004,Engineering,Survey Technician,Day,84,Expired,Low,1,3,0
+WRK-005,Engineering,Survey Technician,Night,79,Current,Low,6,0,4
+WRK-006,Engineering,Survey Technician,Day,100,Current,Moderate,4,0,1
+WRK-007,Mining Operations,Blasting Assistant,Night,92,Current,Low,5,2,1
+WRK-008,Logistics,Fuel Attendant,Day,97,Current,Low,3,1,3
+WRK-009,Maintenance,Fitter,Day,99,Current,Moderate,0,1,0
+WRK-010,Engineering,Production Engineer,Night,80,Current,High,5,1,3
+WRK-011,Maintenance,Boilermaker,Day,86,Current,Moderate,4,4,3
+WRK-012,Health & Safety,Safety Representative,Night,85,Expired,Low,7,0,0
+WRK-013,Mining Operations,Loader Operator,Day,99,Current,Low,6,4,3
+WRK-014,Health & Safety,Safety Representative,Day,99,Current,Moderate,4,2,0
+WRK-015,Engineering,Production Engineer,Day,92,Current,Moderate,4,4,1
+WRK-016,Health & Safety,Safety Officer,Night,98,Current,Low,5,1,4
+WRK-017,Health & Safety,Safety Officer,Night,93,Current,High,4,1,0
+WRK-018,Processing Plant,Crusher Operator,Day,93,Due Soon,High,2,1,3
+WRK-019,Health & Safety,Safety Officer,Night,94,Due Soon,Low,3,4,1
+WRK-020,Logistics,Fuel Attendant,Night,99,Current,Low,7,0,1
+WRK-021,Processing Plant,Crusher Operator,Night,78,Current,Low,3,0,0
+WRK-022,Logistics,Stores Controller,Day,80,Due Soon,Moderate,1,4,1
+WRK-023,Engineering,Production Engineer,Day,95,Current,High,7,1,3
+WRK-024,Maintenance,Electrician,Day,81,Current,Low,6,3,0
+WRK-025,Logistics,Stores Controller,Day,90,Current,Moderate,1,1,1
+WRK-026,Processing Plant,Control Room Operator,Day,91,Current,Low,1,3,4
+WRK-027,Mining Operations,Truck Operator,Day,80,Due Soon,Moderate,2,3,3
+WRK-028,Maintenance,Electrician,Night,79,Current,Low,6,2,3
+WRK-029,Engineering,Production Engineer,Night,82,Current,Low,0,4,4
+WRK-030,Mining Operations,Drill Operator,Day,79,Current,Low,2,0,4
+WRK-031,Mining Operations,Loader Operator,Day,97,Current,Moderate,6,0,4
+WRK-032,Processing Plant,Crusher Operator,Day,91,Current,Moderate,5,2,1
+WRK-033,Logistics,Fuel Attendant,Day,86,Current,Moderate,4,3,2
+WRK-034,Mining Operations,Truck Operator,Night,97,Expired,High,1,4,1
+WRK-035,Health & Safety,Safety Representative,Day,89,Due Soon,High,5,2,1
+WRK-036,Maintenance,Maintenance Planner,Night,97,Expired,Moderate,0,4,2
+WRK-037,Logistics,Stores Controller,Day,86,Current,Low,2,2,2
+WRK-038,Health & Safety,Safety Officer,Night,84,Current,Moderate,7,2,0
+WRK-039,Mining Operations,Blasting Assistant,Night,79,Current,Moderate,4,1,3
+WRK-040,Health & Safety,Occupational Hygiene Technician,Night,95,Current,Low,2,4,0
+WRK-041,Engineering,Geotechnical Technician,Night,82,Current,Low,0,2,1
+WRK-042,Logistics,Logistics Coordinator,Day,89,Due Soon,High,6,4,1
+WRK-043,Processing Plant,Conveyor Operator,Day,91,Current,Moderate,5,3,1
+WRK-044,Engineering,Geotechnical Technician,Day,90,Due Soon,Moderate,3,1,3
+WRK-045,Engineering,Survey Technician,Day,85,Current,Low,5,2,0
+WRK-046,Engineering,Survey Technician,Night,99,Expired,Low,0,0,2
+WRK-047,Processing Plant,Plant Operator,Day,81,Current,Low,5,3,4
+WRK-048,Health & Safety,Safety Officer,Night,96,Current,Low,6,0,4
+WRK-049,Health & Safety,Occupational Hygiene Technician,Day,89,Current,High,5,4,2
+WRK-050,Logistics,Stores Controller,Night,94,Current,Low,6,2,4
+WRK-051,Processing Plant,Conveyor Operator,Night,99,Expired,Moderate,2,4,4
+WRK-052,Engineering,Production Engineer,Day,87,Current,Low,5,3,3
+WRK-053,Maintenance,Electrician,Night,83,Current,Low,5,0,1
+WRK-054,Logistics,Fuel Attendant,Day,84,Current,Low,7,4,0
+WRK-055,Maintenance,Boilermaker,Day,100,Current,Low,3,1,0
+WRK-056,Mining Operations,Blasting Assistant,Day,83,Due Soon,Moderate,7,0,4
+WRK-057,Processing Plant,Crusher Operator,Night,82,Due Soon,Moderate,5,3,4
+WRK-058,Logistics,Heavy Vehicle Driver,Night,83,Current,Low,4,1,2
+WRK-059,Health & Safety,Safety Representative,Day,86,Current,Moderate,3,2,2
+WRK-060,Engineering,Mining Engineer,Day,82,Current,Moderate,3,0,3

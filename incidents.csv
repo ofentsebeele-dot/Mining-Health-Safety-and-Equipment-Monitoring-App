@@ -1,0 +1,81 @@
+Incident ID,Date,Time,Shift,Location,Department,Incident type,Severity,Injury status,Lost-time injury status,Cause,Corrective action,Incident status
+INC-0001,2026-07-28,16:50,Day,Drilling Area,Maintenance,Electrical Incident,Minor,No Injury,No,Unsafe work practice,Increase inspection frequency,Corrective Action Pending
+INC-0002,2026-06-30,15:45,Day,Fuel Bay,Logistics,Near Miss,Serious,Medical Treatment,No,Failure to follow procedure,Improve housekeeping and inspect work area,Corrective Action Pending
+INC-0003,2026-05-20,19:50,Night,Drilling Area,Logistics,Equipment Failure,Minor,First Aid,No,Inadequate maintenance,Replace damaged PPE,Closed
+INC-0004,2026-10-01,06:45,Day,North Open Pit,Mining Operations,Dust Exposure,Moderate,Medical Treatment,No,Fatigue,Replace damaged PPE,Closed
+INC-0005,2026-04-04,07:30,Day,Haul Road,Engineering,Fire,Minor,No Injury,No,Fatigue,Provide refresher training,Closed
+INC-0006,2026-08-04,14:10,Day,Conveyor Transfer Station,Processing Plant,Dust Exposure,Minor,No Injury,No,Poor housekeeping,Conduct toolbox talk and reinforce procedure,Closed
+INC-0007,2026-05-07,12:00,Day,Main Workshop,Maintenance,Dust Exposure,Moderate,No Injury,No,Poor housekeeping,Improve housekeeping and inspect work area,Corrective Action Pending
+INC-0008,2026-05-12,17:15,Day,South Open Pit,Processing Plant,Chemical Exposure,Moderate,Medical Treatment,No,Poor housekeeping,Conduct toolbox talk and reinforce procedure,Closed
+INC-0009,2026-07-12,18:20,Night,South Open Pit,Logistics,Chemical Exposure,Minor,No Injury,No,Failure to follow procedure,Repair equipment before returning to service,Closed
+INC-0010,2026-01-22,17:45,Day,Fuel Bay,Logistics,Fire,Moderate,No Injury,No,Unsafe work practice,Increase inspection frequency,Closed
+INC-0011,2026-02-24,19:40,Night,Main Workshop,Maintenance,Equipment Failure,Moderate,First Aid,No,Unexpected ground condition,Provide refresher training,Closed
+INC-0012,2026-10-03,21:50,Night,Conveyor Transfer Station,Processing Plant,Vehicle Collision,Minor,First Aid,No,Operator error,Install additional warning signage,Under Investigation
+INC-0013,2026-08-26,00:45,Night,Conveyor Transfer Station,Processing Plant,PPE Non-Compliance,Minor,First Aid,No,Inadequate PPE,Review risk assessment and safe work procedure,Closed
+INC-0014,2026-06-24,14:30,Day,Processing Plant,Mining Operations,Falling Object,Moderate,Medical Treatment,No,Fatigue,Install additional warning signage,Corrective Action Pending
+INC-0015,2026-05-04,04:50,Night,Haul Road,Mining Operations,Vehicle Collision,Moderate,First Aid,No,Operator error,Improve housekeeping and inspect work area,Corrective Action Pending
+INC-0016,2026-05-05,15:40,Day,Drilling Area,Logistics,Near Miss,Minor,First Aid,No,Poor visibility,Review risk assessment and safe work procedure,Closed
+INC-0017,2026-05-19,15:30,Day,Conveyor Transfer Station,Mining Operations,Near Miss,Minor,No Injury,No,Equipment malfunction,Improve housekeeping and inspect work area,Under Investigation
+INC-0018,2026-09-05,14:30,Day,Crusher Area,Processing Plant,Fire,Critical,Medical Treatment,No,Equipment malfunction,Provide refresher training,Open
+INC-0019,2026-10-01,10:30,Day,Fuel Bay,Engineering,Equipment Failure,Minor,No Injury,No,Inadequate maintenance,Repair equipment before returning to service,Closed
+INC-0020,2026-05-26,21:50,Night,North Open Pit,Engineering,PPE Non-Compliance,Minor,No Injury,No,Poor housekeeping,Repair equipment before returning to service,Corrective Action Pending
+INC-0021,2026-02-07,00:00,Night,South Open Pit,Processing Plant,Vehicle Collision,Minor,First Aid,No,Unexpected ground condition,Increase inspection frequency,Closed
+INC-0022,2026-04-26,22:45,Night,Crusher Area,Health & Safety,Manual Handling,Minor,First Aid,No,Operator error,Conduct toolbox talk and reinforce procedure,Closed
+INC-0023,2026-02-20,12:20,Day,Main Workshop,Processing Plant,Equipment Failure,Minor,No Injury,No,Unexpected ground condition,Repair equipment before returning to service,Under Investigation
+INC-0024,2026-07-29,20:50,Night,Crusher Area,Logistics,Chemical Exposure,Minor,No Injury,No,Inadequate maintenance,Repair equipment before returning to service,Closed
+INC-0025,2026-05-16,02:20,Night,Main Workshop,Engineering,Equipment Failure,Minor,No Injury,No,Poor housekeeping,Conduct toolbox talk and reinforce procedure,Under Investigation
+INC-0026,2026-06-07,01:30,Night,Crusher Area,Logistics,Manual Handling,Minor,First Aid,No,Operator error,Install additional warning signage,Corrective Action Pending
+INC-0027,2026-01-21,19:40,Night,South Open Pit,Processing Plant,Dust Exposure,Moderate,No Injury,No,Failure to follow procedure,Conduct toolbox talk and reinforce procedure,Closed
+INC-0028,2026-05-18,00:00,Night,Haul Road,Health & Safety,Dust Exposure,Moderate,No Injury,No,Inadequate maintenance,Provide refresher training,Under Investigation
+INC-0029,2026-08-12,02:50,Night,Conveyor Transfer Station,Maintenance,Fire,Critical,Lost Time Injury,Yes,Poor visibility,Repair equipment before returning to service,Closed
+INC-0030,2026-06-18,19:50,Night,Fuel Bay,Mining Operations,PPE Non-Compliance,Minor,First Aid,No,Poor housekeeping,Review risk assessment and safe work procedure,Under Investigation
+INC-0031,2026-03-01,18:00,Night,Haul Road,Maintenance,Slip/Trip/Fall,Moderate,Medical Treatment,No,Inadequate PPE,Review risk assessment and safe work procedure,Closed
+INC-0032,2026-09-13,02:50,Night,Crusher Area,Health & Safety,Equipment Failure,Moderate,No Injury,No,Operator error,Install additional warning signage,Closed
+INC-0033,2026-09-06,09:00,Day,Main Workshop,Engineering,Near Miss,Critical,Medical Treatment,No,Unsafe work practice,Increase inspection frequency,Open
+INC-0034,2026-02-28,20:10,Night,Haul Road,Logistics,Chemical Exposure,Moderate,No Injury,No,Unexpected ground condition,Provide refresher training,Corrective Action Pending
+INC-0035,2026-09-05,21:20,Night,Drilling Area,Processing Plant,Electrical Incident,Minor,No Injury,No,Unexpected ground condition,Replace damaged PPE,Closed
+INC-0036,2026-05-22,19:40,Night,Crusher Area,Mining Operations,Chemical Exposure,Serious,Lost Time Injury,Yes,Operator error,Install additional warning signage,Closed
+INC-0037,2026-08-17,23:50,Night,Haul Road,Engineering,Falling Object,Minor,First Aid,No,Inadequate PPE,Increase inspection frequency,Under Investigation
+INC-0038,2026-07-30,07:40,Day,Drilling Area,Maintenance,Dust Exposure,Moderate,Medical Treatment,No,Equipment malfunction,Install additional warning signage,Closed
+INC-0039,2026-03-06,22:40,Night,South Open Pit,Health & Safety,PPE Non-Compliance,Serious,Medical Treatment,No,Unsafe work practice,Replace damaged PPE,Corrective Action Pending
+INC-0040,2026-03-21,08:50,Day,Conveyor Transfer Station,Health & Safety,Manual Handling,Moderate,First Aid,No,Poor housekeeping,Review risk assessment and safe work procedure,Closed
+INC-0041,2026-10-01,18:40,Night,Fuel Bay,Mining Operations,Electrical Incident,Moderate,First Aid,No,Poor housekeeping,Improve housekeeping and inspect work area,Closed
+INC-0042,2026-05-28,13:10,Day,South Open Pit,Maintenance,Equipment Failure,Minor,No Injury,No,Operator error,Conduct toolbox talk and reinforce procedure,Open
+INC-0043,2026-01-29,15:40,Day,Processing Plant,Health & Safety,Manual Handling,Minor,No Injury,No,Failure to follow procedure,Replace damaged PPE,Under Investigation
+INC-0044,2026-02-10,01:45,Night,Haul Road,Health & Safety,Equipment Failure,Moderate,No Injury,No,Inadequate PPE,Install additional warning signage,Closed
+INC-0045,2026-08-24,14:00,Day,Crusher Area,Logistics,Near Miss,Serious,Medical Treatment,No,Equipment malfunction,Repair equipment before returning to service,Corrective Action Pending
+INC-0046,2026-06-26,00:30,Night,Crusher Area,Maintenance,Chemical Exposure,Moderate,First Aid,No,Inadequate PPE,Increase inspection frequency,Closed
+INC-0047,2026-02-24,13:45,Day,Crusher Area,Logistics,Chemical Exposure,Moderate,Medical Treatment,No,Unsafe work practice,Increase inspection frequency,Under Investigation
+INC-0048,2026-01-26,01:50,Night,Processing Plant,Health & Safety,Fire,Serious,Medical Treatment,No,Inadequate PPE,Improve housekeeping and inspect work area,Closed
+INC-0049,2026-03-12,02:10,Night,North Open Pit,Engineering,PPE Non-Compliance,Serious,Lost Time Injury,Yes,Unsafe work practice,Review risk assessment and safe work procedure,Closed
+INC-0050,2026-02-16,15:40,Day,Processing Plant,Processing Plant,Near Miss,Moderate,No Injury,No,Poor visibility,Provide refresher training,Closed
+INC-0051,2026-05-12,21:30,Night,South Open Pit,Maintenance,Vehicle Collision,Moderate,First Aid,No,Equipment malfunction,Improve housekeeping and inspect work area,Closed
+INC-0052,2026-07-23,23:40,Night,North Open Pit,Engineering,Near Miss,Minor,First Aid,No,Poor housekeeping,Install additional warning signage,Corrective Action Pending
+INC-0053,2026-05-15,00:45,Night,South Open Pit,Logistics,Falling Object,Serious,Medical Treatment,No,Inadequate maintenance,Conduct toolbox talk and reinforce procedure,Closed
+INC-0054,2026-06-17,01:20,Night,Haul Road,Logistics,Chemical Exposure,Moderate,Medical Treatment,No,Fatigue,Repair equipment before returning to service,Open
+INC-0055,2026-01-20,15:50,Day,Fuel Bay,Processing Plant,Manual Handling,Minor,No Injury,No,Inadequate maintenance,Review risk assessment and safe work procedure,Closed
+INC-0056,2026-10-04,19:15,Night,South Open Pit,Maintenance,Electrical Incident,Serious,Lost Time Injury,Yes,Fatigue,Provide refresher training,Open
+INC-0057,2026-07-09,12:50,Day,Conveyor Transfer Station,Mining Operations,Dust Exposure,Minor,No Injury,No,Poor visibility,Review risk assessment and safe work procedure,Open
+INC-0058,2026-05-22,12:10,Day,South Open Pit,Logistics,Falling Object,Serious,Medical Treatment,No,Failure to follow procedure,Conduct toolbox talk and reinforce procedure,Open
+INC-0059,2026-06-20,13:15,Day,South Open Pit,Health & Safety,Falling Object,Moderate,No Injury,No,Failure to follow procedure,Improve housekeeping and inspect work area,Closed
+INC-0060,2026-04-30,16:15,Day,North Open Pit,Engineering,Equipment Failure,Moderate,Medical Treatment,No,Equipment malfunction,Provide refresher training,Closed
+INC-0061,2026-02-26,03:00,Night,Processing Plant,Health & Safety,Fire,Minor,First Aid,No,Unsafe work practice,Replace damaged PPE,Under Investigation
+INC-0062,2026-03-06,05:45,Night,South Open Pit,Maintenance,PPE Non-Compliance,Moderate,Medical Treatment,No,Poor visibility,Repair equipment before returning to service,Corrective Action Pending
+INC-0063,2026-04-24,01:00,Night,Fuel Bay,Engineering,PPE Non-Compliance,Moderate,Medical Treatment,No,Unsafe work practice,Conduct toolbox talk and reinforce procedure,Closed
+INC-0064,2026-07-25,19:10,Night,South Open Pit,Mining Operations,Fire,Minor,First Aid,No,Failure to follow procedure,Replace damaged PPE,Open
+INC-0065,2026-05-21,01:40,Night,Haul Road,Health & Safety,Electrical Incident,Minor,First Aid,No,Fatigue,Repair equipment before returning to service,Closed
+INC-0066,2026-02-28,02:20,Night,Drilling Area,Engineering,PPE Non-Compliance,Minor,No Injury,No,Fatigue,Increase inspection frequency,Closed
+INC-0067,2026-06-10,19:40,Night,Main Workshop,Logistics,PPE Non-Compliance,Moderate,First Aid,No,Poor housekeeping,Repair equipment before returning to service,Closed
+INC-0068,2026-02-17,19:10,Night,Main Workshop,Health & Safety,Slip/Trip/Fall,Moderate,First Aid,No,Failure to follow procedure,Review risk assessment and safe work procedure,Closed
+INC-0069,2026-07-30,17:45,Day,North Open Pit,Engineering,Electrical Incident,Serious,Lost Time Injury,Yes,Operator error,Review risk assessment and safe work procedure,Open
+INC-0070,2026-09-17,12:15,Day,South Open Pit,Engineering,Near Miss,Moderate,No Injury,No,Poor visibility,Repair equipment before returning to service,Closed
+INC-0071,2026-04-26,19:00,Night,Crusher Area,Mining Operations,Equipment Failure,Moderate,Medical Treatment,No,Operator error,Provide refresher training,Closed
+INC-0072,2026-06-29,06:15,Day,Drilling Area,Mining Operations,Equipment Failure,Serious,Lost Time Injury,Yes,Unsafe work practice,Repair equipment before returning to service,Closed
+INC-0073,2026-04-21,18:45,Night,Conveyor Transfer Station,Engineering,Fire,Minor,No Injury,No,Failure to follow procedure,Repair equipment before returning to service,Closed
+INC-0074,2026-03-21,11:00,Day,Haul Road,Logistics,Manual Handling,Moderate,First Aid,No,Inadequate maintenance,Install additional warning signage,Corrective Action Pending
+INC-0075,2026-04-21,22:10,Night,Crusher Area,Logistics,Dust Exposure,Minor,No Injury,No,Failure to follow procedure,Install additional warning signage,Corrective Action Pending
+INC-0076,2026-06-07,07:20,Day,North Open Pit,Processing Plant,Chemical Exposure,Minor,No Injury,No,Inadequate PPE,Replace damaged PPE,Closed
+INC-0077,2026-05-29,16:10,Day,Main Workshop,Processing Plant,Manual Handling,Minor,First Aid,No,Unexpected ground condition,Improve housekeeping and inspect work area,Corrective Action Pending
+INC-0078,2026-07-01,08:45,Day,Drilling Area,Mining Operations,PPE Non-Compliance,Serious,First Aid,No,Poor housekeeping,Review risk assessment and safe work procedure,Corrective Action Pending
+INC-0079,2026-07-27,04:45,Night,North Open Pit,Engineering,Equipment Failure,Minor,First Aid,No,Failure to follow procedure,Install additional warning signage,Closed
+INC-0080,2026-07-05,08:45,Day,Drilling Area,Health & Safety,Manual Handling,Serious,First Aid,No,Unexpected ground condition,Repair equipment before returning to service,Corrective Action Pending

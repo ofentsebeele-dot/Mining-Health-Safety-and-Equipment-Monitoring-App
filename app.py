@@ -77,7 +77,7 @@ else:
 
     if has_permission("incidents"):
 
-        st.write("✅ Safety Incidents")
+       render_incidents_page()
 
 
     # --------------------------------------------------

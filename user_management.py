@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 
 from login import users, permissions
@@ -132,4 +131,3 @@ def render_user_management_page():
             f"{selected_user} does not have permission to access "
             f"{check_permission.replace('_', ' ').title()}."
         )
-```

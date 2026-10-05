@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def load_incident_data():
-    return pd.read_csv("data/incidents.csv")
+    return pd.read_csv("incidents.csv")
 
 
 def render_incidents_page():

@@ -41,7 +41,7 @@ permissions = {
         "equipment",
         "maintenance",
         "risk_assessment",
-        "reports",
+        "reports", "questions",
         "manage_users"
     ],
 
@@ -49,7 +49,7 @@ permissions = {
         "dashboard",
         "worker_health",
         "incidents",
-        "risk_assessment",
+        "risk_assessment", "questions",
         "reports"
     ],
 
@@ -59,12 +59,12 @@ permissions = {
         "incidents",
         "equipment",
         "maintenance",
-        "risk_assessment",
+        "risk_assessment", "questions",
         "reports"
     ],
 
     "Worker": [
-        "dashboard",
+        "dashboard", "questions",
         "worker_health"
     ]
 }

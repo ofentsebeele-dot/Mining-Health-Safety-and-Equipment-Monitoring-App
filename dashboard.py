@@ -3,15 +3,15 @@ import pandas as pd
 
 
 def load_worker_data():
-    return pd.read_csv("data/workers.csv")
+    return pd.read_csv("workers.csv")
 
 
 def load_incident_data():
-    return pd.read_csv("data/incidents.csv")
+    return pd.read_csv("incidents.csv")
 
 
 def load_equipment_data():
-    return pd.read_csv("data/equipment.csv")
+    return pd.read_csv("equipment.csv")
 
 
 def calculate_equipment_availability(equipment_data):

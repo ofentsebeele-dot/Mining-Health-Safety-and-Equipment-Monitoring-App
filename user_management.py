@@ -1,4 +1,7 @@
+```python
 import streamlit as st
+
+from login import users, permissions
 
 
 def render_user_management_page():
@@ -6,33 +9,14 @@ def render_user_management_page():
     st.title("User Management")
 
     st.write(
-        "Manage system users and their assigned roles."
+        "Manage system users, roles and access permissions."
     )
 
     st.divider()
 
     # --------------------------------------------------
-    # EXISTING USERS
+    # CURRENT USERS
     # --------------------------------------------------
-
-    users = {
-        "admin": {
-            "password": "admin123",
-            "role": "Administrator"
-        },
-        "safety": {
-            "password": "safety123",
-            "role": "Safety Officer"
-        },
-        "manager": {
-            "password": "manager123",
-            "role": "Mining Manager"
-        },
-        "worker": {
-            "password": "worker123",
-            "role": "Worker"
-        }
-    }
 
     st.subheader("System Users")
 
@@ -56,76 +40,96 @@ def render_user_management_page():
     st.divider()
 
     # --------------------------------------------------
-    # ADD USER
+    # ROLE PERMISSIONS
     # --------------------------------------------------
 
-    st.subheader("Add User")
+    st.subheader("Role Permissions")
 
-    new_username = st.text_input(
-        "Username",
-        key="new_username"
+    selected_role = st.selectbox(
+        "Select a role",
+        list(permissions.keys()),
+        key="management_role"
     )
 
-    new_password = st.text_input(
-        "Password",
-        type="password",
-        key="new_password"
-    )
-
-    role_options = [
-        "Administrator",
-        "Safety Officer",
-        "Mining Manager",
-        "Worker"
+    role_permissions = permissions[
+        selected_role
     ]
 
-    new_role = st.selectbox(
-        "Role",
-        role_options,
-        key="new_role"
+    st.write(
+        f"Permissions for **{selected_role}**:"
     )
 
-    if st.button("Add User"):
+    for permission in role_permissions:
 
-        if new_username.strip() == "":
-            st.error(
-                "Please enter a username."
-            )
+        st.write(
+            f"✅ {permission.replace('_', ' ').title()}"
+        )
 
-        elif new_password.strip() == "":
-            st.error(
-                "Please enter a password."
-            )
+    st.divider()
 
-        elif new_username in users:
-            st.error(
-                "That username already exists."
-            )
+    # --------------------------------------------------
+    # USER DETAILS
+    # --------------------------------------------------
 
-        else:
+    st.subheader("User Details")
 
-            st.success(
-                f"User '{new_username}' can be added "
-                f"with the role '{new_role}'."
-            )
-
-            st.info(
-                "User persistence will be connected "
-                "to the login system in the next step."
-            )
-user_rows = []
-
-for username, details in users.items():
-
-    user_rows.append(
-        {
-            "Username": username,
-            "Role": details["role"]
-        }
+    selected_user = st.selectbox(
+        "Select a user",
+        list(users.keys()),
+        key="management_user"
     )
 
-st.dataframe(
-    user_rows,
-    use_container_width=True,
-    hide_index=True
-)
+    selected_user_details = users[
+        selected_user
+    ]
+
+    st.write(
+        f"**Username:** {selected_user}"
+    )
+
+    st.write(
+        f"**Role:** {selected_user_details['role']}"
+    )
+
+    st.divider()
+
+    # --------------------------------------------------
+    # ACCESS CHECK
+    # --------------------------------------------------
+
+    st.subheader("Access Check")
+
+    check_permission = st.selectbox(
+        "Select a system function",
+        [
+            "dashboard",
+            "worker_health",
+            "incidents",
+            "equipment",
+            "maintenance",
+            "risk_assessment",
+            "reports",
+            "manage_users"
+        ],
+        key="permission_check"
+    )
+
+    user_role = selected_user_details["role"]
+
+    if check_permission in permissions.get(
+        user_role,
+        []
+    ):
+
+        st.success(
+            f"{selected_user} has permission to access "
+            f"{check_permission.replace('_', ' ').title()}."
+        )
+
+    else:
+
+        st.warning(
+            f"{selected_user} does not have permission to access "
+            f"{check_permission.replace('_', ' ').title()}."
+        )
+```

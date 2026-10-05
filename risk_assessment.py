@@ -2,159 +2,314 @@ import streamlit as st
 import pandas as pd
 
 
-def load_worker_data():
+# ==================================================
+# LOAD DATA
+# ==================================================
 
-    return pd.read_csv(
-        "workers.csv"
-    )
+def load_worker_data():
+    return pd.read_csv("data/workers.csv")
 
 
 def load_incident_data():
-
-    return pd.read_csv(
-        "incidents.csv"
-    )
+    return pd.read_csv("data/incidents.csv")
 
 
 def load_equipment_data():
+    return pd.read_csv("data/equipment.csv")
 
-    return pd.read_csv(
-        "equipment.csv"
+
+# ==================================================
+# RISK CLASSIFICATION
+# ==================================================
+
+def classify_risk(risk_score):
+
+    if risk_score <= 4:
+        return "Low"
+
+    elif risk_score <= 9:
+        return "Medium"
+
+    elif risk_score <= 16:
+        return "High"
+
+    return "Critical"
+
+
+# ==================================================
+# WORKER RISK
+# ==================================================
+
+def calculate_worker_likelihood(row):
+
+    score = 1
+
+    ppe = pd.to_numeric(
+        row["PPE compliance"],
+        errors="coerce"
     )
 
+    fatigue = str(
+        row["Fatigue level"]
+    ).strip().lower()
 
-def calculate_worker_risk(row):
+    near_misses = pd.to_numeric(
+        row["Near misses"],
+        errors="coerce"
+    )
 
-    score = 0
+    previous_incidents = pd.to_numeric(
+        row["Previous incidents"],
+        errors="coerce"
+    )
 
-    # PPE compliance
-    if row["PPE compliance"] < 80:
-        score += 3
-    elif row["PPE compliance"] < 90:
+    if pd.notna(ppe):
+
+        if ppe < 80:
+            score += 2
+
+        elif ppe < 95:
+            score += 1
+
+    if fatigue == "high":
         score += 2
-    elif row["PPE compliance"] < 95:
+
+    elif fatigue == "medium":
         score += 1
 
-    # Safety training
-    if str(
-        row["Safety training status"]
-    ).lower() not in [
-        "completed",
-        "complete",
-        "up to date"
+    if pd.notna(near_misses):
+
+        if near_misses >= 3:
+            score += 2
+
+        elif near_misses >= 1:
+            score += 1
+
+    if pd.notna(previous_incidents):
+
+        if previous_incidents >= 3:
+            score += 2
+
+        elif previous_incidents >= 1:
+            score += 1
+
+    return min(score, 5)
+
+
+def calculate_worker_consequence(row):
+
+    score = 1
+
+    previous_incidents = pd.to_numeric(
+        row["Previous incidents"],
+        errors="coerce"
+    )
+
+    near_misses = pd.to_numeric(
+        row["Near misses"],
+        errors="coerce"
+    )
+
+    fatigue = str(
+        row["Fatigue level"]
+    ).strip().lower()
+
+    if pd.notna(previous_incidents):
+
+        if previous_incidents >= 3:
+            score += 2
+
+        elif previous_incidents >= 1:
+            score += 1
+
+    if fatigue == "high":
+        score += 1
+
+    if pd.notna(near_misses):
+
+        if near_misses >= 3:
+            score += 1
+
+    return min(score, 5)
+
+
+# ==================================================
+# INCIDENT RISK
+# ==================================================
+
+def calculate_incident_likelihood(row):
+
+    score = 1
+
+    status = str(
+        row["Incident status"]
+    ).strip().lower()
+
+    if status in [
+        "open",
+        "active",
+        "under investigation"
     ]:
         score += 2
 
-    # Fatigue
-    fatigue = str(
-        row["Fatigue level"]
-    ).lower()
-
-    if fatigue == "high":
-        score += 3
-    elif fatigue == "medium":
-        score += 2
-    elif fatigue == "low":
+    elif status == "pending":
         score += 1
 
-    # Near misses
-    near_misses = row["Near misses"]
-
-    if near_misses >= 3:
-        score += 3
-    elif near_misses >= 1:
-        score += 1
-
-    # Previous incidents
-    previous_incidents = row[
-        "Previous incidents"
-    ]
-
-    if previous_incidents >= 3:
-        score += 3
-    elif previous_incidents >= 1:
-        score += 1
-
-    return score
+    return min(score, 5)
 
 
-def get_risk_level(score):
-
-    if score >= 9:
-        return "High"
-
-    elif score >= 5:
-        return "Medium"
-
-    else:
-        return "Low"
-
-
-def calculate_incident_risk(row):
-
-    score = 0
+def calculate_incident_consequence(row):
 
     severity = str(
         row["Severity"]
-    ).lower()
-
-    if severity == "critical":
-        score += 5
-
-    elif severity == "serious":
-        score += 4
-
-    elif severity == "moderate":
-        score += 2
-
-    elif severity == "minor":
-        score += 1
+    ).strip().lower()
 
     injury = str(
         row["Injury status"]
-    ).lower()
-
-    if injury in ["yes", "injury"]:
-
-        score += 2
+    ).strip().lower()
 
     lost_time = str(
         row["Lost-time injury status"]
-    ).lower()
+    ).strip().lower()
 
-    if lost_time == "yes":
+    if severity == "critical":
+        score = 5
 
-        score += 3
+    elif severity == "high":
+        score = 4
 
-    return score
+    elif severity == "moderate":
+        score = 3
+
+    elif severity == "minor":
+        score = 2
+
+    else:
+        score = 1
+
+    if injury in [
+        "yes",
+        "injury",
+        "injured"
+    ]:
+        score += 1
+
+    if lost_time in [
+        "yes",
+        "true"
+    ]:
+        score += 1
+
+    return min(score, 5)
 
 
-def calculate_equipment_risk(row):
+# ==================================================
+# EQUIPMENT RISK
+# ==================================================
 
-    score = 0
+def calculate_equipment_likelihood(row):
 
-    # Temperature
-    temperature = row["Temperature"]
+    score = 1
 
-    if temperature >= 100:
-        score += 3
+    temperature = pd.to_numeric(
+        row["Temperature"],
+        errors="coerce"
+    )
 
-    elif temperature >= 80:
+    vibration = pd.to_numeric(
+        row["Vibration"],
+        errors="coerce"
+    )
+
+    downtime = pd.to_numeric(
+        row["Downtime"],
+        errors="coerce"
+    )
+
+    maintenance = str(
+        row["Maintenance status"]
+    ).strip().lower()
+
+    if pd.notna(temperature):
+
+        if temperature > 100:
+            score += 3
+
+        elif temperature >= 80:
+            score += 2
+
+    if pd.notna(vibration):
+
+        if vibration > 8:
+            score += 2
+
+        elif vibration >= 5:
+            score += 1
+
+    if maintenance in [
+        "overdue",
+        "critical"
+    ]:
         score += 2
 
-    # Vibration
-    vibration = row["Vibration"]
+    elif maintenance in [
+        "under maintenance",
+        "maintenance required"
+    ]:
+        score += 1
 
-    if vibration >= 8:
-        score += 3
+    if pd.notna(downtime):
 
-    elif vibration >= 5:
-        score += 2
+        if downtime >= 100:
+            score += 2
 
-    # Brake status
+        elif downtime >= 50:
+            score += 1
+
+    return min(score, 5)
+
+
+def calculate_equipment_consequence(row):
+
+    score = 1
+
+    temperature = pd.to_numeric(
+        row["Temperature"],
+        errors="coerce"
+    )
+
+    vibration = pd.to_numeric(
+        row["Vibration"],
+        errors="coerce"
+    )
+
     brake = str(
         row["Brake status"]
-    ).lower()
+    ).strip().lower()
+
+    tyre = str(
+        row["Tyre status"]
+    ).strip().lower()
+
+    engine = str(
+        row["Engine status"]
+    ).strip().lower()
+
+    if pd.notna(temperature):
+
+        if temperature > 100:
+            score += 2
+
+        elif temperature >= 80:
+            score += 1
+
+    if pd.notna(vibration):
+
+        if vibration > 8:
+            score += 2
+
+        elif vibration >= 5:
+            score += 1
 
     if brake not in [
         "good",
@@ -162,12 +317,7 @@ def calculate_equipment_risk(row):
         "ok",
         "operational"
     ]:
-        score += 2
-
-    # Tyre status
-    tyre = str(
-        row["Tyre status"]
-    ).lower()
+        score += 1
 
     if tyre not in [
         "good",
@@ -175,12 +325,7 @@ def calculate_equipment_risk(row):
         "ok",
         "operational"
     ]:
-        score += 2
-
-    # Engine status
-    engine = str(
-        row["Engine status"]
-    ).lower()
+        score += 1
 
     if engine not in [
         "good",
@@ -188,93 +333,178 @@ def calculate_equipment_risk(row):
         "ok",
         "operational"
     ]:
-        score += 2
+        score += 1
 
-    # Maintenance status
-    maintenance = str(
-        row["Maintenance status"]
-    ).lower()
-
-    if maintenance in [
-        "overdue",
-        "critical",
-        "under maintenance"
-    ]:
-        score += 2
-
-    return score
+    return min(score, 5)
 
 
-def render_risk_assessment_page():
+# ==================================================
+# CREATE RISK DATA
+# ==================================================
 
-    workers = load_worker_data()
+def create_worker_risk_data(workers):
 
-    incidents = load_incident_data()
+    workers = workers.copy()
 
-    equipment = load_equipment_data()
-
-    st.title("Risk Assessment")
-
-    st.write(
-        "Risk is calculated from worker, incident "
-        "and equipment information."
+    workers["Likelihood"] = workers.apply(
+        calculate_worker_likelihood,
+        axis=1
     )
 
-    st.divider()
-
-    # --------------------------------------------------
-    # WORKER RISK
-    # --------------------------------------------------
-
-    workers["Risk Score"] = workers.apply(
-        calculate_worker_risk,
+    workers["Consequence"] = workers.apply(
+        calculate_worker_consequence,
         axis=1
+    )
+
+    workers["Risk Score"] = (
+        workers["Likelihood"]
+        * workers["Consequence"]
     )
 
     workers["Risk Level"] = workers[
         "Risk Score"
     ].apply(
-        get_risk_level
+        classify_risk
     )
 
-    st.subheader("Worker Risk Assessment")
+    return workers
 
-    high_worker_risk = len(
-        workers[
-            workers["Risk Level"] == "High"
-        ]
+
+def create_incident_risk_data(incidents):
+
+    incidents = incidents.copy()
+
+    incidents["Likelihood"] = incidents.apply(
+        calculate_incident_likelihood,
+        axis=1
     )
 
-    medium_worker_risk = len(
-        workers[
-            workers["Risk Level"] == "Medium"
-        ]
+    incidents["Consequence"] = incidents.apply(
+        calculate_incident_consequence,
+        axis=1
     )
 
-    low_worker_risk = len(
-        workers[
-            workers["Risk Level"] == "Low"
-        ]
+    incidents["Risk Score"] = (
+        incidents["Likelihood"]
+        * incidents["Consequence"]
     )
 
-    col1, col2, col3 = st.columns(3)
+    incidents["Risk Level"] = incidents[
+        "Risk Score"
+    ].apply(
+        classify_risk
+    )
+
+    return incidents
+
+
+def create_equipment_risk_data(equipment):
+
+    equipment = equipment.copy()
+
+    equipment["Likelihood"] = equipment.apply(
+        calculate_equipment_likelihood,
+        axis=1
+    )
+
+    equipment["Consequence"] = equipment.apply(
+        calculate_equipment_consequence,
+        axis=1
+    )
+
+    equipment["Risk Score"] = (
+        equipment["Likelihood"]
+        * equipment["Consequence"]
+    )
+
+    equipment["Risk Level"] = equipment[
+        "Risk Score"
+    ].apply(
+        classify_risk
+    )
+
+    return equipment
+
+
+# ==================================================
+# RISK ASSESSMENT PAGE
+# ==================================================
+
+def render_risk_assessment_page():
+
+    workers = load_worker_data()
+    incidents = load_incident_data()
+    equipment = load_equipment_data()
+
+    workers = create_worker_risk_data(workers)
+    incidents = create_incident_risk_data(incidents)
+    equipment = create_equipment_risk_data(equipment)
+
+    st.title("Risk Assessment")
+
+    st.write(
+        "Risk Score = Likelihood × Consequence"
+    )
+
+    st.info(
+        "Low: 1–4 | Medium: 5–9 | "
+        "High: 10–16 | Critical: 17–25"
+    )
+
+    st.divider()
+
+    # ==================================================
+    # WORKER RISK
+    # ==================================================
+
+    st.header("Worker Safety Risk")
+
+    worker_counts = (
+        workers["Risk Level"]
+        .value_counts()
+        .reindex(
+            [
+                "Low",
+                "Medium",
+                "High",
+                "Critical"
+            ],
+            fill_value=0
+        )
+    )
+
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
         st.metric(
-            "High Risk Workers",
-            high_worker_risk
+            "Low",
+            worker_counts["Low"]
         )
 
     with col2:
         st.metric(
-            "Medium Risk Workers",
-            medium_worker_risk
+            "Medium",
+            worker_counts["Medium"]
         )
 
     with col3:
         st.metric(
-            "Low Risk Workers",
-            low_worker_risk
+            "High",
+            worker_counts["High"]
+        )
+
+    with col4:
+        st.metric(
+            "Critical",
+            worker_counts["Critical"]
+        )
+
+    if (
+        worker_counts["High"] > 0
+        or worker_counts["Critical"] > 0
+    ):
+        st.warning(
+            "High or critical worker risks require attention."
         )
 
     st.dataframe(
@@ -284,10 +514,8 @@ def render_risk_assessment_page():
                 "Department",
                 "Job role",
                 "Shift",
-                "PPE compliance",
-                "Fatigue level",
-                "Near misses",
-                "Previous incidents",
+                "Likelihood",
+                "Consequence",
                 "Risk Score",
                 "Risk Level"
             ]
@@ -298,42 +526,73 @@ def render_risk_assessment_page():
 
     st.divider()
 
-    # --------------------------------------------------
+    # ==================================================
     # INCIDENT RISK
-    # --------------------------------------------------
+    # ==================================================
 
-    incidents["Risk Score"] = incidents.apply(
-        calculate_incident_risk,
-        axis=1
-    )
+    st.header("Incident Risk")
 
-    incidents["Risk Level"] = incidents[
-        "Risk Score"
-    ].apply(
-        get_risk_level
-    )
-
-    st.subheader("Incident Risk Assessment")
-
-    incident_risk_counts = (
+    incident_counts = (
         incidents["Risk Level"]
         .value_counts()
+        .reindex(
+            [
+                "Low",
+                "Medium",
+                "High",
+                "Critical"
+            ],
+            fill_value=0
+        )
     )
 
-    st.bar_chart(
-        incident_risk_counts
-    )
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.metric(
+            "Low",
+            incident_counts["Low"]
+        )
+
+    with col2:
+        st.metric(
+            "Medium",
+            incident_counts["Medium"]
+        )
+
+    with col3:
+        st.metric(
+            "High",
+            incident_counts["High"]
+        )
+
+    with col4:
+        st.metric(
+            "Critical",
+            incident_counts["Critical"]
+        )
+
+    if (
+        incident_counts["High"] > 0
+        or incident_counts["Critical"] > 0
+    ):
+        st.warning(
+            "High or critical incident risks require attention."
+        )
 
     st.dataframe(
         incidents[
             [
                 "Incident ID",
                 "Date",
+                "Time",
+                "Shift",
+                "Location",
                 "Department",
                 "Incident type",
                 "Severity",
-                "Injury status",
-                "Lost-time injury status",
+                "Likelihood",
+                "Consequence",
                 "Risk Score",
                 "Risk Level"
             ]
@@ -344,31 +603,59 @@ def render_risk_assessment_page():
 
     st.divider()
 
-    # --------------------------------------------------
+    # ==================================================
     # EQUIPMENT RISK
-    # --------------------------------------------------
+    # ==================================================
 
-    equipment["Risk Score"] = equipment.apply(
-        calculate_equipment_risk,
-        axis=1
-    )
+    st.header("Equipment Risk")
 
-    equipment["Risk Level"] = equipment[
-        "Risk Score"
-    ].apply(
-        get_risk_level
-    )
-
-    st.subheader("Equipment Risk Assessment")
-
-    equipment_risk_counts = (
+    equipment_counts = (
         equipment["Risk Level"]
         .value_counts()
+        .reindex(
+            [
+                "Low",
+                "Medium",
+                "High",
+                "Critical"
+            ],
+            fill_value=0
+        )
     )
 
-    st.bar_chart(
-        equipment_risk_counts
-    )
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.metric(
+            "Low",
+            equipment_counts["Low"]
+        )
+
+    with col2:
+        st.metric(
+            "Medium",
+            equipment_counts["Medium"]
+        )
+
+    with col3:
+        st.metric(
+            "High",
+            equipment_counts["High"]
+        )
+
+    with col4:
+        st.metric(
+            "Critical",
+            equipment_counts["Critical"]
+        )
+
+    if (
+        equipment_counts["High"] > 0
+        or equipment_counts["Critical"] > 0
+    ):
+        st.warning(
+            "High or critical equipment risks require attention."
+        )
 
     st.dataframe(
         equipment[
@@ -382,6 +669,8 @@ def render_risk_assessment_page():
                 "Tyre status",
                 "Engine status",
                 "Maintenance status",
+                "Likelihood",
+                "Consequence",
                 "Risk Score",
                 "Risk Level"
             ]
@@ -389,3 +678,56 @@ def render_risk_assessment_page():
         use_container_width=True,
         hide_index=True
     )
+
+    st.divider()
+
+    # ==================================================
+    # OVERALL RISK
+    # ==================================================
+
+    st.header("Overall Risk Summary")
+
+    all_risks = pd.concat(
+        [
+            workers[["Risk Level"]],
+            incidents[["Risk Level"]],
+            equipment[["Risk Level"]]
+        ],
+        ignore_index=True
+    )
+
+    overall_counts = (
+        all_risks["Risk Level"]
+        .value_counts()
+        .reindex(
+            [
+                "Low",
+                "Medium",
+                "High",
+                "Critical"
+            ],
+            fill_value=0
+        )
+    )
+
+    st.bar_chart(
+        overall_counts
+    )
+
+    if (
+        overall_counts["Critical"] > 0
+    ):
+        st.error(
+            "Critical risks are currently present."
+        )
+
+    elif (
+        overall_counts["High"] > 0
+    ):
+        st.warning(
+            "High risks are currently present."
+        )
+    else:
+        st.success(
+            "No high or critical risks are currently present."
+        )

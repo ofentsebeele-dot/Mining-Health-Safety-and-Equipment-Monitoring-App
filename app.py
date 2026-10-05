@@ -9,10 +9,7 @@ from maintenance import render_maintenance_page
 from risk_assessment import render_risk_assessment_page
 from reports import render_reports_page
 
-
-# --------------------------------------------------
-# SESSION STATE
-# --------------------------------------------------
+# Session State
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -23,10 +20,7 @@ if "username" not in st.session_state:
 if "role" not in st.session_state:
     st.session_state["role"] = ""
 
-
-# --------------------------------------------------
-# LOGIN
-# --------------------------------------------------
+# Login
 
 if not st.session_state["logged_in"]:
 
@@ -34,25 +28,15 @@ if not st.session_state["logged_in"]:
 
     st.stop()
 
-
-# --------------------------------------------------
-# APPLICATION HEADER
-# --------------------------------------------------
+# Application header
 
 st.title("Khwezi Mining Monitoring System")
 
-st.success(
-    f"Welcome, {st.session_state['username']}!"
-)
+st.success(f"Welcome, {st.session_state['username']}!")
 
-st.write(
-    f"Role: **{st.session_state['role']}**"
-)
+st.write(f"Role: **{st.session_state['role']}**")
 
-
-# --------------------------------------------------
-# SIDEBAR NAVIGATION
-# --------------------------------------------------
+# Sidebar Navigation
 
 st.sidebar.title("Navigation")
 
@@ -84,15 +68,9 @@ if has_permission("manage_users"):
     pages.append("Manage Users")
 
 
-selected_page = st.sidebar.radio(
-    "Select a page",
-    pages
-)
+selected_page = st.sidebar.radio("Select a page", pages)
 
-
-# --------------------------------------------------
-# PAGE DISPLAY
-# --------------------------------------------------
+# Page Display
 
 if selected_page == "Dashboard":
 
@@ -131,16 +109,11 @@ elif selected_page == "Reports":
 
 elif selected_page == "Manage Users":
 
-    st.title("User Management")
+    st.title("For questions")
 
-    st.info(
-        "User management module will be added next."
-    )
+    st.info("........")
 
-
-# --------------------------------------------------
-# LOGOUT
-# --------------------------------------------------
+# Logout
 
 st.sidebar.divider()
 

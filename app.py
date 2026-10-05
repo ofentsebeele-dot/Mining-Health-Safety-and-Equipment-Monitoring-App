@@ -2,6 +2,7 @@ import streamlit as st
 from login import login, logout, has_permission
 from dashboard import render_dashboard
 
+
 # Set default login status
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -13,13 +14,19 @@ if "role" not in st.session_state:
     st.session_state["role"] = ""
 
 
-# Login page
+# --------------------------------------------------
+# LOGIN PAGE
+# --------------------------------------------------
+
 if not st.session_state["logged_in"]:
 
     login()
 
 
-# Main application
+# --------------------------------------------------
+# MAIN APPLICATION
+# --------------------------------------------------
+
 else:
 
     st.title("Khwezi Mining Monitoring System")
@@ -36,49 +43,92 @@ else:
 
     st.header("Navigation")
 
-    # Dashboard
+
+    # --------------------------------------------------
+    # DASHBOARD
+    # --------------------------------------------------
+
     if has_permission("dashboard"):
+
         st.write("✅ Dashboard")
 
-    # Worker Health
+        render_dashboard()
+
+    else:
+
+        st.error(
+            "You do not have permission to access the dashboard."
+        )
+
+
+    # --------------------------------------------------
+    # WORKER HEALTH
+    # --------------------------------------------------
+
     if has_permission("worker_health"):
+
         st.write("✅ Worker Health & Safety")
 
-    # Incidents
+
+    # --------------------------------------------------
+    # INCIDENTS
+    # --------------------------------------------------
+
     if has_permission("incidents"):
+
         st.write("✅ Safety Incidents")
 
-    # Equipment
+
+    # --------------------------------------------------
+    # EQUIPMENT
+    # --------------------------------------------------
+
     if has_permission("equipment"):
+
         st.write("✅ Equipment")
 
-    # Maintenance
+
+    # --------------------------------------------------
+    # MAINTENANCE
+    # --------------------------------------------------
+
     if has_permission("maintenance"):
+
         st.write("✅ Maintenance")
 
-    # Risk Assessment
+
+    # --------------------------------------------------
+    # RISK ASSESSMENT
+    # --------------------------------------------------
+
     if has_permission("risk_assessment"):
+
         st.write("✅ Risk Assessment")
 
-    # Reports
+
+    # --------------------------------------------------
+    # REPORTS
+    # --------------------------------------------------
+
     if has_permission("reports"):
+
         st.write("✅ Reports")
 
-    # User Management
+
+    # --------------------------------------------------
+    # USER MANAGEMENT
+    # --------------------------------------------------
+
     if has_permission("manage_users"):
+
         st.write("✅ Manage Users")
+
 
     st.divider()
 
+
+    # --------------------------------------------------
+    # LOGOUT
+    # --------------------------------------------------
+
     logout()
-
-#Dashboard
-if has_permission("dashboard"):
-
-    render_dashboard()
-
-else:
-
-    st.error(
-        "You do not have permission to access the dashboard."
-    )

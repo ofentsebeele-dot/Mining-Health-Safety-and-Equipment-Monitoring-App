@@ -1,13 +1,9 @@
-```python
 import streamlit as st
 import pandas as pd
 
 
 def load_incident_data():
-
-    return pd.read_csv(
-        "data/incidents.csv"
-    )
+    return pd.read_csv("incidents.csv")
 
 
 def render_incidents_page():
@@ -22,31 +18,27 @@ def render_incidents_page():
 
     st.divider()
 
-    # --------------------------------------------------
+    # ---------------------------------------------
     # SUMMARY
-    # --------------------------------------------------
+    # ---------------------------------------------
 
     total_incidents = len(incidents)
 
     serious_incidents = len(
         incidents[
-            incidents["Severity"].astype(str)
-            == "Serious"
+            incidents["Severity"] == "Serious"
         ]
     )
 
     critical_incidents = len(
         incidents[
-            incidents["Severity"].astype(str)
-            == "Critical"
+            incidents["Severity"] == "Critical"
         ]
     )
 
     lost_time_injuries = len(
         incidents[
-            incidents[
-                "Lost-time injury status"
-            ].astype(str) == "Yes"
+            incidents["Lost-time injury status"] == "Yes"
         ]
     )
 
@@ -78,86 +70,59 @@ def render_incidents_page():
 
     st.divider()
 
-    # --------------------------------------------------
+    # ---------------------------------------------
     # FILTERS
-    # --------------------------------------------------
+    # ---------------------------------------------
 
     st.subheader("Incident Filters")
 
     col1, col2, col3 = st.columns(3)
 
-    # Department filter
     with col1:
 
-        department_values = (
+        department_options = ["All"] + sorted(
             incidents["Department"]
             .dropna()
-            .astype(str)
             .unique()
             .tolist()
         )
-
-        department_values.sort()
-
-        department_options = [
-            "All"
-        ] + department_values
 
         selected_department = st.selectbox(
             "Department",
-            options=department_options,
-            key="incident_department"
+            department_options
         )
 
-    # Severity filter
     with col2:
 
-        severity_values = (
+        severity_options = ["All"] + sorted(
             incidents["Severity"]
             .dropna()
-            .astype(str)
             .unique()
             .tolist()
         )
-
-        severity_values.sort()
-
-        severity_options = [
-            "All"
-        ] + severity_values
 
         selected_severity = st.selectbox(
             "Severity",
-            options=severity_options,
-            key="incident_severity"
+            severity_options
         )
 
-    # Status filter
     with col3:
 
-        status_values = (
+        status_options = ["All"] + sorted(
             incidents["Incident status"]
             .dropna()
-            .astype(str)
             .unique()
             .tolist()
         )
 
-        status_values.sort()
-
-        status_options = [
-            "All"
-        ] + status_values
-
         selected_status = st.selectbox(
             "Incident Status",
-            options=status_options,
-            key="incident_status"
+            status_options
         )
 
-    # --------------------------------------------------
+    # ---------------------------------------------
     # APPLY FILTERS
-    # --------------------------------------------------
+    # ---------------------------------------------
 
     filtered_incidents = incidents.copy()
 
@@ -165,7 +130,6 @@ def render_incidents_page():
 
         filtered_incidents = filtered_incidents[
             filtered_incidents["Department"]
-            .astype(str)
             == selected_department
         ]
 
@@ -173,7 +137,6 @@ def render_incidents_page():
 
         filtered_incidents = filtered_incidents[
             filtered_incidents["Severity"]
-            .astype(str)
             == selected_severity
         ]
 
@@ -181,36 +144,21 @@ def render_incidents_page():
 
         filtered_incidents = filtered_incidents[
             filtered_incidents["Incident status"]
-            .astype(str)
             == selected_status
         ]
 
     st.divider()
 
-    # --------------------------------------------------
-    # FILTERED RESULTS
-    # --------------------------------------------------
-
-    st.subheader("Filtered Incidents")
-
-    st.metric(
-        "Matching Incidents",
-        len(filtered_incidents)
-    )
-
-    # --------------------------------------------------
+    # ---------------------------------------------
     # INCIDENT TYPE ANALYSIS
-    # --------------------------------------------------
+    # ---------------------------------------------
 
     st.subheader("Incidents by Type")
 
-    if not filtered_incidents.empty:
+    if len(filtered_incidents) > 0:
 
         incident_type_counts = (
-            filtered_incidents[
-                "Incident type"
-            ]
-            .astype(str)
+            filtered_incidents["Incident type"]
             .value_counts()
         )
 
@@ -226,19 +174,16 @@ def render_incidents_page():
 
     st.divider()
 
-    # --------------------------------------------------
+    # ---------------------------------------------
     # INCIDENT SEVERITY ANALYSIS
-    # --------------------------------------------------
+    # ---------------------------------------------
 
     st.subheader("Incidents by Severity")
 
-    if not filtered_incidents.empty:
+    if len(filtered_incidents) > 0:
 
         severity_counts = (
-            filtered_incidents[
-                "Severity"
-            ]
-            .astype(str)
+            filtered_incidents["Severity"]
             .value_counts()
         )
 
@@ -254,19 +199,16 @@ def render_incidents_page():
 
     st.divider()
 
-    # --------------------------------------------------
+    # ---------------------------------------------
     # INCIDENT STATUS
-    # --------------------------------------------------
+    # ---------------------------------------------
 
     st.subheader("Incident Status")
 
-    if not filtered_incidents.empty:
+    if len(filtered_incidents) > 0:
 
         status_counts = (
-            filtered_incidents[
-                "Incident status"
-            ]
-            .astype(str)
+            filtered_incidents["Incident status"]
             .value_counts()
         )
 
@@ -282,31 +224,30 @@ def render_incidents_page():
 
     st.divider()
 
-    # --------------------------------------------------
+    # ---------------------------------------------
     # INCIDENT RECORDS
-    # --------------------------------------------------
+    # ---------------------------------------------
 
     st.subheader("Incident Records")
 
-    display_columns = [
-        "Incident ID",
-        "Date",
-        "Time",
-        "Shift",
-        "Location",
-        "Department",
-        "Incident type",
-        "Severity",
-        "Injury status",
-        "Lost-time injury status",
-        "Cause",
-        "Corrective action",
-        "Incident status"
-    ]
-
     st.dataframe(
-        filtered_incidents[display_columns],
+        filtered_incidents[
+            [
+                "Incident ID",
+                "Date",
+                "Time",
+                "Shift",
+                "Location",
+                "Department",
+                "Incident type",
+                "Severity",
+                "Injury status",
+                "Lost-time injury status",
+                "Cause",
+                "Corrective action",
+                "Incident status"
+            ]
+        ],
         use_container_width=True,
         hide_index=True
     )
-```

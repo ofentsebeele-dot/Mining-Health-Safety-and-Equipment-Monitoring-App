@@ -5,7 +5,7 @@ import pandas as pd
 def render_incidents_page():
 
     incidents = pd.read_csv(
-        "data/incidents.csv"
+        "incidents.csv"
     )
 
     st.title("Safety Incidents")

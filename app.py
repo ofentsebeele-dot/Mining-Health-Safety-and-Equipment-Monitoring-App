@@ -5,6 +5,7 @@ from dashboard import render_dashboard
 from worker_health import render_worker_health_page
 from incidents import render_incidents_page
 from equipment import render_equipment_page
+from maintenance import render_maintenance_page
 
 
 # --------------------------------------------------
@@ -96,10 +97,9 @@ else:
     # --------------------------------------------------
     # MAINTENANCE
     # --------------------------------------------------
-
     if has_permission("maintenance"):
 
-        st.write("✅ Maintenance")
+       render_maintenance_page()
 
 
     # --------------------------------------------------

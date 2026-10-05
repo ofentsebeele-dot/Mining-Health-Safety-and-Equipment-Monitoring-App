@@ -25,117 +25,123 @@ if "role" not in st.session_state:
 
 
 # --------------------------------------------------
-# LOGIN PAGE
+# LOGIN
 # --------------------------------------------------
 
 if not st.session_state["logged_in"]:
 
     login()
 
+    st.stop()
+
 
 # --------------------------------------------------
-# MAIN APPLICATION
+# APPLICATION HEADER
 # --------------------------------------------------
 
-else:
+st.title("Khwezi Mining Monitoring System")
 
-    st.title("Khwezi Mining Monitoring System")
+st.success(
+    f"Welcome, {st.session_state['username']}!"
+)
 
-    st.success(
-        f"Welcome, {st.session_state['username']}!"
+st.write(
+    f"Role: **{st.session_state['role']}**"
+)
+
+
+# --------------------------------------------------
+# SIDEBAR NAVIGATION
+# --------------------------------------------------
+
+st.sidebar.title("Navigation")
+
+pages = []
+
+
+if has_permission("dashboard"):
+    pages.append("Dashboard")
+
+if has_permission("worker_health"):
+    pages.append("Worker Health & Safety")
+
+if has_permission("incidents"):
+    pages.append("Safety Incidents")
+
+if has_permission("equipment"):
+    pages.append("Equipment")
+
+if has_permission("maintenance"):
+    pages.append("Maintenance")
+
+if has_permission("risk_assessment"):
+    pages.append("Risk Assessment")
+
+if has_permission("reports"):
+    pages.append("Reports")
+
+if has_permission("manage_users"):
+    pages.append("Manage Users")
+
+
+selected_page = st.sidebar.radio(
+    "Select a page",
+    pages
+)
+
+
+# --------------------------------------------------
+# PAGE DISPLAY
+# --------------------------------------------------
+
+if selected_page == "Dashboard":
+
+    render_dashboard()
+
+
+elif selected_page == "Worker Health & Safety":
+
+    render_worker_health_page()
+
+
+elif selected_page == "Safety Incidents":
+
+    render_incidents_page()
+
+
+elif selected_page == "Equipment":
+
+    render_equipment_page()
+
+
+elif selected_page == "Maintenance":
+
+    render_maintenance_page()
+
+
+elif selected_page == "Risk Assessment":
+
+    render_risk_assessment_page()
+
+
+elif selected_page == "Reports":
+
+    render_reports_page()
+
+
+elif selected_page == "Manage Users":
+
+    st.title("User Management")
+
+    st.info(
+        "User management module will be added next."
     )
 
-    st.write(
-        f"Role: **{st.session_state['role']}**"
-    )
 
-    st.divider()
+# --------------------------------------------------
+# LOGOUT
+# --------------------------------------------------
 
-    st.header("Navigation")
+st.sidebar.divider()
 
-
-    # --------------------------------------------------
-    # DASHBOARD
-    # --------------------------------------------------
-
-    if has_permission("dashboard"):
-
-        st.write("✅ Dashboard")
-
-        render_dashboard()
-
-
-    # --------------------------------------------------
-    # WORKER HEALTH
-    # --------------------------------------------------
-
-    if has_permission("worker_health"):
-
-        st.write("✅ Worker Health & Safety")
-
-        render_worker_health_page()
-
-
-    # --------------------------------------------------
-    # INCIDENTS
-    # --------------------------------------------------
-
-    if has_permission("incidents"):
-
-        st.write("✅ Safety Incidents")
-
-        render_incidents_page()
-
-
-    # --------------------------------------------------
-    # EQUIPMENT
-    # --------------------------------------------------
-
-    if has_permission("equipment"):
-
-       render_equipment_page()
-
-
-    # --------------------------------------------------
-    # MAINTENANCE
-    # --------------------------------------------------
-    if has_permission("maintenance"):
-
-       render_maintenance_page()
-
-
-    # --------------------------------------------------
-    # RISK ASSESSMENT
-    # --------------------------------------------------
-
-    if has_permission("risk_assessment"):
-
-       render_risk_assessment_page()
-
-
-    # --------------------------------------------------
-    # REPORTS
-    # --------------------------------------------------
-
-    if has_permission("reports"):
-
-       render_reports_page()
-
-
-    # --------------------------------------------------
-    # USER MANAGEMENT
-    # --------------------------------------------------
-
-    if has_permission("manage_users"):
-
-        st.write("✅ Manage Users")
-
-
-    st.divider()
-
-
-    # --------------------------------------------------
-    # LOGOUT
-    # --------------------------------------------------
-
-    logout()
+logout()

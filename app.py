@@ -9,6 +9,7 @@ from maintenance import render_maintenance_page
 from risk_assessment import render_risk_assessment_page
 from reports import render_reports_page
 from user_management import render_user_management_page 
+from questions import render_questions_page
 
 # Session State
 
@@ -68,6 +69,9 @@ if has_permission("reports"):
 if has_permission("manage_users"):
     pages.append("Manage Users")
 
+if has_permission("questions"):
+    pages.append("Questions & Answers")
+
 
 selected_page = st.sidebar.radio("Select a page", pages)
 
@@ -107,10 +111,15 @@ elif selected_page == "Reports":
 
     render_reports_page()
 
+elif selected_page == "Questions & Answers":
+
+    render_questions_page()
+
 
 elif selected_page == "Manage Users":
 
     render_user_management_page()
+    
 
 # Logout
 

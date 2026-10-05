@@ -8,10 +8,13 @@ from equipment import render_equipment_page
 from maintenance import render_maintenance_page
 from risk_assessment import render_risk_assessment_page
 from reports import render_reports_page
-from user_management import render_user_management_page 
+from user_management import render_user_management_page
 from questions import render_questions_page
 
-# Session State
+
+# ==================================================
+# SESSION STATE
+# ==================================================
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -22,28 +25,38 @@ if "username" not in st.session_state:
 if "role" not in st.session_state:
     st.session_state["role"] = ""
 
-# Login
+
+# ==================================================
+# LOGIN
+# ==================================================
 
 if not st.session_state["logged_in"]:
-
     login()
-
     st.stop()
 
-# Application header
+
+# ==================================================
+# APPLICATION HEADER
+# ==================================================
 
 st.title("Khwezi Mining Monitoring System")
 
-st.success(f"Welcome, {st.session_state['username']}!")
+st.success(
+    f"Welcome, {st.session_state['username']}!"
+)
 
-st.write(f"Role: **{st.session_state['role']}**")
+st.write(
+    f"Role: **{st.session_state['role']}**"
+)
 
-# Sidebar Navigation
+
+# ==================================================
+# SIDEBAR NAVIGATION
+# ==================================================
 
 st.sidebar.title("Navigation")
 
 pages = []
-
 
 if has_permission("dashboard"):
     pages.append("Dashboard")
@@ -66,16 +79,39 @@ if has_permission("risk_assessment"):
 if has_permission("reports"):
     pages.append("Reports")
 
-if has_permission("manage_users"):
-    pages.append("Manage Users")
-
 if has_permission("questions"):
     pages.append("Questions & Answers")
 
+if has_permission("manage_users"):
+    pages.append("Manage Users")
 
-selected_page = st.sidebar.radio("Select a page", pages)
 
-# Page Display
+# ==================================================
+# CHECK PERMISSIONS
+# ==================================================
+
+if len(pages) == 0:
+
+    st.error(
+        "You do not have permission to access any pages."
+    )
+
+    st.stop()
+
+
+# ==================================================
+# PAGE SELECTION
+# ==================================================
+
+selected_page = st.sidebar.radio(
+    "Select a page",
+    pages
+)
+
+
+# ==================================================
+# PAGE DISPLAY
+# ==================================================
 
 if selected_page == "Dashboard":
 
@@ -111,6 +147,7 @@ elif selected_page == "Reports":
 
     render_reports_page()
 
+
 elif selected_page == "Questions & Answers":
 
     render_questions_page()
@@ -119,9 +156,11 @@ elif selected_page == "Questions & Answers":
 elif selected_page == "Manage Users":
 
     render_user_management_page()
-    
 
-# Logout
+
+# ==================================================
+# LOGOUT
+# ==================================================
 
 st.sidebar.divider()
 

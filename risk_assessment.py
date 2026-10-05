@@ -12,14 +12,14 @@ def load_worker_data():
 def load_incident_data():
 
     return pd.read_csv(
-        "data/incidents.csv"
+        "incidents.csv"
     )
 
 
 def load_equipment_data():
 
     return pd.read_csv(
-        "data/equipment.csv"
+        "equipment.csv"
     )
 
 

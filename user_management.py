@@ -113,3 +113,19 @@ def render_user_management_page():
                 "User persistence will be connected "
                 "to the login system in the next step."
             )
+user_rows = []
+
+for username, details in users.items():
+
+    user_rows.append(
+        {
+            "Username": username,
+            "Role": details["role"]
+        }
+    )
+
+st.dataframe(
+    user_rows,
+    use_container_width=True,
+    hide_index=True
+)

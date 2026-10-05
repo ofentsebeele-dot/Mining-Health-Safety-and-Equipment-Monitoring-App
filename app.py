@@ -5,7 +5,11 @@ from dashboard import render_dashboard
 from worker_health import render_worker_health_page
 from incidents import render_incidents_page
 
-# Set default login status
+
+# --------------------------------------------------
+# SESSION STATE
+# --------------------------------------------------
+
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
@@ -56,12 +60,6 @@ else:
 
         render_dashboard()
 
-    else:
-
-        st.error(
-            "You do not have permission to access the dashboard."
-        )
-
 
     # --------------------------------------------------
     # WORKER HEALTH
@@ -69,7 +67,9 @@ else:
 
     if has_permission("worker_health"):
 
-       render_worker_health_page()
+        st.write("✅ Worker Health & Safety")
+
+        render_worker_health_page()
 
 
     # --------------------------------------------------
@@ -77,7 +77,9 @@ else:
     # --------------------------------------------------
 
     if has_permission("incidents"):
-        
+
+        st.write("✅ Safety Incidents")
+
         render_incidents_page()
 
 

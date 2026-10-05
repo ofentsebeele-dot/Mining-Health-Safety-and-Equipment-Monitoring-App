@@ -7,6 +7,7 @@ from incidents import render_incidents_page
 from equipment import render_equipment_page
 from maintenance import render_maintenance_page
 from risk_assessment import render_risk_assessment_page
+from reports import render_reports_page
 
 
 # --------------------------------------------------
@@ -118,7 +119,7 @@ else:
 
     if has_permission("reports"):
 
-        st.write("✅ Reports")
+       render_reports_page()
 
 
     # --------------------------------------------------

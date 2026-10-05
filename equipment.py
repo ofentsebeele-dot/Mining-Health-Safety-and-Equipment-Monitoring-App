@@ -5,7 +5,7 @@ import pandas as pd
 def load_equipment_data():
 
     return pd.read_csv(
-        "data/equipment.csv"
+        "equipment.csv"
     )
 
 

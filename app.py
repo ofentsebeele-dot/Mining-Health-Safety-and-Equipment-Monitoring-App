@@ -107,9 +107,9 @@ else:
     # RISK ASSESSMENT
     # --------------------------------------------------
 
-   if has_permission("risk_assessment"):
+    if has_permission("risk_assessment"):
 
-      render_risk_assessment_page()
+       render_risk_assessment_page()
 
 
     # --------------------------------------------------

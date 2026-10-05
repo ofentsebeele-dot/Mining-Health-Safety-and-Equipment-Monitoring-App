@@ -77,8 +77,8 @@ else:
     # --------------------------------------------------
 
     if has_permission("incidents"):
-
-       render_incidents_page()
+        
+        render_incidents_page()
 
 
     # --------------------------------------------------

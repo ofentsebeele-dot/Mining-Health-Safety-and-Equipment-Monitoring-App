@@ -6,6 +6,7 @@ from worker_health import render_worker_health_page
 from incidents import render_incidents_page
 from equipment import render_equipment_page
 from maintenance import render_maintenance_page
+from risk_assessment import render_risk_assessment_page
 
 
 # --------------------------------------------------
@@ -106,9 +107,9 @@ else:
     # RISK ASSESSMENT
     # --------------------------------------------------
 
-    if has_permission("risk_assessment"):
+   if has_permission("risk_assessment"):
 
-        st.write("✅ Risk Assessment")
+      render_risk_assessment_page()
 
 
     # --------------------------------------------------

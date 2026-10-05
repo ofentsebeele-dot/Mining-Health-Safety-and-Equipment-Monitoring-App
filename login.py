@@ -1,33 +1,39 @@
 import streamlit as st
 
 
-# Users and their roles
+# --------------------------------------------------
+# USERS
+# --------------------------------------------------
+
 users = {
     "admin": {
         "password": "admin123",
         "role": "Administrator"
     },
+
     "safety": {
         "password": "safety123",
         "role": "Safety Officer"
     },
-    "mining": {
-        "password": "mining123",
-        "role": "Mining Engineer"
-    },
-    "maintenance": {
-        "password": "maintenance123",
-        "role": "Maintenance Engineer"
-    },
+
     "manager": {
         "password": "manager123",
-        "role": "Manager"
+        "role": "Mining Manager"
+    },
+
+    "worker": {
+        "password": "worker123",
+        "role": "Worker"
     }
 }
 
 
-# Permissions for each role
+# --------------------------------------------------
+# PERMISSIONS
+# --------------------------------------------------
+
 permissions = {
+
     "Administrator": [
         "dashboard",
         "worker_health",
@@ -43,27 +49,11 @@ permissions = {
         "dashboard",
         "worker_health",
         "incidents",
-        "risk_assessment"
-    ],
-
-    "Mining Engineer": [
-        "dashboard",
-        "worker_health",
-        "equipment",
-        "maintenance",
         "risk_assessment",
         "reports"
     ],
 
-    "Maintenance Engineer": [
-        "dashboard",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "reports"
-    ],
-
-    "Manager": [
+    "Mining Manager": [
         "dashboard",
         "worker_health",
         "incidents",
@@ -71,46 +61,72 @@ permissions = {
         "maintenance",
         "risk_assessment",
         "reports"
+    ],
+
+    "Worker": [
+        "dashboard",
+        "worker_health"
     ]
 }
 
 
+# --------------------------------------------------
+# LOGIN
+# --------------------------------------------------
+
 def login():
 
-    st.title("Khwezi Mining")
+    st.title("Khwezi Mining Monitoring System")
 
-    st.subheader(
-        "Mining Health, Safety and Equipment Monitoring System"
+    st.subheader("Login")
+
+    username = st.text_input(
+        "Username",
+        key="login_username"
     )
 
-    st.write("Please enter your login details.")
-
-    username = st.text_input("Username")
     password = st.text_input(
         "Password",
-        type="password"
+        type="password",
+        key="login_password"
     )
 
     if st.button("Login"):
 
-        if username in users and users[username]["password"] == password:
+        if username in users:
 
-            st.session_state["logged_in"] = True
-            st.session_state["username"] = username
-            st.session_state["role"] = users[username]["role"]
+            if users[username]["password"] == password:
 
-            st.success("Login successful!")
+                st.session_state["logged_in"] = True
+                st.session_state["username"] = username
+                st.session_state["role"] = users[username]["role"]
 
-            st.rerun()
+                st.success(
+                    "Login successful."
+                )
+
+                st.rerun()
+
+            else:
+
+                st.error(
+                    "Incorrect password."
+                )
 
         else:
 
-            st.error("Invalid username or password.")
+            st.error(
+                "Username not found."
+            )
 
+
+# --------------------------------------------------
+# LOGOUT
+# --------------------------------------------------
 
 def logout():
 
-    if st.button("Logout"):
+    if st.sidebar.button("Logout"):
 
         st.session_state["logged_in"] = False
         st.session_state["username"] = ""
@@ -119,12 +135,19 @@ def logout():
         st.rerun()
 
 
+# --------------------------------------------------
+# PERMISSION CHECK
+# --------------------------------------------------
+
 def has_permission(permission):
 
-    role = st.session_state.get("role")
+    role = st.session_state.get(
+        "role",
+        ""
+    )
 
-    if role in permissions:
+    if role not in permissions:
 
-        return permission in permissions[role]
+        return False
 
-    return False
+    return permission in permissions[role]

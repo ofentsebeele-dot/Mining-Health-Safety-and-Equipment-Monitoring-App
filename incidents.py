@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-def load_incident_data():
+def load_incident_data(): 
 
     return pd.read_csv(
         "incidents.csv"

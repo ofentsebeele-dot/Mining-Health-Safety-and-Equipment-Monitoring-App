@@ -67,7 +67,7 @@ else:
 
     if has_permission("worker_health"):
 
-    render_worker_health_page()
+       render_worker_health_page()
 
 
     # --------------------------------------------------

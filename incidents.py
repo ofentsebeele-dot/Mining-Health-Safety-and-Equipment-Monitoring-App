@@ -307,4 +307,3 @@ def render_incidents_page():
         use_container_width=True,
         hide_index=True
     )
-```

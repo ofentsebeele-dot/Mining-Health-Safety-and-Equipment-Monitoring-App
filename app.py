@@ -71,3 +71,14 @@ else:
     st.divider()
 
     logout()
+
+#Dashboard
+if has_permission("dashboard"):
+
+    render_dashboard()
+
+else:
+
+    st.error(
+        "You do not have permission to access the dashboard."
+    )

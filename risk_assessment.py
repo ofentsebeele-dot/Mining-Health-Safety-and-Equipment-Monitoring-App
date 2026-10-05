@@ -1,10 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-
-# ==================================================
-# LOAD DATA
-# ==================================================
+# Load Data
 
 def load_worker_data():
     return pd.read_csv("workers.csv")
@@ -18,9 +15,7 @@ def load_equipment_data():
     return pd.read_csv("equipment.csv")
 
 
-# ==================================================
-# RISK CLASSIFICATION
-# ==================================================
+# Risk Classification
 
 def classify_risk(risk_score):
 
@@ -36,18 +31,13 @@ def classify_risk(risk_score):
     return "Critical"
 
 
-# ==================================================
-# WORKER RISK
-# ==================================================
+# Worker Risk
 
 def calculate_worker_likelihood(row):
 
     score = 1
 
-    ppe = pd.to_numeric(
-        row["PPE compliance"],
-        errors="coerce"
-    )
+    ppe = pd.to_numeric(row["PPE compliance"], errors="coerce")
 
     fatigue = str(
         row["Fatigue level"]
@@ -133,9 +123,7 @@ def calculate_worker_consequence(row):
     return min(score, 5)
 
 
-# ==================================================
-# INCIDENT RISK
-# ==================================================
+# Incident Risk
 
 def calculate_incident_likelihood(row):
 
@@ -203,9 +191,7 @@ def calculate_incident_consequence(row):
     return min(score, 5)
 
 
-# ==================================================
-# EQUIPMENT RISK
-# ==================================================
+# Equipment Risk
 
 def calculate_equipment_likelihood(row):
 
@@ -338,9 +324,7 @@ def calculate_equipment_consequence(row):
     return min(score, 5)
 
 
-# ==================================================
-# CREATE RISK DATA
-# ==================================================
+# Create Rink Data
 
 def create_worker_risk_data(workers):
 
@@ -425,10 +409,7 @@ def create_equipment_risk_data(equipment):
 
     return equipment
 
-
-# ==================================================
-# RISK ASSESSMENT PAGE
-# ==================================================
+# Risk Assessment Page
 
 def render_risk_assessment_page():
 
@@ -453,9 +434,8 @@ def render_risk_assessment_page():
 
     st.divider()
 
-    # ==================================================
-    # WORKER RISK
-    # ==================================================
+
+    # Worker Risk
 
     st.header("Worker Safety Risk")
 
@@ -526,9 +506,7 @@ def render_risk_assessment_page():
 
     st.divider()
 
-    # ==================================================
-    # INCIDENT RISK
-    # ==================================================
+    # Incident Risk
 
     st.header("Incident Risk")
 
@@ -603,9 +581,7 @@ def render_risk_assessment_page():
 
     st.divider()
 
-    # ==================================================
-    # EQUIPMENT RISK
-    # ==================================================
+    # Equipment Risk
 
     st.header("Equipment Risk")
 
@@ -681,9 +657,7 @@ def render_risk_assessment_page():
 
     st.divider()
 
-    # ==================================================
-    # OVERALL RISK
-    # ==================================================
+    # Overall Risk 
 
     st.header("Overall Risk Summary")
 

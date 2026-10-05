@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-def render_incidents_page():
 def load_incident_data():
 
     return pd.read_csv(

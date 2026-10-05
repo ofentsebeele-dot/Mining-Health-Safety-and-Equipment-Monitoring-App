@@ -3,26 +3,26 @@ import pandas as pd
 
 
 def load_worker_data():
-    return pd.read_csv("workers.csv")
+    return pd.read_csv("data/workers.csv")
 
 
 def load_incident_data():
-    return pd.read_csv("incidents.csv")
+    return pd.read_csv("data/incidents.csv")
 
 
 def load_equipment_data():
-    return pd.read_csv("equipment.csv")
+    return pd.read_csv("data/equipment.csv")
 
 
-def calculate_equipment_availability(equipment_data):
-
-    operating_time = equipment_data["Operating hours"]
-
-    downtime = equipment_data["Downtime"]
+def calculate_equipment_availability(equipment):
 
     availability = (
-        operating_time /
-        (operating_time + downtime)
+        equipment["Operating hours"]
+        /
+        (
+            equipment["Operating hours"]
+            + equipment["Downtime"]
+        )
     ) * 100
 
     return availability
@@ -33,39 +33,42 @@ def render_dashboard():
     st.title("Khwezi Mining Monitoring Dashboard")
 
     st.write(
-        "Central monitoring view for Khwezi Mining operations."
+        "Central monitoring dashboard for health, "
+        "safety and equipment information."
     )
 
     st.divider()
 
-    # Load CSV files
+    # Load data from CSV files
     workers = load_worker_data()
     incidents = load_incident_data()
     equipment = load_equipment_data()
 
-    # -----------------------------
+    # -----------------------------------------
     # WORKER DATA
-    # -----------------------------
+    # -----------------------------------------
 
     total_workers = len(workers)
 
-    near_misses = workers["Near misses"].sum()
+    total_near_misses = workers[
+        "Near misses"
+    ].sum()
 
-    safety_observations = workers[
+    total_safety_observations = workers[
         "Safety observations"
     ].sum()
 
-    ppe_compliance = workers[
+    average_ppe_compliance = workers[
         "PPE compliance"
     ].mean()
 
-    # -----------------------------
+    # -----------------------------------------
     # INCIDENT DATA
-    # -----------------------------
+    # -----------------------------------------
 
     total_incidents = len(incidents)
 
-    high_severity_incidents = len(
+    serious_critical_incidents = len(
         incidents[
             incidents["Severity"].isin(
                 ["Serious", "Critical"]
@@ -73,36 +76,38 @@ def render_dashboard():
         ]
     )
 
-    # -----------------------------
+    # -----------------------------------------
     # EQUIPMENT DATA
-    # -----------------------------
+    # -----------------------------------------
 
     total_equipment = len(equipment)
 
-    available_equipment = len(
+    equipment_available = len(
         equipment[
-            equipment["Maintenance status"] == "Operational"
+            equipment["Maintenance status"]
+            == "Operational"
         ]
     )
 
     equipment_under_maintenance = len(
         equipment[
-            equipment["Maintenance status"] == "Under Maintenance"
+            equipment["Maintenance status"]
+            == "Under Maintenance"
         ]
     )
 
     # Calculate availability
-    equipment["Availability"] = calculate_equipment_availability(
-        equipment
+    equipment["Availability"] = (
+        calculate_equipment_availability(equipment)
     )
 
-    average_availability = equipment[
-        "Availability"
-    ].mean()
+    average_equipment_availability = (
+        equipment["Availability"].mean()
+    )
 
-    # -----------------------------
-    # DASHBOARD
-    # -----------------------------
+    # -----------------------------------------
+    # DASHBOARD KPI SECTION
+    # -----------------------------------------
 
     st.subheader("Health & Safety")
 
@@ -123,64 +128,74 @@ def render_dashboard():
     with col3:
         st.metric(
             "Near Misses",
-            near_misses
+            total_near_misses
         )
 
     with col4:
         st.metric(
             "Safety Observations",
-            safety_observations
+            total_safety_observations
         )
 
     st.divider()
 
-    st.subheader("Worker Safety")
+    # -----------------------------------------
+    # SECOND KPI ROW
+    # -----------------------------------------
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         st.metric(
-            "Average PPE Compliance",
-            f"{ppe_compliance:.1f}%"
+            "PPE Compliance",
+            f"{average_ppe_compliance:.1f}%"
         )
 
     with col2:
         st.metric(
             "Serious/Critical Incidents",
-            high_severity_incidents
+            serious_critical_incidents
         )
 
-    st.divider()
-
-    st.subheader("Equipment Monitoring")
-
-    col1, col2, col3, col4 = st.columns(4)
-
-    with col1:
+    with col3:
         st.metric(
             "Total Equipment",
             total_equipment
         )
 
-    with col2:
+    st.divider()
+
+    # -----------------------------------------
+    # EQUIPMENT KPI SECTION
+    # -----------------------------------------
+
+    st.subheader("Equipment Monitoring")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
         st.metric(
             "Available Equipment",
-            available_equipment
+            equipment_available
         )
 
-    with col3:
+    with col2:
         st.metric(
             "Under Maintenance",
             equipment_under_maintenance
         )
 
-    with col4:
+    with col3:
         st.metric(
             "Average Availability",
-            f"{average_availability:.1f}%"
+            f"{average_equipment_availability:.1f}%"
         )
 
     st.divider()
+
+    # -----------------------------------------
+    # EQUIPMENT TABLE
+    # -----------------------------------------
 
     st.subheader("Equipment Status")
 
@@ -189,6 +204,7 @@ def render_dashboard():
             [
                 "Equipment ID",
                 "Equipment type",
+                "Manufacturer",
                 "Temperature",
                 "Vibration",
                 "Maintenance status",
@@ -201,18 +217,52 @@ def render_dashboard():
 
     st.divider()
 
-    st.subheader("Safety Summary")
+    # -----------------------------------------
+    # WORKER TABLE
+    # -----------------------------------------
+
+    st.subheader("Worker Safety Information")
 
     st.dataframe(
         workers[
             [
                 "Worker ID",
                 "Department",
+                "Job role",
                 "Shift",
                 "PPE compliance",
+                "Safety training status",
                 "Fatigue level",
+                "Safety observations",
                 "Near misses",
                 "Previous incidents"
+            ]
+        ],
+        use_container_width=True
+    )
+
+    st.divider()
+
+    # -----------------------------------------
+    # INCIDENT TABLE
+    # -----------------------------------------
+
+    st.subheader("Safety Incidents")
+
+    st.dataframe(
+        incidents[
+            [
+                "Incident ID",
+                "Date",
+                "Time",
+                "Shift",
+                "Location",
+                "Department",
+                "Incident type",
+                "Severity",
+                "Injury status",
+                "Lost-time injury status",
+                "Incident status"
             ]
         ],
         use_container_width=True

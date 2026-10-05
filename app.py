@@ -12,9 +12,7 @@ from user_management import render_user_management_page
 from questions import render_questions_page
 
 
-# ==================================================
-# SESSION STATE
-# ==================================================
+# Session Date
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -26,33 +24,22 @@ if "role" not in st.session_state:
     st.session_state["role"] = ""
 
 
-# ==================================================
-# LOGIN
-# ==================================================
+# Login
 
 if not st.session_state["logged_in"]:
     login()
     st.stop()
 
 
-# ==================================================
-# APPLICATION HEADER
-# ==================================================
+# Application Header
 
 st.title("Khwezi Mining Monitoring System")
 
-st.success(
-    f"Welcome, {st.session_state['username']}!"
-)
+st.success(f"Welcome, {st.session_state['username']}!")
 
-st.write(
-    f"Role: **{st.session_state['role']}**"
-)
+st.write(f"Role: **{st.session_state['role']}**")
 
-
-# ==================================================
-# SIDEBAR NAVIGATION
-# ==================================================
+# Sidebar navigation
 
 st.sidebar.title("Navigation")
 
@@ -86,32 +73,19 @@ if has_permission("manage_users"):
     pages.append("Manage Users")
 
 
-# ==================================================
-# CHECK PERMISSIONS
-# ==================================================
+# Check Permissions
 
 if len(pages) == 0:
 
-    st.error(
-        "You do not have permission to access any pages."
-    )
+    st.error("You do not have permission to access any pages.")
 
     st.stop()
 
+# Page Selection
 
-# ==================================================
-# PAGE SELECTION
-# ==================================================
+selected_page = st.sidebar.radio("Select a page", pages)
 
-selected_page = st.sidebar.radio(
-    "Select a page",
-    pages
-)
-
-
-# ==================================================
-# PAGE DISPLAY
-# ==================================================
+# Page Display
 
 if selected_page == "Dashboard":
 
@@ -158,9 +132,7 @@ elif selected_page == "Manage Users":
     render_user_management_page()
 
 
-# ==================================================
-# LOGOUT
-# ==================================================
+# Logout
 
 st.sidebar.divider()
 

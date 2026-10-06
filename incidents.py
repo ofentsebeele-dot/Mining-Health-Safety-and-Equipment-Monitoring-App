@@ -3,7 +3,7 @@ import pandas as pd
 import os
 
 
-INCIDENT_FILE = "data/incidents.csv"
+INCIDENT_FILE = "incidents.csv"
 
 
 def load_incidents():

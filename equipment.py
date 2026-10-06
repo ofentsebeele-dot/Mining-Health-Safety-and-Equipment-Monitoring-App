@@ -4,22 +4,14 @@ import pandas as pd
 
 def load_equipment_data():
 
-    return pd.read_csv(
-        "equipment.csv"
-    )
+    return pd.read_csv("equipment.csv")
 
 
 def calculate_availability(equipment):
 
-    total_time = (
-        equipment["Operating hours"]
-        + equipment["Downtime"]
-    )
+    total_time = (equipment["Operating hours"]+ equipment["Downtime"])
 
-    availability = (
-        equipment["Operating hours"]
-        / total_time
-    ) * 100
+    availability = (equipment["Operating hours"]/ total_time) * 100
 
     return availability
 
@@ -29,69 +21,41 @@ def render_equipment_page():
     equipment = load_equipment_data()
 
     # Calculate availability from the CSV data.
-    # Availability is intentionally NOT stored in the CSV.
-    equipment["Availability"] = calculate_availability(
-        equipment
-    )
+    equipment["Availability"] = calculate_availability(equipment)
 
     st.title("Equipment Monitoring")
 
-    st.write(
-        "Monitor mining equipment condition, operating hours, "
-        "maintenance status and availability."
-    )
+    st.write("Monitor mining equipment condition, operating hours, " "maintenance status and availability.")
 
     st.divider()
 
-    # --------------------------------------------------
-    # SUMMARY
-    # --------------------------------------------------
+    # Summary
 
     total_equipment = len(equipment)
 
-    average_availability = equipment[
-        "Availability"
-    ].mean()
+    average_availability = equipment["Availability"].mean()
 
-    total_downtime = equipment[
-        "Downtime"
-    ].sum()
+    total_downtime = equipment["Downtime"].sum()
 
-    average_temperature = equipment[
-        "Temperature"
-    ].mean()
+    average_temperature = equipment["Temperature"].mean()
 
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        st.metric(
-            "Total Equipment",
-            total_equipment
-        )
+        st.metric("Total Equipment", total_equipment)
 
     with col2:
-        st.metric(
-            "Average Availability",
-            f"{average_availability:.1f}%"
-        )
+        st.metric("Average Availability", f"{average_availability:.1f}%")
 
     with col3:
-        st.metric(
-            "Total Downtime",
-            f"{total_downtime:.1f} hrs"
-        )
+        st.metric( "Total Downtime", f"{total_downtime:.1f} hrs")
 
     with col4:
-        st.metric(
-            "Average Temperature",
-            f"{average_temperature:.1f}"
-        )
+        st.metric("Average Temperature", f"{average_temperature:.1f}")
 
     st.divider()
 
-    # --------------------------------------------------
-    # FILTERS
-    # --------------------------------------------------
+    # Filters
 
     st.subheader("Equipment Filters")
 
@@ -99,73 +63,47 @@ def render_equipment_page():
 
     with col1:
 
-        equipment_types = (
-            equipment["Equipment type"]
+        equipment_types = (equipment["Equipment type"]
             .dropna()
             .astype(str)
             .unique()
-            .tolist()
-        )
+            .tolist())
 
         equipment_types.sort()
 
-        equipment_type_options = (
-            ["All"] + equipment_types
-        )
+        equipment_type_options = (["All"] + equipment_types)
 
-        selected_type = st.selectbox(
-            "Equipment Type",
-            equipment_type_options,
-            key="equipment_type"
-        )
+        selected_type = st.selectbox("Equipment Type", equipment_type_options, key="equipment_type")
 
     with col2:
 
-        maintenance_statuses = (
-            equipment["Maintenance status"]
+        maintenance_statuses = (equipment["Maintenance status"]
             .dropna()
             .astype(str)
             .unique()
-            .tolist()
-        )
+            .tolist())
 
         maintenance_statuses.sort()
 
-        maintenance_options = (
-            ["All"] + maintenance_statuses
-        )
+        maintenance_options = (["All"] + maintenance_statuses)
 
-        selected_maintenance = st.selectbox(
-            "Maintenance Status",
-            maintenance_options,
-            key="equipment_maintenance"
-        )
+        selected_maintenance = st.selectbox("Maintenance Status", maintenance_options, key="equipment_maintenance")
 
     with col3:
 
-        manufacturers = (
-            equipment["Manufacturer"]
+        manufacturers = (equipment["Manufacturer"]
             .dropna()
             .astype(str)
             .unique()
-            .tolist()
-        )
+            .tolist())
 
         manufacturers.sort()
 
-        manufacturer_options = (
-            ["All"] + manufacturers
-        )
+        manufacturer_options = (["All"] + manufacturers)
 
-        selected_manufacturer = st.selectbox(
-            "Manufacturer",
-            manufacturer_options,
-            key="equipment_manufacturer"
-        )
+        selected_manufacturer = st.selectbox("Manufacturer", manufacturer_options, key="equipment_manufacturer")
 
-    # --------------------------------------------------
-    # APPLY FILTERS
-    # --------------------------------------------------
+    # Apply Filters
 
     filtered_equipment = equipment.copy()
 
@@ -195,9 +133,7 @@ def render_equipment_page():
 
     st.divider()
 
-    # --------------------------------------------------
-    # EQUIPMENT CONDITION
-    # --------------------------------------------------
+    # Equipment Condition
 
     st.subheader("Equipment Condition")
 
@@ -235,9 +171,7 @@ def render_equipment_page():
 
     st.divider()
 
-    # --------------------------------------------------
-    # AVAILABILITY BY EQUIPMENT TYPE
-    # --------------------------------------------------
+    # Availability by Equipment Type
 
     st.subheader(
         "Average Availability by Equipment Type"
@@ -264,9 +198,7 @@ def render_equipment_page():
 
     st.divider()
 
-    # --------------------------------------------------
-    # OPERATING HOURS
-    # --------------------------------------------------
+    # Operating Hours
 
     st.subheader("Operating Hours")
 
@@ -290,9 +222,7 @@ def render_equipment_page():
 
     st.divider()
 
-    # --------------------------------------------------
-    # DOWNTIME
-    # --------------------------------------------------
+    # Downtime
 
     st.subheader("Downtime by Equipment Type")
 

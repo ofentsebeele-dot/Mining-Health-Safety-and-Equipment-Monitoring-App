@@ -12,7 +12,6 @@ from user_management import render_user_management_page
 from questions import render_questions_page
 
 
-# Session Date
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -24,14 +23,13 @@ if "role" not in st.session_state:
     st.session_state["role"] = ""
 
 
-# Login
 
 if not st.session_state["logged_in"]:
     login()
     st.stop()
 
 
-# Application Header
+
 
 st.title("Khwezi Mining Monitoring System")
 

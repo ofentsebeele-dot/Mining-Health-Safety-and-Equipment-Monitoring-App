@@ -1,77 +1,19 @@
 
 import streamlit as st
 
+# Users
 
-# --------------------------------------------------
-# USERS
-# --------------------------------------------------
-# These are the users who can log into the system.
-
-users = {
-
-    "admin": {
-        "password": "admin123",
-        "role": "Administrator"
-    },
-
-    "safety": {
-        "password": "safety123",
-        "role": "Safety Officer"
-    },
-
-    "mining": {
-        "password": "mining123",
-        "role": "Mining Engineer"
-    },
-
-    "maintenance": {
-        "password": "maintenance123",
-        "role": "Maintenance Engineer"
-    },
-
-    "manager": {
-        "password": "manager123",
-        "role": "Manager"
-    }
-}
+users = {"admin": {"password": "admin123", "role": "Administrator"},
+         "safety": {"password": "safety123", "role": "Safety Officer"},
+         "mining": {"password": "mining123", "role": "Mining Engineer"},
+         "maintenance": {"password": "maintenance123", "role": "Maintenance Engineer"},
+         "manager": {"password": "manager123","role": "Manager"}}
 
 
-# --------------------------------------------------
-# ROLE PERMISSIONS
-# --------------------------------------------------
-# These are the permissions for each role.
-#
-# Questions are available to all users.
-#
-# The permissions can also be changed for an
-# individual user by the Administrator.
+# Role Permissions
 
-permissions = {
-
-    # --------------------------------------------------
-    # ADMINISTRATOR
-    # --------------------------------------------------
-
-    "Administrator": [
-        "dashboard",
-        "worker_health",
-        "incidents",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "reports",
-        "questions",
-        "manage_users"
-    ],
-
-
-    # --------------------------------------------------
-    # SAFETY OFFICER
-    # --------------------------------------------------
-
-    "Safety Officer": [
-        "dashboard",
-        "worker_health",
+permissions = {"Administrator": ["dashboard", "worker_health", "incidents", "equipment", "maintenance", "risk_assessment", "reports", "questions", "manage_users"],
+               "Safety Officer": ["dashboard", "worker_health",
         "incidents",
         "risk_assessment",
         "reports",

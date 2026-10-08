@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 import pandas as pd
 import os
@@ -508,4 +507,3 @@ def render_risk_assessment_page():
             "Risk Level"
         ]
     )
-```

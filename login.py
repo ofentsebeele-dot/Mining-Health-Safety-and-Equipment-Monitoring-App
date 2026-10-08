@@ -7,6 +7,7 @@ users = {"admin": {"password": "admin123", "role": "Administrator"},
          "maintenance": {"password": "maintenance123", "role": "Maintenance Engineer"},
          "manager": {"password": "manager123","role": "Manager"}}
 
+user_permissions = {}
 
 # Role Permissions
 

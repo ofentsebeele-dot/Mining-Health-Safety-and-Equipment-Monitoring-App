@@ -9,7 +9,7 @@ import os
 
 def load_equipment_data():
 
-    # Load equipment data from the CSV file
+    # Load equipment information from CSV
     return pd.read_csv("equipment.csv")
 
 
@@ -19,14 +19,14 @@ def load_equipment_data():
 
 def render_maintenance_page():
 
-    # Load equipment information
+    # Load equipment data
     try:
         equipment = load_equipment_data()
 
     except FileNotFoundError:
         st.error(
             "Equipment file not found. "
-            "Please check that equipment.csv is available."
+            "Please check that equipment.csv exists."
         )
         return
 
@@ -34,7 +34,7 @@ def render_maintenance_page():
         st.error(f"Could not load equipment data: {error}")
         return
 
-    # Check that important columns are available
+    # Check required columns
     required_columns = [
         "Equipment ID",
         "Equipment type",
@@ -56,7 +56,7 @@ def render_maintenance_page():
         return
 
     if equipment.empty:
-        st.warning("There is no equipment data to display.")
+        st.warning("No equipment records are available.")
         return
 
     # Convert measurements to numeric values
@@ -64,9 +64,9 @@ def render_maintenance_page():
         "Operating hours",
         "Downtime",
         "Temperature",
-        "Vibration",
-        "Availability"
+        "Vibration"
     ]:
+
         if column in equipment.columns:
             equipment[column] = pd.to_numeric(
                 equipment[column],
@@ -74,23 +74,27 @@ def render_maintenance_page():
             )
 
     # Create optional columns if they do not exist
-    for column in [
+    optional_columns = [
         "Temperature",
         "Vibration",
-        "Availability",
         "Manufacturer",
         "Engine status",
         "Brake status",
         "Tyre status"
-    ]:
+    ]
+
+    for column in optional_columns:
+
         if column not in equipment.columns:
             equipment[column] = pd.NA
 
-    # Calculate availability from the available data.
-    # This assumes Operating hours represents operating time
-    # for the same period as Downtime.
+    # --------------------------------------------------
+    # CALCULATE AVAILABILITY
+    # --------------------------------------------------
+
     total_time = (
-        equipment["Operating hours"] + equipment["Downtime"]
+        equipment["Operating hours"]
+        + equipment["Downtime"]
     )
 
     equipment["Availability"] = (
@@ -99,7 +103,10 @@ def render_maintenance_page():
         .mul(100)
     )
 
-    # Calculate equipment condition
+    # --------------------------------------------------
+    # TEMPERATURE MONITORING
+    # --------------------------------------------------
+
     def temperature_status(value):
 
         if pd.isna(value):
@@ -108,10 +115,14 @@ def render_maintenance_page():
         if value < 80:
             return "NORMAL"
 
-        if value <= 100:
+        elif value <= 100:
             return "WARNING"
 
         return "CRITICAL"
+
+    # --------------------------------------------------
+    # VIBRATION MONITORING
+    # --------------------------------------------------
 
     def vibration_status(value):
 
@@ -121,7 +132,7 @@ def render_maintenance_page():
         if value < 5:
             return "NORMAL"
 
-        if value <= 8:
+        elif value <= 8:
             return "WARNING"
 
         return "CRITICAL"
@@ -134,7 +145,10 @@ def render_maintenance_page():
         equipment["Vibration"].apply(vibration_status)
     )
 
-    # Identify equipment requiring attention
+    # --------------------------------------------------
+    # IDENTIFY MAINTENANCE PROBLEMS
+    # --------------------------------------------------
+
     def maintenance_reason(row):
 
         reasons = []
@@ -157,11 +171,13 @@ def render_maintenance_page():
         ):
             reasons.append("Excessive downtime")
 
+        # Check component conditions
         for column in [
             "Engine status",
             "Brake status",
             "Tyre status"
         ]:
+
             value = str(row[column]).strip().lower()
 
             if value not in [
@@ -172,9 +188,14 @@ def render_maintenance_page():
                 "<na>",
                 ""
             ]:
-                reasons.append(f"Check {column.lower()}")
+                reasons.append(
+                    f"Check {column.lower()}"
+                )
 
-        status = str(row["Maintenance status"]).strip().lower()
+        # Check maintenance status
+        status = str(
+            row["Maintenance status"]
+        ).strip().lower()
 
         if "overdue" in status:
             reasons.append("Overdue maintenance")
@@ -202,25 +223,23 @@ def render_maintenance_page():
     st.title("🔧 Maintenance Monitoring")
 
     st.write(
-        "Search equipment, monitor its condition, filter records, "
-        "and record maintenance actions."
+        "Monitor equipment condition, search records, "
+        "identify maintenance problems and record actions."
     )
 
     st.caption(
-        "Educational prototype thresholds: temperature below "
-        "80°C is normal, 80–100°C is a warning, and above 100°C "
-        "is critical. Vibration below 5 mm/s is normal, "
-        "5–8 mm/s is a warning, and above 8 mm/s is critical. "
-        "These are not actual manufacturer or mine safety limits."
+        "Educational prototype thresholds only. "
+        "Temperature: below 80°C normal, 80–100°C warning, "
+        "above 100°C critical. Vibration: below 5 mm/s normal, "
+        "5–8 mm/s warning, above 8 mm/s critical. "
+        "These are not manufacturer or mine safety limits."
     )
 
     st.divider()
 
     # --------------------------------------------------
-    # SUMMARY CARDS
+    # SUMMARY METRICS
     # --------------------------------------------------
-
-    total_equipment = len(equipment)
 
     status = (
         equipment["Maintenance status"]
@@ -229,6 +248,8 @@ def render_maintenance_page():
         .str.strip()
         .str.lower()
     )
+
+    total_equipment = len(equipment)
 
     under_maintenance = int(
         status.str.contains(
@@ -250,6 +271,7 @@ def render_maintenance_page():
     col1.metric("Total Equipment", total_equipment)
     col2.metric("Operational", operational)
     col3.metric("Under Maintenance", under_maintenance)
+
     col4.metric(
         "Total Downtime",
         f"{total_downtime:.1f} hrs"
@@ -265,30 +287,33 @@ def render_maintenance_page():
     else:
         col5.metric("Average Availability", "N/A")
 
+    attention_count = int(
+        (
+            equipment["Maintenance Issue"]
+            != "No issue identified by current rules"
+        ).sum()
+    )
+
     col6.metric(
         "Equipment Requiring Attention",
-        int(
-            (
-                equipment["Maintenance Issue"]
-                != "No issue identified by current rules"
-            ).sum()
-        )
+        attention_count
     )
 
     st.divider()
 
     # --------------------------------------------------
-    # INTERACTIVE SEARCH AND FILTERS
+    # SEARCH AND FILTER EQUIPMENT
     # --------------------------------------------------
 
-    st.subheader("🔎 Search and Filter Equipment")
+    st.subheader("Search and Filter Equipment")
 
     search_col, type_col, status_col = st.columns(3)
 
     with search_col:
         search_id = st.text_input(
             "Search Equipment ID",
-            placeholder="e.g. HT-001"
+            placeholder="e.g. HT-001",
+            key="maintenance_search_id"
         )
 
     with type_col:
@@ -302,7 +327,8 @@ def render_maintenance_page():
 
         selected_type = st.selectbox(
             "Equipment Type",
-            type_options
+            type_options,
+            key="maintenance_equipment_type"
         )
 
     with status_col:
@@ -316,7 +342,8 @@ def render_maintenance_page():
 
         selected_status = st.selectbox(
             "Maintenance Status",
-            status_options
+            status_options,
+            key="maintenance_status"
         )
 
     filtered_equipment = equipment.copy()
@@ -351,10 +378,10 @@ def render_maintenance_page():
     st.divider()
 
     # --------------------------------------------------
-    # SELECT EQUIPMENT FOR DETAILED INSPECTION
+    # EQUIPMENT INSPECTION
     # --------------------------------------------------
 
-    st.subheader("🛠️ Equipment Inspection")
+    st.subheader("Equipment Inspection")
 
     equipment_ids = (
         filtered_equipment["Equipment ID"]
@@ -410,32 +437,34 @@ def render_maintenance_page():
         )
 
         st.write(
-            "**Temperature condition:** "
+            "**Temperature Status:** "
             + selected_equipment["Temperature Status"]
         )
 
         st.write(
-            "**Vibration condition:** "
+            "**Vibration Status:** "
             + selected_equipment["Vibration Status"]
         )
 
         st.write(
-            "**Maintenance issue:** "
+            "**Maintenance Issue:** "
             + selected_equipment["Maintenance Issue"]
         )
+
+        availability = selected_equipment["Availability"]
 
         st.write(
             "**Availability:** "
             + (
-                f"{selected_equipment['Availability']:.1f}%"
-                if pd.notna(selected_equipment["Availability"])
+                f"{availability:.1f}%"
+                if pd.notna(availability)
                 else "Unavailable"
             )
         )
 
     else:
         st.info(
-            "No equipment matches your search and filter settings."
+            "No equipment matches your search and filters."
         )
 
     st.divider()
@@ -444,7 +473,7 @@ def render_maintenance_page():
     # MAINTENANCE STATUS CHART
     # --------------------------------------------------
 
-    st.subheader("📊 Maintenance Status")
+    st.subheader("Maintenance Status")
 
     if not filtered_equipment.empty:
 
@@ -466,7 +495,7 @@ def render_maintenance_page():
     # DOWNTIME BY EQUIPMENT TYPE
     # --------------------------------------------------
 
-    st.subheader("⏱️ Downtime by Equipment Type")
+    st.subheader("Downtime by Equipment Type")
 
     if not filtered_equipment.empty:
 
@@ -488,7 +517,7 @@ def render_maintenance_page():
     # MAINTENANCE ALERTS
     # --------------------------------------------------
 
-    st.subheader("🚨 Equipment Requiring Attention")
+    st.subheader("Equipment Requiring Attention")
 
     attention_equipment = filtered_equipment[
         filtered_equipment["Maintenance Issue"]
@@ -523,40 +552,62 @@ def render_maintenance_page():
     st.divider()
 
     # --------------------------------------------------
+    # RESET MAINTENANCE FORM FIELDS
+    # --------------------------------------------------
+    # Reset the text fields before rendering the form.
+    # The reset flag is set by the Clear Form button below.
+
+    if st.session_state.get("clear_maintenance_form", False):
+
+        st.session_state["maintenance_problem"] = ""
+        st.session_state["maintenance_action"] = ""
+        st.session_state["maintenance_technician"] = ""
+
+        st.session_state["clear_maintenance_form"] = False
+
+    # --------------------------------------------------
     # RECORD MAINTENANCE ACTION
     # --------------------------------------------------
 
-    st.subheader("📝 Record Maintenance Action")
+    st.subheader("Record Maintenance Action")
 
     st.write(
-        "Complete this form to prepare a maintenance record. "
-        "Records are saved to a CSV file."
+        "Enter the maintenance problem and action. "
+        "Use Clear Form to remove the text you entered."
+    )
+
+    # Build the equipment selection options
+    all_equipment_ids = (
+        equipment["Equipment ID"]
+        .dropna()
+        .astype(str)
+        .unique()
+        .tolist()
     )
 
     with st.form("maintenance_action_form"):
 
         action_equipment_id = st.selectbox(
             "Equipment ID",
-            equipment["Equipment ID"]
-            .dropna()
-            .astype(str)
-            .unique()
-            .tolist(),
+            all_equipment_ids,
             key="action_equipment_id"
         )
 
         problem = st.text_input(
             "Problem Identified",
-            placeholder="e.g. Excessive vibration"
+            placeholder="e.g. Excessive vibration",
+            key="maintenance_problem"
         )
 
         action_taken = st.text_area(
             "Maintenance Action",
-            placeholder="Describe the inspection or repair required."
+            placeholder="Describe the inspection or repair required.",
+            key="maintenance_action"
         )
 
         technician = st.text_input(
-            "Assigned Technician or Engineer"
+            "Assigned Technician or Engineer",
+            key="maintenance_technician"
         )
 
         action_status = st.selectbox(
@@ -566,18 +617,22 @@ def render_maintenance_page():
                 "In Progress",
                 "Completed",
                 "On Hold"
-            ]
+            ],
+            key="maintenance_action_status"
         )
 
         submitted = st.form_submit_button(
-            "Save Maintenance Record"
+            "Save Maintenance Record",
+            type="primary",
+            use_container_width=True
         )
 
         if submitted:
 
             if not problem.strip() or not action_taken.strip():
+
                 st.error(
-                    "Please enter the problem and maintenance action."
+                    "Please enter both the problem and maintenance action."
                 )
 
             else:
@@ -595,6 +650,7 @@ def render_maintenance_page():
 
                 try:
 
+                    # Append the new action to existing records
                     if os.path.exists(records_file):
 
                         old_records = pd.read_csv(records_file)
@@ -613,11 +669,34 @@ def render_maintenance_page():
                         "Maintenance action saved successfully."
                     )
 
+                    # Clear text fields after a successful save
+                    st.session_state["maintenance_problem"] = ""
+                    st.session_state["maintenance_action"] = ""
+                    st.session_state["maintenance_technician"] = ""
+
+                    st.rerun()
+
                 except Exception as error:
 
                     st.error(
                         f"Could not save maintenance record: {error}"
                     )
+
+    # --------------------------------------------------
+    # CLEAR FORM BUTTON
+    # --------------------------------------------------
+    # This button clears unsaved text only.
+    # Previously saved maintenance records remain unchanged.
+
+    if st.button(
+        "🧹 Clear Form",
+        key="clear_maintenance_action",
+        use_container_width=True
+    ):
+
+        st.session_state["clear_maintenance_form"] = True
+
+        st.rerun()
 
     # --------------------------------------------------
     # VIEW SAVED MAINTENANCE ACTIONS
@@ -654,7 +733,7 @@ def render_maintenance_page():
         )
 
     # --------------------------------------------------
-    # VIEW ALL EQUIPMENT RECORDS
+    # ALL EQUIPMENT RECORDS
     # --------------------------------------------------
 
     st.divider()
@@ -679,9 +758,7 @@ def render_maintenance_page():
     ]
 
     st.dataframe(
-        filtered_equipment[
-            display_columns
-        ],
+        filtered_equipment[display_columns],
         use_container_width=True,
         hide_index=True
     )

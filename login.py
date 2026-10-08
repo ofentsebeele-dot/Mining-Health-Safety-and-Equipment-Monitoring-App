@@ -1,8 +1,6 @@
-
 import streamlit as st
 
 # Users
-
 users = {"admin": {"password": "admin123", "role": "Administrator"},
          "safety": {"password": "safety123", "role": "Safety Officer"},
          "mining": {"password": "mining123", "role": "Mining Engineer"},
@@ -160,4 +158,3 @@ def has_permission(permission):
 
 
     return permission in permissions[role]
-```

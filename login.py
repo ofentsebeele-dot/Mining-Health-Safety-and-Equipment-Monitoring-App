@@ -28,17 +28,10 @@ def login():
     st.subheader("Login")
 
     # Ask for username
-    username = st.text_input(
-        "Username",
-        key="login_username"
-    )
+    username = st.text_input("Username", key="login_username")
 
     # Ask for password
-    password = st.text_input(
-        "Password",
-        type="password",
-        key="login_password"
-    )
+    password = st.text_input("Password", type="password", key="login_password")
 
     # Login button
     if st.button("Login"):
@@ -74,10 +67,7 @@ def login():
             # Username does not exist
             st.error("Username not found.")
 
-
-# --------------------------------------------------
-# LOGOUT
-# --------------------------------------------------
+# Logout
 
 def logout():
 
@@ -96,39 +86,21 @@ def logout():
         # Reload the application
         st.rerun()
 
-
-# --------------------------------------------------
-# PERMISSION CHECK
-# --------------------------------------------------
+# Permission check
 
 def has_permission(permission):
 
     # Get the current username
-    username = st.session_state.get(
-        "username",
-        ""
-    )
+    username = st.session_state.get("username", "")
 
     # Get the current role
-    role = st.session_state.get(
-        "role",
-        ""
-    )
+    role = st.session_state.get("role", "")
 
-    # --------------------------------------------------
-    # CHECK USER
-    # --------------------------------------------------
-    # If the username does not exist,
-    # access is denied.
-
+    # Check User
     if username not in users:
 
         return False
 
-
-    # --------------------------------------------------
-    # QUESTIONS
-    # --------------------------------------------------
     # Questions are available to everyone.
 
     if permission == "questions":
@@ -136,9 +108,7 @@ def has_permission(permission):
         return True
 
 
-    # --------------------------------------------------
-    # CUSTOM USER PERMISSIONS
-    # --------------------------------------------------
+    # Custom user permissions
     # If the Administrator has changed the permissions
     # for this specific user, use those permissions.
 
@@ -146,10 +116,7 @@ def has_permission(permission):
 
         return permission in user_permissions[username]
 
-
-    # --------------------------------------------------
-    # ROLE PERMISSIONS
-    # --------------------------------------------------
+    # Role permissions
     # If there are no custom permissions,
     # use the user's normal role permissions.
 

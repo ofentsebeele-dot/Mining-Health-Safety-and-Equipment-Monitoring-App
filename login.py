@@ -13,86 +13,12 @@ users = {"admin": {"password": "admin123", "role": "Administrator"},
 # Role Permissions
 
 permissions = {"Administrator": ["dashboard", "worker_health", "incidents", "equipment", "maintenance", "risk_assessment", "reports", "questions", "manage_users"],
-               "Safety Officer": ["dashboard", "worker_health",
-        "incidents",
-        "risk_assessment",
-        "reports",
-        "questions"
-    ],
+               "Safety Officer": ["dashboard", "worker_health", "incidents", "risk_assessment", "reports", "questions"],
+               "Mining Engineer":["dashboard", "worker_health", "incidents","equipment", "maintenance", "risk_assessment", "reports", "questions"],
+               "Maintenance Engineer": ["dashboard", "equipment", "maintenance",  "reports", "questions"],
+               "Manager": ["dashboard", "worker_health", "incidents","equipment", "maintenance", "risk_assessment", "reports", "questions"]}
 
-
-    # --------------------------------------------------
-    # MINING ENGINEER
-    # --------------------------------------------------
-
-    "Mining Engineer": [
-        "dashboard",
-        "worker_health",
-        "maintenance",
-        "risk_assessment",
-        "questions"
-    ],
-
-
-    # --------------------------------------------------
-    # MAINTENANCE ENGINEER
-    # --------------------------------------------------
-
-    "Maintenance Engineer": [
-        "dashboard",
-        "worker_health",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "questions"
-    ],
-
-
-    # --------------------------------------------------
-    # MANAGER
-    # --------------------------------------------------
-
-    "Manager": [
-        "dashboard",
-        "worker_health",
-        "incidents",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "reports",
-        "questions"
-    ]
-}
-
-
-# --------------------------------------------------
-# USER-SPECIFIC PERMISSIONS
-# --------------------------------------------------
-# This dictionary stores permission changes made
-# by the Administrator for individual users.
-#
-# It starts empty.
-#
-# Example:
-#
-# user_permissions["mining"] = [
-#     "dashboard",
-#     "worker_health",
-#     "equipment",
-#     "maintenance",
-#     "risk_assessment",
-#     "questions"
-# ]
-#
-# This would give the mining engineer exactly
-# those permissions.
-
-user_permissions = {}
-
-
-# --------------------------------------------------
-# LOGIN
-# --------------------------------------------------
+# Login
 
 def login():
 

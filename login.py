@@ -29,8 +29,10 @@ users = {
 
 
 # --------------------------------------------------
-# PERMISSIONS
+# EXISTING ROLE PERMISSIONS
 # --------------------------------------------------
+# DO NOT CHANGE THESE PERMISSIONS.
+# These are the original permissions you provided.
 
 permissions = {
 
@@ -41,7 +43,8 @@ permissions = {
         "equipment",
         "maintenance",
         "risk_assessment",
-        "reports", "questions",
+        "reports",
+        "questions",
         "manage_users"
     ],
 
@@ -49,7 +52,8 @@ permissions = {
         "dashboard",
         "worker_health",
         "incidents",
-        "risk_assessment", "questions",
+        "risk_assessment",
+        "questions",
         "reports"
     ],
 
@@ -59,15 +63,39 @@ permissions = {
         "incidents",
         "equipment",
         "maintenance",
-        "risk_assessment", "questions",
+        "risk_assessment",
+        "questions",
         "reports"
     ],
 
     "Worker": [
-        "dashboard", "questions",
+        "dashboard",
+        "questions",
         "worker_health"
     ]
 }
+
+
+# --------------------------------------------------
+# USER-SPECIFIC PERMISSION CHANGES
+# --------------------------------------------------
+# This dictionary stores changes made by the Administrator.
+#
+# It starts empty, meaning everyone uses their normal
+# role permissions above.
+#
+# Example:
+#
+# user_permissions["worker"] = [
+#     "dashboard",
+#     "questions",
+#     "worker_health",
+#     "incidents"
+# ]
+#
+# This would give the worker an extra permission.
+
+user_permissions = {}
 
 
 # --------------------------------------------------
@@ -93,10 +121,13 @@ def login():
 
     if st.button("Login"):
 
+        # Check whether the username exists
         if username in users:
 
+            # Check the password
             if users[username]["password"] == password:
 
+                # Save login information
                 st.session_state["logged_in"] = True
                 st.session_state["username"] = username
                 st.session_state["role"] = users[username]["role"]
@@ -141,10 +172,41 @@ def logout():
 
 def has_permission(permission):
 
+    # Get the logged-in username
+    username = st.session_state.get(
+        "username",
+        ""
+    )
+
+    # Get the logged-in user's role
     role = st.session_state.get(
         "role",
         ""
     )
+
+    # If the user does not exist, deny access
+    if username not in users:
+
+        return False
+
+    # Questions are available to everyone
+    if permission == "questions":
+
+        return True
+
+    # --------------------------------------------------
+    # CHECK FOR ADMINISTRATOR CHANGES
+    # --------------------------------------------------
+    # If the Administrator has created custom permissions
+    # for this user, use those permissions.
+
+    if username in user_permissions:
+
+        return permission in user_permissions[username]
+
+    # --------------------------------------------------
+    # OTHERWISE USE THE ORIGINAL ROLE PERMISSIONS
+    # --------------------------------------------------
 
     if role not in permissions:
 

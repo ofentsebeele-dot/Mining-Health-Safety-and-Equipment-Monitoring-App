@@ -1,118 +1,128 @@
-
 import streamlit as st
 
+# Users
+users = {"admin": {"password": "admin123", "role": "Administrator"},
+         "safety": {"password": "safety123", "role": "Safety Officer"},
+         "mining": {"password": "mining123", "role": "Mining Engineer"},
+         "maintenance": {"password": "maintenance123", "role": "Maintenance Engineer"},
+         "manager": {"password": "manager123","role": "Manager"}}
 
-# --------------------------------------------------
-# USER MANAGEMENT PAGE
-# --------------------------------------------------
+user_permissions = {} # This dictionary stores permission changes made
 
-def render_user_management_page():
+# Role Permissions
 
-    st.title("User Management")
+permissions = {"Administrator": ["dashboard", "worker_health", "incidents", "equipment", "maintenance", "risk_assessment", "reports", "questions", "manage_users"],
+               "Safety Officer": ["dashboard", "worker_health", "incidents", "risk_assessment", "reports", "questions"],
+               "Mining Engineer":["dashboard", "worker_health", "incidents","equipment", "maintenance", "risk_assessment", "reports", "questions"],
+               "Maintenance Engineer": ["dashboard", "equipment", "maintenance",  "reports", "questions"],
+               "Manager": ["dashboard", "worker_health", "incidents","equipment", "maintenance", "risk_assessment", "reports", "questions"]}
 
-    st.write(
-        "Administrator page for managing system users."
-    )
+# Login
 
-    # --------------------------------------------------
-    # EXISTING USERS
-    # --------------------------------------------------
+def login():
 
-    users = {
-        "admin": {
-            "password": "admin123",
-            "role": "Administrator"
-        },
-        "safety": {
-            "password": "safety123",
-            "role": "Safety Officer"
-        },
-        "manager": {
-            "password": "manager123",
-            "role": "Manager"
-        },
-        "worker": {
-            "password": "worker123",
-            "role": "Worker"
-        }
-    }
+    # Display the application title
+    st.title("Khwezi Mining Monitoring System")
 
-    # --------------------------------------------------
-    # DISPLAY USERS
-    # --------------------------------------------------
+    # Display login heading
+    st.subheader("Login")
 
-    st.subheader("Existing Users")
+    # Ask for username
+    username = st.text_input("Username", key="login_username")
 
-    for username, details in users.items():
+    # Ask for password
+    password = st.text_input("Password", type="password", key="login_password")
 
-        st.write(
-            f"**Username:** {username}"
-        )
+    # Login button
+    if st.button("Login"):
 
-        st.write(
-            f"**Role:** {details['role']}"
-        )
+        # Check whether the username exists
+        if username in users:
 
-        st.divider()
+            # Check whether the password is correct
+            if users[username]["password"] == password:
 
-    # --------------------------------------------------
-    # ADD NEW USER
-    # --------------------------------------------------
+                # Store login status
+                st.session_state["logged_in"] = True
 
-    st.subheader("Add New User")
+                # Store username
+                st.session_state["username"] = username
 
-    new_username = st.text_input(
-        "New Username"
-    )
+                # Store user's role
+                st.session_state["role"] = users[username]["role"]
 
-    new_password = st.text_input(
-        "New Password",
-        type="password"
-    )
+                # Display success message
+                st.success("Login successful.")
 
-    available_roles = [
-        "Administrator",
-        "Safety Officer",
-        "Manager",
-        "Worker"
-    ]
+                # Reload the application
+                st.rerun()
 
-    new_role = st.selectbox(
-        "Select Role",
-        available_roles
-    )
+            else:
 
-    if st.button("Add User"):
-
-        # Check that the username was entered.
-        if new_username.strip() == "":
-
-            st.error(
-                "Please enter a username."
-            )
-
-        # Check that the password was entered.
-        elif new_password.strip() == "":
-
-            st.error(
-                "Please enter a password."
-            )
-
-        # Check for duplicate usernames.
-        elif new_username in users:
-
-            st.error(
-                "This username already exists."
-            )
+                # Password is incorrect
+                st.error("Incorrect password.")
 
         else:
 
-            # Add the new account to the users dictionary.
-            users[new_username] = {
-                "password": new_password,
-                "role": new_role
-            }
+            # Username does not exist
+            st.error("Username not found.")
 
-            st.success(
-                f"User '{new_username}' added successfully."
-            )
+# Logout
+
+def logout():
+
+    # Display logout button in the sidebar
+    if st.sidebar.button("Logout"):
+
+        # Clear login status
+        st.session_state["logged_in"] = False
+
+        # Clear username
+        st.session_state["username"] = ""
+
+        # Clear role
+        st.session_state["role"] = ""
+
+        # Reload the application
+        st.rerun()
+
+# Permission check
+
+def has_permission(permission):
+
+    # Get the current username
+    username = st.session_state.get("username", "")
+
+    # Get the current role
+    role = st.session_state.get("role", "")
+
+    # Check User
+    if username not in users:
+
+        return False
+
+    # Questions are available to everyone.
+
+    if permission == "questions":
+
+        return True
+
+
+    # Custom user permissions
+    # If the Administrator has changed the permissions
+    # for this specific user, use those permissions.
+
+    if username in user_permissions:
+
+        return permission in user_permissions[username]
+
+    # Role permissions
+    # If there are no custom permissions,
+    # use the user's normal role permissions.
+
+    if role not in permissions:
+
+        return False
+
+
+    return permission in permissions[role]

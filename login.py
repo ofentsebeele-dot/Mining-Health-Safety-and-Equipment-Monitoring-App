@@ -3,12 +3,10 @@ import streamlit as st
 import os
 import base64
 
-
 # --------------------------------------------------
 # ROLE PERMISSIONS
+# Defines which pages each role can access.
 # --------------------------------------------------
-# Define the pages that each role is allowed to access.
-# All logged-in users can access the Questions page.
 
 ROLE_PERMISSIONS = {
     "Administrator": [
@@ -20,7 +18,7 @@ ROLE_PERMISSIONS = {
         "risk_assessment",
         "reports",
         "questions",
-        "manage_users"
+        "manage_users",
     ],
 
     "Safety Officer": [
@@ -29,18 +27,17 @@ ROLE_PERMISSIONS = {
         "incidents",
         "risk_assessment",
         "reports",
-        "questions"
+        "questions",
     ],
 
     "Mining Engineer": [
         "dashboard",
         "worker_health",
-        "incidents",
         "equipment",
         "maintenance",
         "risk_assessment",
         "reports",
-        "questions"
+        "questions",
     ],
 
     "Maintenance Engineer": [
@@ -48,7 +45,7 @@ ROLE_PERMISSIONS = {
         "equipment",
         "maintenance",
         "reports",
-        "questions"
+        "questions",
     ],
 
     "Manager": [
@@ -59,55 +56,71 @@ ROLE_PERMISSIONS = {
         "maintenance",
         "risk_assessment",
         "reports",
-        "questions"
-    ]
+        "questions",
+    ],
 }
 
 
 # --------------------------------------------------
-# DEMONSTRATION USER ACCOUNTS
+# USER ACCOUNTS
+# Demonstration accounts for the prototype.
 # --------------------------------------------------
-# These accounts are for prototype testing.
-# Do not use plain-text passwords for a production system.
 
 USERS = {
     "admin": {
         "password": "admin123",
         "role": "Administrator",
-        "blocked": False
+        "blocked": False,
     },
 
     "safety": {
         "password": "safety123",
         "role": "Safety Officer",
-        "blocked": False
+        "blocked": False,
     },
 
     "mining": {
         "password": "mining123",
         "role": "Mining Engineer",
-        "blocked": False
+        "blocked": False,
     },
 
     "maintenance": {
         "password": "maintenance123",
         "role": "Maintenance Engineer",
-        "blocked": False
+        "blocked": False,
     },
 
     "manager": {
         "password": "manager123",
         "role": "Manager",
-        "blocked": False
-    }
+        "blocked": False,
+    },
 }
+
+
+# --------------------------------------------------
+# COMPATIBILITY VARIABLES
+# These names may be used by user_management.py.
+# --------------------------------------------------
+
+users = USERS
+permissions = ROLE_PERMISSIONS
+
+# Temporary individual permission overrides.
+user_permissions = {}
+
+# All available page permissions.
+available_permissions = sorted({
+    permission
+    for role_pages in ROLE_PERMISSIONS.values()
+    for permission in role_pages
+})
 
 
 # --------------------------------------------------
 # SESSION STATE
 # --------------------------------------------------
-# Preserve the login details while the user navigates
-# around the Streamlit application.
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -121,189 +134,161 @@ if "role" not in st.session_state:
 
 # --------------------------------------------------
 # LOGIN BACKGROUND IMAGE
+# Looks for khwezi_login.png in the main folder
+# or inside the data folder.
 # --------------------------------------------------
+
 def show_login_background():
-    # Find the folder containing this login.py file.
-    project_folder = os.path.dirname(
+
+    current_folder = os.path.dirname(
         os.path.abspath(__file__)
     )
 
-    # Check the main folder and the data folder.
     image_paths = [
-        os.path.join(project_folder, "khwezi_login.png"),
         os.path.join(
-            project_folder,
+            current_folder,
+            "khwezi_login.png"
+        ),
+        os.path.join(
+            current_folder,
             "data",
             "khwezi_login.png"
-        )
+        ),
     ]
 
     image_path = None
 
-    # Find the first available image.
     for path in image_paths:
         if os.path.isfile(path):
             image_path = path
             break
 
-    # Show an error if the image is missing.
-    if image_path is None:
-        st.error(
-            "The login background image could not be found."
-        )
+    if image_path:
 
-        st.write(
-            "Expected filename: khwezi_login.png"
-        )
+        try:
+            with open(image_path, "rb") as image_file:
+                encoded_image = base64.b64encode(
+                    image_file.read()
+                ).decode("utf-8")
 
-        st.write(
-            "Upload the image beside app.py and login.py "
-            "in your GitHub repository."
-        )
+            background_css = f"""
+            <style>
+            [data-testid="stAppViewContainer"] {{
+                background-image:
+                    linear-gradient(
+                        rgba(5, 15, 30, 0.35),
+                        rgba(5, 15, 30, 0.55)
+                    ),
+                    url("data:image/png;base64,{encoded_image}");
 
-        # Use a navy background if no image is available.
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+            }}
+
+            [data-testid="stHeader"] {{
+                background: transparent;
+            }}
+
+            [data-testid="stMain"] {{
+                background: transparent;
+            }}
+
+            [data-testid="stMainBlockContainer"] {{
+                padding-top: 3rem;
+            }}
+
+            /* Login form appearance */
+            [data-testid="stForm"] {{
+                background-color: rgba(255, 255, 255, 0.96);
+                padding: 25px;
+                border-radius: 12px;
+                border: 1px solid #d5dce5;
+            }}
+
+            /* Login button appearance */
+            .stForm button {{
+                background-color: #17365D;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                width: 100%;
+            }}
+
+            .stForm button:hover {{
+                background-color: #244A78;
+                color: white;
+            }}
+            </style>
+            """
+
+            st.markdown(
+                background_css,
+                unsafe_allow_html=True
+            )
+
+        except Exception as error:
+            st.error(
+                f"Could not load the background image: {error}"
+            )
+
+    else:
+        # Display a dark background if the image is missing.
         st.markdown(
             """
             <style>
             [data-testid="stAppViewContainer"] {
                 background-color: #10243A;
             }
+
+            [data-testid="stHeader"] {
+                background: transparent;
+            }
+
+            [data-testid="stMain"] {
+                background: transparent;
+            }
             </style>
             """,
             unsafe_allow_html=True
         )
 
-        return
-
-    # Read the image and convert it to Base64.
-    # This embeds the image in the page styling.
-    try:
-        with open(image_path, "rb") as image_file:
-            image_bytes = image_file.read()
-
-        encoded_image = base64.b64encode(
-            image_bytes
-        ).decode("utf-8")
-
-    except OSError as error:
-        st.error(f"Could not read the background image: {error}")
-        return
-
-    # Apply the image to the Streamlit application.
-    # The overlay keeps the login form readable.
-    st.markdown(
-        f"""
-        <style>
-        [data-testid="stAppViewContainer"] {{
-            background-image:
-                linear-gradient(
-                    rgba(5, 18, 35, 0.25),
-                    rgba(5, 18, 35, 0.45)
-                ),
-                url("data:image/png;base64,{encoded_image}");
-
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }}
-
-        [data-testid="stHeader"] {{
-            background: transparent;
-        }}
-
-        [data-testid="stMain"] {{
-            background: transparent;
-        }}
-
-        .block-container {{
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-        }}
-
-        /* Style the login input fields. */
-        div[data-testid="stTextInput"] input {{
-            background-color: white;
-            color: #10243A;
-            border-radius: 6px;
-        }}
-
-        /* Style the login button. */
-        div[data-testid="stFormSubmitButton"] button {{
-            background-color: #D6A62E;
-            color: #10243A;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            min-height: 45px;
-        }}
-
-        div[data-testid="stFormSubmitButton"] button:hover {{
-            background-color: #F0C75E;
-            color: #10243A;
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+        st.warning(
+            "Background image not found. "
+            "Check that khwezi_login.png is in the app folder."
+        )
 
 
 # --------------------------------------------------
 # LOGIN FUNCTION
+# Displays only the login heading and login form.
+# The requested branding text is not included.
 # --------------------------------------------------
+
 def login():
-    # Display the background before the login form.
+
     show_login_background()
 
-    # Create a centred login area.
-    left_column, centre_column, right_column = st.columns(
-        [1, 1.1, 1]
+    # Centre the login form on the page.
+    left_column, middle_column, right_column = st.columns(
+        [1, 1.2, 1]
     )
 
-    with centre_column:
+    with middle_column:
 
-        # Display the system heading.
+        # Login heading only.
         st.markdown(
             """
-            <div style="
-                background-color: rgba(10, 27, 48, 0.90);
-                padding: 22px;
-                border-radius: 12px;
-                text-align: center;
-                border: 1px solid #D6A62E;
-            ">
-                <h1 style="
-                    color: #F0C75E;
-                    margin-bottom: 6px;
-                    font-size: 30px;
-                ">
-                    KHWEZI MINING
-                </h1>
-
-                <h3 style="
-                    color: white;
-                    margin-top: 0;
-                ">
-                    Monitoring System
-                </h3>
-
-                <p style="
-                    color: #E4EAF1;
-                    font-size: 14px;
-                ">
-                    Health, Safety and Equipment Monitoring
-                </p>
-            </div>
+            <h3 style="color:white; text-align:center;">
+                Login
+            </h3>
             """,
             unsafe_allow_html=True
         )
 
-        st.write("")
-
-        # Create the functional login form.
-        with st.form("khwezi_login_form"):
-
-            st.subheader("Sign in to your account")
+        # Username and password form.
+        with st.form("login_form"):
 
             username = st.text_input(
                 "Username",
@@ -321,75 +306,90 @@ def login():
                 use_container_width=True
             )
 
-            if submitted:
+        # Validate the submitted login details.
+        if submitted:
 
-                # Check that both fields are completed.
-                if not username.strip() or not password:
-                    st.error(
-                        "Please enter your username and password."
-                    )
+            username = username.strip()
 
-                # Check that the username exists.
-                elif username not in USERS:
-                    st.error("Invalid username or password.")
+            if not username or not password:
+                st.error(
+                    "Please enter both your username and password."
+                )
 
-                # Check whether the account is blocked.
-                elif USERS[username].get("blocked", False):
-                    st.error(
-                        "This account is blocked. "
-                        "Contact the administrator."
-                    )
+            elif username not in USERS:
+                st.error(
+                    "Invalid username or password."
+                )
 
-                # Check whether the password is correct.
-                elif USERS[username]["password"] != password:
-                    st.error("Invalid username or password.")
+            elif USERS[username].get("blocked", False):
+                st.error(
+                    "This account has been blocked. "
+                    "Please contact the administrator."
+                )
 
-                else:
-                    # Store the successful login information.
-                    st.session_state["logged_in"] = True
-                    st.session_state["username"] = username
-                    st.session_state["role"] = USERS[username]["role"]
+            elif USERS[username]["password"] != password:
+                st.error(
+                    "Invalid username or password."
+                )
 
-                    # Refresh the page to open the application.
-                    st.rerun()
+            else:
+                # Save the logged-in user's information.
+                st.session_state["logged_in"] = True
+                st.session_state["username"] = username
+                st.session_state["role"] = USERS[username]["role"]
+
+                # Refresh the application.
+                st.rerun()
 
 
 # --------------------------------------------------
-# PERMISSION CHECKING
+# PERMISSION CHECK
+# Checks whether a logged-in user can access a page.
 # --------------------------------------------------
+
 def has_permission(permission):
-    # Deny access if the user is not logged in.
+
     if not st.session_state.get("logged_in", False):
         return False
 
     username = st.session_state.get("username", "")
 
-    # Confirm that the user account exists.
     if username not in USERS:
         return False
 
-    # Deny access to blocked accounts.
     if USERS[username].get("blocked", False):
         return False
 
     role = st.session_state.get("role", "")
 
-    # Every logged-in role can use the Questions page.
+    # Every logged-in user can access Questions.
     if permission == "questions":
         return True
 
-    # Check the permissions for the current role.
-    return permission in ROLE_PERMISSIONS.get(role, [])
+    # Check the user's role permissions.
+    allowed_pages = ROLE_PERMISSIONS.get(role, [])
+
+    if permission in allowed_pages:
+        return True
+
+    # Check optional individual permission overrides.
+    individual_permissions = user_permissions.get(
+        username,
+        {}
+    )
+
+    return individual_permissions.get(permission, False)
 
 
 # --------------------------------------------------
 # LOGOUT FUNCTION
+# Clears the user's session and returns to login.
 # --------------------------------------------------
+
 def logout():
-    # Clear the current user's login details.
+
     st.session_state["logged_in"] = False
     st.session_state["username"] = ""
     st.session_state["role"] = ""
 
-    # Return the application to the login page.
     st.rerun()

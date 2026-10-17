@@ -8,7 +8,7 @@ import base64
 # BACKGROUND IMAGE
 # --------------------------------------------------
 
-def set_background("mine_background.png"):
+def set_background(mine_background.png):
     with open(image_file, "rb") as image:
         encoded_image = base64.b64encode(image.read()).decode()
 

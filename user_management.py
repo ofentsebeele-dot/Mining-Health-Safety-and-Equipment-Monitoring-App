@@ -1,288 +1,118 @@
 
 import streamlit as st
-import os
-import base64
 
 
 # --------------------------------------------------
-# ROLE PERMISSIONS
+# USER MANAGEMENT PAGE
 # --------------------------------------------------
 
-ROLE_PERMISSIONS = {
-    "Administrator": [
-        "dashboard",
-        "worker_health",
-        "incidents",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "reports",
-        "questions",
-        "manage_users"
-    ],
+def render_user_management_page():
 
-    "Safety Officer": [
-        "dashboard",
-        "worker_health",
-        "incidents",
-        "risk_assessment",
-        "reports",
-        "questions"
-    ],
+    st.title("User Management")
 
-    "Mining Engineer": [
-        "dashboard",
-        "worker_health",
-        "incidents",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "reports",
-        "questions"
-    ],
+    st.write(
+        "Administrator page for managing system users."
+    )
 
-    "Maintenance Engineer": [
-        "dashboard",
-        "equipment",
-        "maintenance",
-        "reports",
-        "questions"
-    ],
+    # --------------------------------------------------
+    # EXISTING USERS
+    # --------------------------------------------------
 
-    "Manager": [
-        "dashboard",
-        "worker_health",
-        "incidents",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "reports",
-        "questions"
-    ]
-}
-
-
-# --------------------------------------------------
-# USERS
-# --------------------------------------------------
-
-USERS = {
-    "admin": {
-        "password": "admin123",
-        "role": "Administrator",
-        "blocked": False
-    },
-
-    "safety": {
-        "password": "safety123",
-        "role": "Safety Officer",
-        "blocked": False
-    },
-
-    "mining": {
-        "password": "mining123",
-        "role": "Mining Engineer",
-        "blocked": False
-    },
-
-    "maintenance": {
-        "password": "maintenance123",
-        "role": "Maintenance Engineer",
-        "blocked": False
-    },
-
-    "manager": {
-        "password": "manager123",
-        "role": "Manager",
-        "blocked": False
+    users = {
+        "admin": {
+            "password": "admin123",
+            "role": "Administrator"
+        },
+        "safety": {
+            "password": "safety123",
+            "role": "Safety Officer"
+        },
+        "manager": {
+            "password": "manager123",
+            "role": "Manager"
+        },
+        "worker": {
+            "password": "worker123",
+            "role": "Worker"
+        }
     }
-}
 
+    # --------------------------------------------------
+    # DISPLAY USERS
+    # --------------------------------------------------
 
-# --------------------------------------------------
-# SESSION STATE
-# --------------------------------------------------
+    st.subheader("Existing Users")
 
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
+    for username, details in users.items():
 
-if "username" not in st.session_state:
-    st.session_state["username"] = ""
+        st.write(
+            f"**Username:** {username}"
+        )
 
-if "role" not in st.session_state:
-    st.session_state["role"] = ""
+        st.write(
+            f"**Role:** {details['role']}"
+        )
 
+        st.divider()
 
-# --------------------------------------------------
-# LOGIN BACKGROUND IMAGE
-# --------------------------------------------------
+    # --------------------------------------------------
+    # ADD NEW USER
+    # --------------------------------------------------
 
-def show_login_background():
+    st.subheader("Add New User")
 
-    # Look for the login image in the project folder
-    # or in the data folder.
-    image_paths = [
-        "khwezi_login.png",
-        os.path.join("data", "khwezi_login.png")
+    new_username = st.text_input(
+        "New Username"
+    )
+
+    new_password = st.text_input(
+        "New Password",
+        type="password"
+    )
+
+    available_roles = [
+        "Administrator",
+        "Safety Officer",
+        "Manager",
+        "Worker"
     ]
 
-    image_path = None
+    new_role = st.selectbox(
+        "Select Role",
+        available_roles
+    )
 
-    for path in image_paths:
-        if os.path.exists(path):
-            image_path = path
-            break
+    if st.button("Add User"):
 
-    # Display the background image when available.
-    if image_path:
+        # Check that the username was entered.
+        if new_username.strip() == "":
 
-        with open(image_path, "rb") as image_file:
-            encoded_image = base64.b64encode(
-                image_file.read()
-            ).decode()
+            st.error(
+                "Please enter a username."
+            )
 
-        st.markdown(
-            f"""
-            <style>
-            .stApp {{
-                background-image:
-                    url("data:image/png;base64,{encoded_image}");
-                background-size: cover;
-                background-position: center;
-                background-attachment: fixed;
-            }}
+        # Check that the password was entered.
+        elif new_password.strip() == "":
 
-            .login-container {{
-                background-color: rgba(255, 255, 255, 0.96);
-                padding: 30px;
-                border-radius: 10px;
-                max-width: 450px;
-                margin: auto;
-            }}
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
+            st.error(
+                "Please enter a password."
+            )
 
-    else:
+        # Check for duplicate usernames.
+        elif new_username in users:
 
-        # Use a plain background if the image is missing.
-        st.markdown(
-            """
-            <style>
-            .stApp {
-                background-color: #0B1F33;
+            st.error(
+                "This username already exists."
+            )
+
+        else:
+
+            # Add the new account to the users dictionary.
+            users[new_username] = {
+                "password": new_password,
+                "role": new_role
             }
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
 
-
-# --------------------------------------------------
-# LOGIN FUNCTION
-# --------------------------------------------------
-
-def login():
-
-    show_login_background()
-
-    # Centre the login form on the page.
-    left, middle, right = st.columns([1, 1.5, 1])
-
-    with middle:
-
-        with st.form("login_form"):
-
-            username = st.text_input("Username")
-
-            password = st.text_input(
-                "Password",
-                type="password"
+            st.success(
+                f"User '{new_username}' added successfully."
             )
-
-            submitted = st.form_submit_button(
-                "Login",
-                use_container_width=True
-            )
-
-        if submitted:
-
-            # Check whether the username exists.
-            if username in USERS:
-
-                user = USERS[username]
-
-                # Prevent blocked accounts from logging in.
-                if user.get("blocked", False):
-
-                    st.error(
-                        "Your account has been blocked. "
-                        "Please contact the Administrator."
-                    )
-
-                # Verify the password.
-                elif password == user["password"]:
-
-                    st.session_state["logged_in"] = True
-                    st.session_state["username"] = username
-                    st.session_state["role"] = user["role"]
-
-                    st.success("Login successful!")
-
-                    st.rerun()
-
-                else:
-
-                    st.error("Incorrect password.")
-
-            else:
-
-                st.error("Username does not exist.")
-
-
-# --------------------------------------------------
-# CHECK USER PERMISSIONS
-# --------------------------------------------------
-
-def has_permission(permission):
-
-    # The user must be logged in.
-    if not st.session_state.get("logged_in", False):
-        return False
-
-    username = st.session_state.get("username", "")
-
-    # Check that the account exists.
-    if username not in USERS:
-        return False
-
-    user = USERS[username]
-
-    # Blocked users cannot access pages.
-    if user.get("blocked", False):
-        return False
-
-    # Questions are available to every logged-in user.
-    if permission == "questions":
-        return True
-
-    # Get the user's role.
-    role = user.get("role", "")
-
-    # Check whether the role has permission for the page.
-    return permission in ROLE_PERMISSIONS.get(role, [])
-
-
-# --------------------------------------------------
-# LOGOUT FUNCTION
-# --------------------------------------------------
-
-def logout():
-
-    # Clear the current user's login information.
-    st.session_state["logged_in"] = False
-    st.session_state["username"] = ""
-    st.session_state["role"] = ""
-
-    st.rerun()

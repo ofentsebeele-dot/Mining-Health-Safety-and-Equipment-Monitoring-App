@@ -1,20 +1,11 @@
 
 import streamlit as st
 
-# Import the dictionaries that already exist in login.py.
-from login import USERS as users
-from login import ROLE_PERMISSIONS as permissions
-
-
-# --------------------------------------------------
-# STORE CUSTOM PERMISSIONS IN SESSION STATE
-# --------------------------------------------------
-
-# Preserve custom permissions during the current Streamlit session.
-if "user_permissions" not in st.session_state:
-    st.session_state["user_permissions"] = {}
-
-user_permissions = st.session_state["user_permissions"]
+from login import (
+    users,
+    permissions,
+    user_permissions
+)
 
 
 # --------------------------------------------------
@@ -30,7 +21,7 @@ PAGE_NAMES = {
     "risk_assessment": "Risk Assessment",
     "reports": "Reports",
     "questions": "Questions & Answers",
-    "manage_users": "Manage Users",
+    "manage_users": "Manage Users"
 }
 
 
@@ -38,29 +29,12 @@ PAGE_NAMES = {
 # AVAILABLE ROLES
 # --------------------------------------------------
 
-# These roles match the intended project roles.
 ROLES = [
     "Administrator",
     "Safety Officer",
-    "Mining Engineer",
-    "Maintenance Engineer",
-    "Manager",
+    "Mining Manager",
+    "Worker"
 ]
-
-
-# --------------------------------------------------
-# GET USER STATUS
-# --------------------------------------------------
-
-def get_user_status(username):
-    """Return the user's status, supporting the existing login format."""
-    user = users[username]
-
-    # The existing login.py may use blocked=True/False.
-    if user.get("blocked", False):
-        return "Blocked"
-
-    return user.get("status", "Active")
 
 
 # --------------------------------------------------
@@ -68,14 +42,12 @@ def get_user_status(username):
 # --------------------------------------------------
 
 def get_original_permissions(username):
-    """Return the permissions assigned to the user's role."""
-    if username not in users:
-        return []
 
-    role = users[username].get("role", "")
+    # Get the user's role
+    role = users[username]["role"]
 
-    # Return a copy so the original role list is not changed.
-    return list(permissions.get(role, []))
+    # Return a copy of the original role permissions
+    return permissions.get(role, []).copy()
 
 
 # --------------------------------------------------
@@ -83,20 +55,15 @@ def get_original_permissions(username):
 # --------------------------------------------------
 
 def get_current_permissions(username):
-    """Return custom permissions or the user's original permissions."""
-    if username not in users:
-        return []
 
+    # If the Administrator has changed this user's
+    # permissions, use those custom permissions
     if username in user_permissions:
-        current = list(user_permissions[username])
-    else:
-        current = get_original_permissions(username)
 
-    # Questions must always be available to every user.
-    if "questions" not in current:
-        current.append("questions")
+        return user_permissions[username].copy()
 
-    return current
+    # Otherwise use the original role permissions
+    return get_original_permissions(username)
 
 
 # --------------------------------------------------
@@ -104,41 +71,92 @@ def get_current_permissions(username):
 # --------------------------------------------------
 
 def show_user_information(username):
+
     st.subheader("User Information")
 
     user = users[username]
 
+    # Display basic account information
     col1, col2 = st.columns(2)
 
     with col1:
-        st.write(f"**Username:** {username}")
-        st.write(f"**Role:** {user.get('role', 'Not assigned')}")
+
+        st.write(
+            f"**Username:** {username}"
+        )
+
+        st.write(
+            f"**Role:** {user['role']}"
+        )
 
     with col2:
-        st.write(f"**Status:** {get_user_status(username)}")
-        st.write("**Password:** Hidden")
+
+        # Status may not exist for old users,
+        # so Active is used by default
+        status = user.get(
+            "status",
+            "Active"
+        )
+
+        st.write(
+            f"**Status:** {status}"
+        )
+
+        st.write(
+            "**Password:** ********"
+        )
 
     st.divider()
+
+    # --------------------------------------------------
+    # ORIGINAL ROLE PERMISSIONS
+    # --------------------------------------------------
+
     st.write("### Original Role Permissions")
 
-    original = get_original_permissions(username)
+    original_permissions = get_original_permissions(
+        username
+    )
 
-    for key, name in PAGE_NAMES.items():
-        if key in original:
-            st.success(f"✓ {name}")
+    for permission_key, permission_name in PAGE_NAMES.items():
+
+        if permission_key in original_permissions:
+
+            st.success(
+                f"✓ {permission_name}"
+            )
+
         else:
-            st.error(f"✗ {name}")
+
+            st.error(
+                f"✗ {permission_name}"
+            )
 
     st.divider()
+
+    # --------------------------------------------------
+    # CURRENT PERMISSIONS
+    # --------------------------------------------------
+
     st.write("### Current Permissions")
 
-    current = get_current_permissions(username)
+    current_permissions = get_current_permissions(
+        username
+    )
 
-    for key, name in PAGE_NAMES.items():
-        if key in current:
-            st.success(f"✓ {name}")
+    for permission_key, permission_name in PAGE_NAMES.items():
+
+        if permission_key in current_permissions:
+
+            st.success(
+                f"✓ {permission_name}"
+            )
+
         else:
-            st.error(f"✗ {name}")
+
+            st.error(
+                f"✗ {permission_name}"
+            )
 
 
 # --------------------------------------------------
@@ -146,64 +164,88 @@ def show_user_information(username):
 # --------------------------------------------------
 
 def change_permissions(username):
+
     st.subheader("Change User Permissions")
 
     st.info(
-        "These changes affect the selected user's individual access, "
-        "not the original permissions assigned to their role."
+        "The original role permissions are not changed. "
+        "You are only changing this individual user's access."
     )
 
-    current = get_current_permissions(username)
+    # Get the user's current permissions
+    current_permissions = get_current_permissions(
+        username
+    )
+
     new_permissions = []
 
-    for key, name in PAGE_NAMES.items():
+    # Create a checkbox for every page
+    for permission_key, permission_name in PAGE_NAMES.items():
 
-        # Questions are always available.
-        if key == "questions":
+        # Questions must always be available
+        if permission_key == "questions":
+
             st.checkbox(
-                name,
+                permission_name,
                 value=True,
                 disabled=True,
-                key=f"permission_{username}_{key}",
+                key=f"permission_{username}_{permission_key}"
             )
-            new_permissions.append(key)
+
+            new_permissions.append(
+                permission_key
+            )
+
             continue
 
+        # Determine whether the user currently has access
+        has_access = (
+            permission_key in current_permissions
+        )
+
+        # Display the checkbox
         checked = st.checkbox(
-            name,
-            value=key in current,
-            key=f"permission_{username}_{key}",
+            permission_name,
+            value=has_access,
+            key=f"permission_{username}_{permission_key}"
         )
 
         if checked:
-            new_permissions.append(key)
+
+            new_permissions.append(
+                permission_key
+            )
+
+    # --------------------------------------------------
+    # SAVE PERMISSION CHANGES
+    # --------------------------------------------------
 
     if st.button(
         "Save Permissions",
         type="primary",
-        key=f"save_permissions_{username}",
+        key=f"save_permissions_{username}"
     ):
-        current_username = st.session_state.get("username", "")
 
-        # Prevent an administrator from removing their own access.
-        if username == current_username:
+        # Prevent the Administrator from removing
+        # their own Manage Users permission
+        if username == st.session_state.get("username"):
+
             if "manage_users" not in new_permissions:
+
                 st.error(
-                    "You cannot remove Manage Users permission "
-                    "from your own account."
+                    "You cannot remove Manage Users "
+                    "permission from your own account."
                 )
+
                 return
 
-            if "dashboard" not in new_permissions:
-                st.error(
-                    "You cannot remove Dashboard permission "
-                    "from your own account."
-                )
-                return
-
+        # Save the custom permissions
         user_permissions[username] = new_permissions
 
-        st.success(f"Permissions for '{username}' have been saved.")
+        st.success(
+            f"Permissions for '{username}' have been changed."
+        )
+
         st.rerun()
 
 
@@ -212,20 +254,29 @@ def change_permissions(username):
 # --------------------------------------------------
 
 def reset_permissions(username):
+
     st.subheader("Reset Permissions")
 
     st.write(
-        "Remove the individual permission changes and restore "
-        "the permissions assigned to the user's role."
+        "This will remove the custom permissions and "
+        "return the user to their original role permissions."
     )
 
     if st.button(
         "Reset to Original Permissions",
-        key=f"reset_permissions_{username}",
+        key=f"reset_permissions_{username}"
     ):
-        user_permissions.pop(username, None)
 
-        st.success(f"Permissions for '{username}' have been reset.")
+        # Remove custom permissions
+        if username in user_permissions:
+
+            del user_permissions[username]
+
+        st.success(
+            f"{username} has been returned to their "
+            f"original role permissions."
+        )
+
         st.rerun()
 
 
@@ -234,41 +285,55 @@ def reset_permissions(username):
 # --------------------------------------------------
 
 def change_role(username):
+
     st.subheader("Change User Role")
 
-    current_role = users[username].get("role", ROLES[0])
+    current_role = users[username]["role"]
 
-    role_index = (
-        ROLES.index(current_role)
-        if current_role in ROLES
-        else 0
-    )
+    # Find the current role in the list
+    if current_role in ROLES:
+
+        role_index = ROLES.index(
+            current_role
+        )
+
+    else:
+
+        role_index = 0
 
     new_role = st.selectbox(
         "Select New Role",
         ROLES,
         index=role_index,
-        key=f"role_{username}",
+        key=f"role_{username}"
     )
 
     if st.button(
         "Change Role",
         type="primary",
-        key=f"change_role_{username}",
+        key=f"change_role_{username}"
     ):
-        current_username = st.session_state.get("username", "")
 
-        # Do not allow an administrator to demote themselves.
-        if username == current_username and new_role != "Administrator":
-            st.error("You cannot remove your own Administrator role.")
-            return
+        # Prevent the administrator from changing
+        # their own Administrator role
+        if username == st.session_state.get("username"):
 
+            if new_role != "Administrator":
+
+                st.error(
+                    "You cannot remove your own Administrator role."
+                )
+
+                return
+
+        # Change the user's role
         users[username]["role"] = new_role
 
-        # Remove custom permissions so the new role takes effect.
-        user_permissions.pop(username, None)
+        st.success(
+            f"{username}'s role has been changed to "
+            f"{new_role}."
+        )
 
-        st.success(f"{username}'s role has been changed to {new_role}.")
         st.rerun()
 
 
@@ -277,36 +342,50 @@ def change_role(username):
 # --------------------------------------------------
 
 def change_password(username):
+
     st.subheader("Change Password")
 
     new_password = st.text_input(
         "New Password",
         type="password",
-        key=f"new_password_{username}",
+        key=f"new_password_{username}"
     )
 
     confirm_password = st.text_input(
         "Confirm New Password",
         type="password",
-        key=f"confirm_password_{username}",
+        key=f"confirm_password_{username}"
     )
 
     if st.button(
         "Change Password",
         type="primary",
-        key=f"change_password_{username}",
+        key=f"change_password_{username}"
     ):
-        if not new_password.strip():
-            st.error("Password cannot be empty.")
+
+        if new_password.strip() == "":
+
+            st.error(
+                "Password cannot be empty."
+            )
+
             return
 
         if new_password != confirm_password:
-            st.error("The passwords do not match.")
+
+            st.error(
+                "The passwords do not match."
+            )
+
             return
 
+        # Update the password
         users[username]["password"] = new_password
 
-        st.success(f"Password for '{username}' has been changed.")
+        st.success(
+            f"Password for '{username}' has been changed."
+        )
+
         st.rerun()
 
 
@@ -315,34 +394,65 @@ def change_password(username):
 # --------------------------------------------------
 
 def block_unblock_user(username):
+
     st.subheader("Block / Unblock User")
 
-    current_status = get_user_status(username)
-    st.write(f"Current Status: **{current_status}**")
+    # Get current status
+    current_status = users[username].get(
+        "status",
+        "Active"
+    )
+
+    st.write(
+        f"Current Status: **{current_status}**"
+    )
+
+    # --------------------------------------------------
+    # BLOCK USER
+    # --------------------------------------------------
 
     if current_status == "Active":
-        if st.button("Block User", key=f"block_{username}"):
-            if username == st.session_state.get("username", ""):
-                st.error("You cannot block your own account.")
+
+        if st.button(
+            "Block User",
+            key=f"block_{username}"
+        ):
+
+            # Prevent admin from blocking themselves
+            if username == st.session_state.get("username"):
+
+                st.error(
+                    "You cannot block your own account."
+                )
+
                 return
 
-            # Keep both fields updated for compatibility with login.py.
             users[username]["status"] = "Blocked"
-            users[username]["blocked"] = True
 
-            st.success(f"'{username}' has been blocked.")
+            st.success(
+                f"'{username}' has been blocked."
+            )
+
             st.rerun()
 
+    # --------------------------------------------------
+    # UNBLOCK USER
+    # --------------------------------------------------
+
     else:
+
         if st.button(
             "Unblock User",
             type="primary",
-            key=f"unblock_{username}",
+            key=f"unblock_{username}"
         ):
-            users[username]["status"] = "Active"
-            users[username]["blocked"] = False
 
-            st.success(f"'{username}' has been unblocked.")
+            users[username]["status"] = "Active"
+
+            st.success(
+                f"'{username}' has been unblocked."
+            )
+
             st.rerun()
 
 
@@ -351,43 +461,69 @@ def block_unblock_user(username):
 # --------------------------------------------------
 
 def add_user():
+
     st.subheader("Add New User")
 
-    username = st.text_input("Username", key="new_user_username").strip()
+    username = st.text_input(
+        "Username",
+        key="new_user_username"
+    )
 
     password = st.text_input(
         "Password",
         type="password",
-        key="new_user_password",
+        key="new_user_password"
     )
 
-    role = st.selectbox("Role", ROLES, key="new_user_role")
+    role = st.selectbox(
+        "Role",
+        ROLES,
+        key="new_user_role"
+    )
 
-    if st.button("Add User", type="primary", key="add_user_button"):
-        if not username:
-            st.error("Please enter a username.")
+    if st.button(
+        "Add User",
+        type="primary"
+    ):
+
+        # Check username
+        if username.strip() == "":
+
+            st.error(
+                "Please enter a username."
+            )
+
             return
 
-        if not password.strip():
-            st.error("Please enter a password.")
+        # Check password
+        if password.strip() == "":
+
+            st.error(
+                "Please enter a password."
+            )
+
             return
 
+        # Check if username already exists
         if username in users:
-            st.error("That username already exists.")
+
+            st.error(
+                "That username already exists."
+            )
+
             return
 
-        # Add the account in the same format used by login.py.
+        # Create the new user
         users[username] = {
             "password": password,
             "role": role,
-            "blocked": False,
-            "status": "Active",
+            "status": "Active"
         }
 
-        # The new user starts with the selected role's permissions.
-        user_permissions.pop(username, None)
+        st.success(
+            f"User '{username}' has been added."
+        )
 
-        st.success(f"User '{username}' has been added.")
         st.rerun()
 
 
@@ -396,33 +532,54 @@ def add_user():
 # --------------------------------------------------
 
 def delete_user(username):
+
     st.subheader("Delete User")
 
     st.warning(
-        f"You are about to permanently delete the user '{username}'."
+        f"You are about to permanently delete "
+        f"the user '{username}'."
     )
 
-    if username == st.session_state.get("username", ""):
-        st.error("You cannot delete your own account.")
+    # Prevent deleting yourself
+    if username == st.session_state.get("username"):
+
+        st.error(
+            "You cannot delete your own account."
+        )
+
         return
 
     confirmation = st.checkbox(
         "I confirm that I want to permanently delete this user.",
-        key=f"confirm_delete_{username}",
+        key=f"confirm_delete_{username}"
     )
 
     if st.button(
         "Delete User",
-        key=f"delete_{username}",
+        type="secondary",
+        key=f"delete_{username}"
     ):
+
         if not confirmation:
-            st.error("Please confirm the deletion.")
+
+            st.error(
+                "Please confirm the deletion."
+            )
+
             return
 
+        # Delete the user
         del users[username]
-        user_permissions.pop(username, None)
 
-        st.success(f"User '{username}' has been deleted.")
+        # Delete their custom permissions if they have any
+        if username in user_permissions:
+
+            del user_permissions[username]
+
+        st.success(
+            f"User '{username}' has been deleted."
+        )
+
         st.rerun()
 
 
@@ -431,28 +588,44 @@ def delete_user(username):
 # --------------------------------------------------
 
 def view_all_users():
+
     st.subheader("All Existing Users")
 
     if not users:
-        st.info("There are no users.")
+
+        st.info(
+            "There are no users."
+        )
+
         return
 
+    # Create a table for displaying users
     user_data = []
 
     for username, user in users.items():
-        user_data.append({
-            "Username": username,
-            "Role": user.get("role", ""),
-            "Status": get_user_status(username),
-            "Number of Permissions": len(
-                get_current_permissions(username)
-            ),
-        })
+
+        current_permissions = get_current_permissions(
+            username
+        )
+
+        user_data.append(
+            {
+                "Username": username,
+                "Role": user["role"],
+                "Status": user.get(
+                    "status",
+                    "Active"
+                ),
+                "Number of Permissions": len(
+                    current_permissions
+                )
+            }
+        )
 
     st.dataframe(
         user_data,
         use_container_width=True,
-        hide_index=True,
+        hide_index=True
     )
 
 
@@ -461,90 +634,172 @@ def view_all_users():
 # --------------------------------------------------
 
 def render_user_management_page():
+
     st.title("User Management")
 
     st.write(
-        "Administrator control panel for managing users "
-        "and their access."
+        "Administrator control panel for managing "
+        "users and their access."
     )
 
-    # Only administrators may access this page.
+    # Only administrators can access this page
     if st.session_state.get("role") != "Administrator":
-        st.error("Only Administrators can access User Management.")
+
+        st.error(
+            "Only Administrators can access User Management."
+        )
+
         return
 
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-        "Add User",
-        "Manage User",
-        "Permissions",
-        "Block / Unblock",
-        "Delete User",
-        "All Users",
-    ])
+    # --------------------------------------------------
+    # TABS
+    # --------------------------------------------------
+
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+        [
+            "Add User",
+            "Manage User",
+            "Permissions",
+            "Block / Unblock",
+            "Delete User",
+            "All Users"
+        ]
+    )
+
+    # --------------------------------------------------
+    # ADD USER
+    # --------------------------------------------------
 
     with tab1:
+
         add_user()
 
+    # --------------------------------------------------
+    # MANAGE USER
+    # --------------------------------------------------
+
     with tab2:
+
         if users:
+
             selected_user = st.selectbox(
                 "Select User",
                 list(users.keys()),
-                key="manage_user",
+                key="manage_user"
             )
 
             st.divider()
-            show_user_information(selected_user)
+
+            show_user_information(
+                selected_user
+            )
 
             st.divider()
-            change_role(selected_user)
+
+            change_role(
+                selected_user
+            )
 
             st.divider()
-            change_password(selected_user)
+
+            change_password(
+                selected_user
+            )
+
         else:
-            st.info("No users available.")
+
+            st.info(
+                "No users available."
+            )
+
+    # --------------------------------------------------
+    # PERMISSIONS
+    # --------------------------------------------------
 
     with tab3:
+
         if users:
+
             selected_user = st.selectbox(
                 "Select User",
                 list(users.keys()),
-                key="permission_user",
+                key="permission_user"
             )
 
             st.divider()
-            change_permissions(selected_user)
+
+            change_permissions(
+                selected_user
+            )
 
             st.divider()
-            reset_permissions(selected_user)
+
+            reset_permissions(
+                selected_user
+            )
+
         else:
-            st.info("No users available.")
+
+            st.info(
+                "No users available."
+            )
+
+    # --------------------------------------------------
+    # BLOCK / UNBLOCK
+    # --------------------------------------------------
 
     with tab4:
+
         if users:
+
             selected_user = st.selectbox(
                 "Select User",
                 list(users.keys()),
-                key="block_user",
+                key="block_user"
             )
 
             st.divider()
-            block_unblock_user(selected_user)
+
+            block_unblock_user(
+                selected_user
+            )
+
         else:
-            st.info("No users available.")
+
+            st.info(
+                "No users available."
+            )
+
+    # --------------------------------------------------
+    # DELETE USER
+    # --------------------------------------------------
 
     with tab5:
+
         if users:
+
             selected_user = st.selectbox(
                 "Select User",
                 list(users.keys()),
-                key="delete_user",
+                key="delete_user"
             )
 
             st.divider()
-            delete_user(selected_user)
+
+            delete_user(
+                selected_user
+            )
+
         else:
-            st.info("No users available.")
+
+            st.info(
+                "No users available."
+            )
+
+    # --------------------------------------------------
+    # ALL USERS
+    # --------------------------------------------------
 
     with tab6:
+
         view_all_users()

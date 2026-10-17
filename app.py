@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 
 # Import login and permission functions.
@@ -139,4 +138,3 @@ st.sidebar.divider()
 
 # Display the logout control for logged-in users.
 logout()
-```

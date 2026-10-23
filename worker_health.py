@@ -95,10 +95,7 @@ def render_worker_health_page():
 
     st.title("Worker Health & Safety")
 
-    st.write(
-        "Monitor worker PPE compliance, training status, "
-        "fatigue, safety observations and near misses."
-    )
+    st.write("Monitor worker PPE compliance, training status, " "fatigue, safety observations and near misses.")
 
     st.divider()
 
@@ -112,13 +109,9 @@ def render_worker_health_page():
 
     total_workers = len(workers)
 
-    average_ppe = workers[
-        "PPE compliance"
-    ].mean()
+    average_ppe = workers["PPE compliance"].mean()
 
-    total_observations = workers[
-        "Safety observations"
-    ].sum()
+    total_observations = workers["Safety observations"].sum()
 
     total_near_misses = workers[
         "Near misses"

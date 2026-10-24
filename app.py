@@ -21,8 +21,14 @@ from reports import render_reports_page
 from user_management import render_user_management_page
 from questions import render_questions_page
 
+# Page Configuration
+st.set_page_config(
+    page_title="Khwezi Mining Monitoring System",
+    page_icon="⛏️",
+    layout="wide"
+)
 
-
+# Session initialization
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
@@ -32,23 +38,17 @@ if "username" not in st.session_state:
 if "role" not in st.session_state:
     st.session_state["role"] = ""
 
-
-
+# Authentication Check
 if not st.session_state["logged_in"]:
     login()
     st.stop()
 
-
-
-
+# Header User Banner
 st.title("Khwezi Mining Monitoring System")
-
 st.success(f"Welcome, {st.session_state['username']}!")
-
 st.write(f"Role: **{st.session_state['role']}**")
 
-# Sidebar navigation
-
+# Sidebar Navigation Construction
 st.sidebar.title("Navigation")
 
 pages = []
@@ -85,68 +85,42 @@ if has_permission("equipment"):
 if has_permission("manage_users"):
     pages.append("Manage Users")
 
-
-# Check Permissions
-
+# Permission Check
 if len(pages) == 0:
-
     st.error("You do not have permission to access any pages.")
-
     st.stop()
 
-# Page Selection
-
+# Page Selection via Radio Buttons
 selected_page = st.sidebar.radio("Select a page", pages)
 
-# Page Display
-
+# Page Routing
 if selected_page == "Dashboard":
-
     render_dashboard()
 
-
 elif selected_page == "Worker Health & Safety":
-
     render_worker_health_page()
 
-
 elif selected_page == "Safety Incidents":
-
     render_incidents_page()
 
-
 elif selected_page == "Equipment":
-
     render_equipment_page()
 
-
 elif selected_page == "Maintenance":
-
     render_maintenance_page()
 
-
 elif selected_page == "Risk Assessment":
-
     render_risk_assessment_page()
 
-
 elif selected_page == "Reports":
-
     render_reports_page()
 
-
 elif selected_page == "Questions & Answers":
-
     render_questions_page()
 
-
 elif selected_page == "Manage Users":
-
     render_user_management_page()
 
-
-# Logout
-
+# Logout Section
 st.sidebar.divider()
-
 logout()

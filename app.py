@@ -15,9 +15,7 @@ from user_management import render_user_management_page
 from questions import render_questions_page
 
 
-# --------------------------------------------------
-# SESSION STATE
-# --------------------------------------------------
+# Session State
 
 # Set default session values when the app starts.
 if "logged_in" not in st.session_state:
@@ -30,9 +28,7 @@ if "role" not in st.session_state:
     st.session_state["role"] = ""
 
 
-# --------------------------------------------------
-# LOGIN
-# --------------------------------------------------
+# Login
 
 # Show the login page if the user is not logged in.
 if not st.session_state["logged_in"]:
@@ -40,9 +36,7 @@ if not st.session_state["logged_in"]:
     st.stop()
 
 
-# --------------------------------------------------
-# MAIN APPLICATION
-# --------------------------------------------------
+# Main Application
 
 st.title("Khwezi Mining Monitoring System")
 
@@ -50,9 +44,7 @@ st.success(f"Welcome, {st.session_state['username']}!")
 st.write(f"Role: **{st.session_state['role']}**")
 
 
-# --------------------------------------------------
-# SIDEBAR NAVIGATION
-# --------------------------------------------------
+# Sidebar navigation
 
 st.sidebar.title("Navigation")
 
@@ -98,9 +90,7 @@ if not pages:
 selected_page = st.sidebar.radio("Select a page", pages)
 
 
-# --------------------------------------------------
-# DISPLAY SELECTED PAGE
-# --------------------------------------------------
+# Display selected page
 
 if selected_page == "Dashboard":
     render_dashboard()
@@ -129,10 +119,7 @@ elif selected_page == "Questions & Answers":
 elif selected_page == "Manage Users":
     render_user_management_page()
 
-
-# --------------------------------------------------
-# LOGOUT
-# --------------------------------------------------
+# Logout
 
 st.sidebar.divider()
 

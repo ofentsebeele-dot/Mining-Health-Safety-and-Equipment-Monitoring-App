@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 
-```python
+
 # --------------------------------------------------
 # BLACK BACKGROUND AND WHITE FONT
 # --------------------------------------------------
@@ -71,7 +71,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-```
+
 
 # ==================================================
 # INCIDENT CSV FILE

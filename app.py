@@ -1,96 +1,127 @@
-import importlib
-from pathlib import Path
-
-import pandas as pd
 import streamlit as st
 
+# Import login and permission functions.
+from login import login, logout, has_permission
 
-# --------------------------------------------------
-# PAGE IMPORT HELPER
-# Optional page imports prevent one missing page module from
-# stopping the entire application. Login remains required.
-# --------------------------------------------------
-def load_page_function(module_name, function_name):
-    try:
-        module = importlib.import_module(module_name)
-        return getattr(module, function_name, None), None
-    except Exception as exc:
-        return None, f"{module_name}.py: {exc}"
+# Import all application pages.
+from dashboard import render_dashboard
+from worker_health import render_worker_health_page
+from incidents import render_incidents_page
+from equipment import render_equipment_page
+from maintenance import render_maintenance_page
+from risk_assessment import render_risk_assessment_page
+from reports import render_reports_page
+from user_management import render_user_management_page
+from questions import render_questions_page
 
 
-try:
-    from login import login, logout, has_permission
-except Exception as exc:
-    st.error(f"Could not load login.py: {exc}")
+# Session State
+
+# Set default session values when the app starts.
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+
+if "username" not in st.session_state:
+    st.session_state["username"] = ""
+
+if "role" not in st.session_state:
+    st.session_state["role"] = ""
+
+
+# Login
+
+# Show the login page if the user is not logged in.
+if not st.session_state["logged_in"]:
+    login()
     st.stop()
 
 
-# --------------------------------------------------
-# ALERT CLASSIFICATION
-# Thresholds supplied for this project.
-# --------------------------------------------------
-def check_temperature(temperature):
-    if temperature > 100:
-        return "Critical"
-    elif temperature >= 80:
-        return "Warning"
-    return "Normal"
+# Main Application
+
+st.title("Khwezi Mining Monitoring System")
+
+st.success(f"Welcome, {st.session_state['username']}!")
+st.write(f"Role: **{st.session_state['role']}**")
 
 
-def check_vibration(vibration):
-    if vibration > 8:
-        return "Critical"
-    elif vibration >= 5:
-        return "Warning"
-    return "Normal"
+# Sidebar navigation
+
+st.sidebar.title("Navigation")
+
+pages = []
+
+# Add only pages the logged-in user is permitted to access.
+if has_permission("dashboard"):
+    pages.append("Dashboard")
+
+if has_permission("worker_health"):
+    pages.append("Worker Health & Safety")
+
+if has_permission("incidents"):
+    pages.append("Safety Incidents")
+
+if has_permission("equipment"):
+    pages.append("Equipment")
+
+if has_permission("maintenance"):
+    pages.append("Maintenance")
+
+if has_permission("risk_assessment"):
+    pages.append("Risk Assessment")
+
+if has_permission("reports"):
+    pages.append("Reports")
+
+# Questions are included when permitted by the permissions module.
+if has_permission("questions"):
+    pages.append("Questions & Answers")
+
+if has_permission("manage_users"):
+    pages.append("Manage Users")
 
 
-def generate_alert(equipment_id, temperature, vibration):
-    temperature = float(temperature)
-    vibration = float(vibration)
-
-    temperature_status = check_temperature(temperature)
-    vibration_status = check_vibration(vibration)
-
-    if temperature_status == "Critical" or vibration_status == "Critical":
-        alert_level = "Critical"
-        alert_message = "Urgent equipment assessment required."
-    elif temperature_status == "Warning" or vibration_status == "Warning":
-        alert_level = "Warning"
-        alert_message = "Equipment requires attention."
-    else:
-        alert_level = "Normal"
-        alert_message = "Equipment readings are normal."
-
-    return {
-        "equipment_id": str(equipment_id),
-        "temperature": temperature,
-        "temperature_status": temperature_status,
-        "vibration": vibration,
-        "vibration_status": vibration_status,
-        "alert_level": alert_level,
-        "alert_message": alert_message,
-    }
+# Stop if the user has no permitted pages.
+if not pages:
+    st.error("You do not have permission to access any pages.")
+    st.stop()
 
 
-# --------------------------------------------------
-# SESSION STATE
-# --------------------------------------------------
-DEFAULTS = {
-    "logged_in": False,
-    "username": "",
-    "role": "",
-    "equipment_checks": {},
-    "pending_alerts": {},
-}
-for key, value in DEFAULTS.items():
-    if key not in st.session_state:
-        st.session_state[key] = value
+# Let the user select an available page.
+selected_page = st.sidebar.radio("Select a page", pages)
 
 
-# --------------------------------------------------
-# LOAD EQUIPMENT CSV
-# Supports either common filename.
-# Put the CSV in the same folder as app.py.
-# --------------------------------------------------
-base_folder = Path(__file__).resolve().parent
+# Display selected page
+
+if selected_page == "Dashboard":
+    render_dashboard()
+
+elif selected_page == "Worker Health & Safety":
+    render_worker_health_page()
+
+elif selected_page == "Safety Incidents":
+    render_incidents_page()
+
+elif selected_page == "Equipment":
+    render_equipment_page()
+
+elif selected_page == "Maintenance":
+    render_maintenance_page()
+
+elif selected_page == "Risk Assessment":
+    render_risk_assessment_page()
+
+elif selected_page == "Reports":
+    render_reports_page()
+
+elif selected_page == "Questions & Answers":
+    render_questions_page()
+
+elif selected_page == "Manage Users":
+    render_user_management_page()
+
+# Logout
+
+st.sidebar.divider()
+
+# Display the logout control for logged-in users.
+logout()

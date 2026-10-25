@@ -57,7 +57,7 @@ if "latest_equipment_alert" not in st.session_state:
 # LOAD EQUIPMENT CSV FILE
 # --------------------------------------------------
 
-DATA_FILE = Path(__file__).parent / "equipment(1).csv"
+DATA_FILE = Path(__file__).parent / "equipment.csv"
 
 try:
     equipment_data = pd.read_csv(DATA_FILE)
@@ -65,7 +65,7 @@ try:
 except FileNotFoundError:
     st.error(
         "Equipment data file not found. "
-        "Place equipment(1).csv in the same folder as app.py."
+        "Place equipment.csv in the same folder as app.py."
     )
     st.stop()
 

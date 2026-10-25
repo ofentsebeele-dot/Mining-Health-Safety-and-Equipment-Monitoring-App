@@ -13,7 +13,6 @@ from risk_assessment import render_risk_assessment_page
 from reports import render_reports_page
 from user_management import render_user_management_page
 from questions import render_questions_page
-from equipment_alerts import (check_temperature, check_vibration, generate_alert)
 
 
 # --------------------------------------------------

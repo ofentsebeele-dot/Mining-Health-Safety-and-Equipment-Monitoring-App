@@ -183,11 +183,6 @@ elif selected_page == "Notifications & Alerts":
         "to determine the equipment condition and alert level."
     )
 
-    st.info(
-        "The thresholds used are educational prototype "
-        "thresholds from the project brief. They are not "
-        "actual manufacturer or mine safety limits."
-    )
 
     # --------------------------------------------------
     # EQUIPMENT INPUTS

@@ -1,4 +1,3 @@
-"""
 MINN2020A: Computer Programming for Mining
 Project section: Notifications, Pseudocode, Algorithms and Alerts
 

@@ -2,76 +2,52 @@ import streamlit as st
 import pandas as pd
 import os
 
+st.markdown("""
+<style>
+.stApp {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+}
 
-# --------------------------------------------------
-# BLACK BACKGROUND AND WHITE FONT
-# --------------------------------------------------
+.stApp h1,
+.stApp h2,
+.stApp h3,
+.stApp h4,
+.stApp p,
+.stApp label,
+.stApp [data-testid="stMetricLabel"],
+.stApp [data-testid="stMetricValue"],
+.stApp [data-testid="stCaptionContainer"] {
+    color: #FFFFFF !important;
+}
 
-st.markdown(
-    """
-    <style>
-    /* Main background */
-    .stApp {
-        background-color: #000000;
-        color: #FFFFFF;
-    }
+[data-testid="stSidebar"] {
+    background-color: #000000 !important;
+}
 
-    /* Headings and general text */
-    h1, h2, h3, h4, h5, h6,
-    p, label, li {
-        color: #FFFFFF !important;
-    }
+[data-testid="stSidebar"] * {
+    color: #FFFFFF !important;
+}
 
-    /* Metric cards */
-    [data-testid="stMetricLabel"],
-    [data-testid="stMetricValue"],
-    [data-testid="stMetricDelta"] {
-        color: #FFFFFF !important;
-    }
+.stSelectbox div[data-baseweb="select"] > div,
+.stTextInput input,
+.stTextArea textarea {
+    background-color: #171717 !important;
+    color: #FFFFFF !important;
+}
 
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background-color: #000000;
-    }
+.stButton button,
+.stDownloadButton button {
+    background-color: #222222 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #FFFFFF !important;
+}
 
-    [data-testid="stSidebar"] * {
-        color: #FFFFFF;
-    }
-
-    /* Input fields */
-    input, textarea {
-        color: #FFFFFF !important;
-        background-color: #171717 !important;
-    }
-
-    /* Dropdowns */
-    div[data-baseweb="select"] > div {
-        background-color: #171717;
-        color: #FFFFFF;
-    }
-
-    /* Buttons */
-    .stButton button,
-    .stDownloadButton button {
-        background-color: #222222;
-        color: #FFFFFF !important;
-        border: 1px solid #FFFFFF;
-    }
-
-    /* Dividers */
-    hr {
-        border-color: #555555;
-    }
-
-    /* Captions */
-    [data-testid="stCaptionContainer"] {
-        color: #FFFFFF !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
+hr {
+    border-color: #555555 !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ==================================================
 # INCIDENT CSV FILE

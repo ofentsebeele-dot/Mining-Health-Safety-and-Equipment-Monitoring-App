@@ -1,8 +1,4 @@
-
-# ============================================================
-# KHWEZI MINING MONITORING SYSTEM
-# Dashboard: Worker Safety, Incidents and Equipment
-# ============================================================
+# Dashboard
 
 import os
 import base64
@@ -18,15 +14,9 @@ except ImportError:
     PLOTLY_AVAILABLE = False
 
 
-# ============================================================
-# 1. LOAD CSV FILES
-# ============================================================
+# 1. Load CSV files
 
-def find_csv_path(filename):
-    possible_paths = [
-        filename,
-        os.path.join("data", filename)
-    ]
+def find_csv_path(filename): possible_paths = [ filename, os.path.join("data", filename) ]
 
     for path in possible_paths:
         if os.path.isfile(path):
@@ -59,9 +49,7 @@ def load_equipment_data():
     return load_csv("equipment.csv")
 
 
-# ============================================================
-# 2. HELPER FUNCTIONS
-# ============================================================
+# 2. Helper Functions
 
 def numeric_column(data, column_name):
     if column_name not in data.columns:

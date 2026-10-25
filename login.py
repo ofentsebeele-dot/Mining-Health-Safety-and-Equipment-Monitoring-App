@@ -109,16 +109,14 @@ def has_permission(permission):
 
 
     # Custom user permissions
-    # If the Administrator has changed the permissions
-    # for this specific user, use those permissions.
+    # If the Administrator has changed the permissions for this specific user, use those permissions.
 
     if username in user_permissions:
 
         return permission in user_permissions[username]
 
     # Role permissions
-    # If there are no custom permissions,
-    # use the user's normal role permissions.
+    # If there are no custom permissions, use the user's normal role permissions.
 
     if role not in permissions:
 

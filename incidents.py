@@ -2,6 +2,76 @@ import streamlit as st
 import pandas as pd
 import os
 
+```python
+# --------------------------------------------------
+# BLACK BACKGROUND AND WHITE FONT
+# --------------------------------------------------
+
+st.markdown(
+    """
+    <style>
+    /* Main background */
+    .stApp {
+        background-color: #000000;
+        color: #FFFFFF;
+    }
+
+    /* Headings and general text */
+    h1, h2, h3, h4, h5, h6,
+    p, label, li {
+        color: #FFFFFF !important;
+    }
+
+    /* Metric cards */
+    [data-testid="stMetricLabel"],
+    [data-testid="stMetricValue"],
+    [data-testid="stMetricDelta"] {
+        color: #FFFFFF !important;
+    }
+
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background-color: #000000;
+    }
+
+    [data-testid="stSidebar"] * {
+        color: #FFFFFF;
+    }
+
+    /* Input fields */
+    input, textarea {
+        color: #FFFFFF !important;
+        background-color: #171717 !important;
+    }
+
+    /* Dropdowns */
+    div[data-baseweb="select"] > div {
+        background-color: #171717;
+        color: #FFFFFF;
+    }
+
+    /* Buttons */
+    .stButton button,
+    .stDownloadButton button {
+        background-color: #222222;
+        color: #FFFFFF !important;
+        border: 1px solid #FFFFFF;
+    }
+
+    /* Dividers */
+    hr {
+        border-color: #555555;
+    }
+
+    /* Captions */
+    [data-testid="stCaptionContainer"] {
+        color: #FFFFFF !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+```
 
 # ==================================================
 # INCIDENT CSV FILE

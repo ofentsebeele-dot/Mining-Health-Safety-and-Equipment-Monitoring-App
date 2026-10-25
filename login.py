@@ -1,126 +1,97 @@
-import streamlit as st
 
-# Users
-users = {"admin": {"password": "admin123", "role": "Administrator"},
-         "safety": {"password": "safety123", "role": "Safety Officer"},
-         "mining": {"password": "mining123", "role": "Mining Engineer"},
-         "maintenance": {"password": "maintenance123", "role": "Maintenance Engineer"},
-         "manager": {"password": "manager123","role": "Manager"}}
+import pandas as pd
 
-user_permissions = {} # This dictionary stores permission changes made
 
-# Role Permissions
+def check_temperature(temperature):
+    if temperature > 100:
+        return "Critical"
+    elif temperature >= 80:
+        return "Warning"
+    return "Normal"
 
-permissions = {"Administrator": ["dashboard", "worker_health", "incidents", "equipment", "maintenance", "risk_assessment", "reports", "questions", "manage_users"],
-               "Safety Officer": ["dashboard", "worker_health", "incidents", "risk_assessment", "reports", "questions"],
-               "Mining Engineer":["dashboard", "worker_health", "incidents","equipment", "maintenance", "risk_assessment", "reports", "questions"],
-               "Maintenance Engineer": ["dashboard", "equipment", "maintenance",  "reports", "questions"],
-               "Manager": ["dashboard", "worker_health", "incidents","equipment", "maintenance", "risk_assessment", "reports", "questions"]}
 
-# Login
+def check_vibration(vibration):
+    if vibration > 8:
+        return "Critical"
+    elif vibration >= 5:
+        return "Warning"
+    return "Normal"
 
-def login():
 
-    # Display the application title
-    st.title("Khwezi Mining Monitoring System")
+def generate_alert(equipment_id, temperature, vibration):
+    temperature_status = check_temperature(temperature)
+    vibration_status = check_vibration(vibration)
 
-    # Display login heading
-    st.subheader("Login")
+    if (
+        temperature_status == "Critical"
+        or vibration_status == "Critical"
+    ):
+        alert_level = "Critical"
+        alert_message = "Urgent assessment required."
 
-    # Ask for username
-    username = st.text_input("Username", key="login_username")
+    elif (
+        temperature_status == "Warning"
+        or vibration_status == "Warning"
+    ):
+        alert_level = "Warning"
+        alert_message = "Equipment requires attention."
 
-    # Ask for password
-    password = st.text_input("Password", type="password", key="login_password")
+    else:
+        alert_level = "Normal"
+        alert_message = "Equipment readings are normal."
 
-    # Login button
-    if st.button("Login"):
+    return {
+        "equipment_id": str(equipment_id),
+        "temperature": float(temperature),
+        "temperature_status": temperature_status,
+        "vibration": float(vibration),
+        "vibration_status": vibration_status,
+        "alert_level": alert_level,
+        "alert_message": alert_message,
+    }
 
-        # Check whether the username exists
-        if username in users:
 
-            # Check whether the password is correct
-            if users[username]["password"] == password:
+def load_incidents(file_path="incidents.csv"):
+    data = pd.read_csv(file_path)
+    data.columns = data.columns.astype(str).str.strip()
+    return data.dropna(how="all")
 
-                # Store login status
-                st.session_state["logged_in"] = True
 
-                # Store username
-                st.session_state["username"] = username
+def generate_incident_notifications(data):
+    notifications = []
 
-                # Store user's role
-                st.session_state["role"] = users[username]["role"]
+    for index, row in data.iterrows():
+        incident_id = row.get(
+            "Incident ID",
+            row.get("ID", f"Incident {index + 1}")
+        )
 
-                # Display success message
-                st.success("Login successful.")
+        description = row.get(
+            "Description",
+            row.get("Incident Type", "Safety incident")
+        )
 
-                # Reload the application
-                st.rerun()
+        severity = str(
+            row.get("Severity", row.get("Priority", "Warning"))
+        ).strip().lower()
 
-            else:
+        status = str(row.get("Status", "Open")).strip().lower()
 
-                # Password is incorrect
-                st.error("Incorrect password.")
+        if status in ("closed", "resolved", "reviewed", "complete"):
+            continue
 
+        if severity in ("critical", "high", "severe", "urgent"):
+            alert_level = "Critical"
+        elif severity in ("low", "minor", "normal"):
+            alert_level = "Normal"
         else:
+            alert_level = "Warning"
 
-            # Username does not exist
-            st.error("Username not found.")
+        notifications.append({
+            "incident_id": str(incident_id),
+            "description": str(description),
+            "alert_level": alert_level,
+            "status": status,
+        })
 
-# Logout
-
-def logout():
-
-    # Display logout button in the sidebar
-    if st.sidebar.button("Logout"):
-
-        # Clear login status
-        st.session_state["logged_in"] = False
-
-        # Clear username
-        st.session_state["username"] = ""
-
-        # Clear role
-        st.session_state["role"] = ""
-
-        # Reload the application
-        st.rerun()
-
-# Permission check
-
-def has_permission(permission):
-
-    # Get the current username
-    username = st.session_state.get("username", "")
-
-    # Get the current role
-    role = st.session_state.get("role", "")
-
-    # Check User
-    if username not in users:
-
-        return False
-
-    # Questions are available to everyone.
-
-    if permission == "questions":
-
-        return True
-
-
-    # Custom user permissions
-    # If the Administrator has changed the permissions for this specific user, use those permissions.
-
-    if username in user_permissions:
-
-        return permission in user_permissions[username]
-
-    # Role permissions
-    # If there are no custom permissions, use the user's normal role permissions.
-
-    if role not in permissions:
-
-        return False
-
-
-    return permission in permissions[role]
+    return notifications

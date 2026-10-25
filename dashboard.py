@@ -16,7 +16,11 @@ except ImportError:
 
 # 1. Load CSV files
 
-def find_csv_path(filename): possible_paths = [ filename, os.path.join("data", filename) ]
+def find_csv_path(filename):
+    possible_paths = [ 
+        filename, 
+        os.path.join("data", filename) 
+    ]
 
     for path in possible_paths:
         if os.path.isfile(path):

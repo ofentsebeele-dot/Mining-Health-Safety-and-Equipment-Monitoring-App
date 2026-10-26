@@ -3,10 +3,6 @@ import pandas as pd
 from pathlib import Path
 
 
-# --------------------------------------------------
-# LOAD EQUIPMENT DATA
-# --------------------------------------------------
-
 def load_equipment_data():
     possible_paths = [
         Path(__file__).parent / "equipment.csv",
@@ -63,11 +59,6 @@ def load_equipment_data():
 
     return data
 
-
-# --------------------------------------------------
-# CHECK TEMPERATURE
-# --------------------------------------------------
-
 def check_temperature(temperature):
     if temperature > 100:
         return "Critical"
@@ -76,10 +67,6 @@ def check_temperature(temperature):
     return "Normal"
 
 
-# --------------------------------------------------
-# CHECK VIBRATION
-# --------------------------------------------------
-
 def check_vibration(vibration):
     if vibration > 8:
         return "Critical"
@@ -87,10 +74,6 @@ def check_vibration(vibration):
         return "Warning"
     return "Normal"
 
-
-# --------------------------------------------------
-# GENERATE ALERT
-# --------------------------------------------------
 
 def generate_alert(equipment_id, temperature, vibration):
     temperature_status = check_temperature(temperature)
@@ -133,10 +116,6 @@ def generate_alert(equipment_id, temperature, vibration):
     }
 
 
-# --------------------------------------------------
-# GENERATE NOTIFICATIONS FROM CSV
-# --------------------------------------------------
-
 def generate_notifications():
     data = load_equipment_data()
     notifications = []
@@ -169,10 +148,6 @@ def generate_notifications():
     return notifications
 
 
-# --------------------------------------------------
-# DISPLAY ONE ALERT
-# --------------------------------------------------
-
 def display_mining_alert(alert):
     st.subheader("MINING MONITORING ALERT")
 
@@ -191,10 +166,6 @@ def display_mining_alert(alert):
 
     st.caption("Figure 1: Mining monitoring alert.")
 
-
-# --------------------------------------------------
-# NOTIFICATIONS PAGE
-# --------------------------------------------------
 
 def render_notifications_page():
     st.header("Notifications & Alerts")
@@ -319,10 +290,6 @@ def render_notifications_page():
     st.subheader(subheading)
     display_mining_alert(alert)
 
-
-# --------------------------------------------------
-# RUN PAGE DIRECTLY IF NEEDED
-# --------------------------------------------------
 
 if __name__ == "__main__":
     render_notifications_page()

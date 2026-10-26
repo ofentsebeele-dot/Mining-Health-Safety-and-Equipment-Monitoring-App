@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 from pathlib import Path
@@ -10,7 +9,7 @@ from pathlib import Path
 
 def load_equipment_data():
     possible_paths = [
-        Path(__file__).parent / "equipment.csv",
+        Path(__file__).parent / "equipment(1).csv",
         Path(__file__).parent / "equipment.csv",
         Path(__file__).parent / "data" / "equipment.csv",
     ]

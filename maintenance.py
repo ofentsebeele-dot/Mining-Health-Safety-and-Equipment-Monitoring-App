@@ -10,8 +10,7 @@ def load_equipment_data():
         return pd.DataFrame(columns=[
             "Equipment ID", "Equipment type", "Manufacturer", "Operating hours",
             "Temperature", "Vibration", "Fuel consumption", "Brake status",
-            "Tyre status", "Engine status", "Maintenance status", "Downtime"
-        ])
+            "Tyre status", "Engine status", "Maintenance status", "Downtime"])
     return pd.read_csv(EQUIPMENT_FILE)
 
 
@@ -61,8 +60,7 @@ def render_maintenance_page():
 
     st.write(
         "Monitor equipment maintenance status, downtime "
-        "and operational condition."
-    )
+        "and operational condition.")
 
     st.divider()
 
@@ -79,16 +77,12 @@ def render_maintenance_page():
         under_maintenance = len(
             equipment[
                 equipment["Maintenance status"].astype(str).str.strip()
-                == "Under Maintenance"
-            ]
-        )
+                == "Under Maintenance"] )
 
         operational = len(
             equipment[
                 equipment["Maintenance status"].astype(str).str.strip()
-                == "Operational"
-            ]
-        )
+                == "Operational"])
 
         total_downtime = equipment["Downtime"].sum()
 
@@ -97,26 +91,22 @@ def render_maintenance_page():
         with col1:
             st.metric(
                 "Total Equipment",
-                total_equipment
-            )
+                total_equipment)
 
         with col2:
             st.metric(
                 "Operational",
-                operational
-            )
+                operational )
 
         with col3:
             st.metric(
                 "Under Maintenance",
-                under_maintenance
-            )
+                under_maintenance)
 
         with col4:
             st.metric(
                 "Total Downtime",
-                f"{total_downtime:.1f} hrs"
-            )
+                f"{total_downtime:.1f} hrs" )
 
         st.divider()
 
@@ -129,15 +119,12 @@ def render_maintenance_page():
                 .dropna()
                 .astype(str)
                 .unique()
-                .tolist()
-            )
-        )
+                .tolist() ) )
 
         selected_status = st.selectbox(
             "Maintenance Status",
             status_options,
-            key="maintenance_status_filter"
-        )
+            key="maintenance_status_filter")
 
         filtered_equipment = equipment.copy()
 
@@ -145,8 +132,7 @@ def render_maintenance_page():
 
             filtered_equipment = filtered_equipment[
                 filtered_equipment["Maintenance status"].astype(str).str.strip()
-                == selected_status
-            ]
+                == selected_status ]
 
         st.divider()
 
@@ -154,29 +140,24 @@ def render_maintenance_page():
 
         maintenance_counts = (
             filtered_equipment[
-                "Maintenance status"
-            ]
+                "Maintenance status"]
             .astype(str)
-            .value_counts()
-        )
+            .value_counts())
 
         if not maintenance_counts.empty:
 
             st.bar_chart(
-                maintenance_counts
-            )
+                maintenance_counts)
 
         else:
 
             st.info(
-                "No maintenance records found."
-            )
+                "No maintenance records found.")
 
         st.divider()
 
         st.subheader(
-            "Downtime by Equipment Type"
-        )
+            "Downtime by Equipment Type")
 
         if not filtered_equipment.empty:
 
@@ -184,18 +165,15 @@ def render_maintenance_page():
                 filtered_equipment
                 .groupby("Equipment type")["Downtime"]
                 .sum()
-                .sort_values(ascending=False)
-            )
+                .sort_values(ascending=False))
 
             st.bar_chart(
-                downtime_by_type
-            )
+                downtime_by_type )
 
         else:
 
             st.info(
-                "No downtime data available."
-            )
+                "No downtime data available." )
 
         st.divider()
 
@@ -203,21 +181,9 @@ def render_maintenance_page():
 
         st.dataframe(
             filtered_equipment[
-                [
-                    "Equipment ID",
-                    "Equipment type",
-                    "Manufacturer",
-                    "Operating hours",
-                    "Maintenance status",
-                    "Downtime",
-                    "Engine status",
-                    "Brake status",
-                    "Tyre status"
-                ]
-            ],
+                [ "Equipment ID", "Equipment type", "Manufacturer", "Operating hours",  "Maintenance status", "Downtime", "Engine status", "Brake status", "Tyre status"]],
             use_container_width=True,
-            hide_index=True
-        )
+            hide_index=True)
 
     with tab_update:
         update_maintenance_section(equipment)

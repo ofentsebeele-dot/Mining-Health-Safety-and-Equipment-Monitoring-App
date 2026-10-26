@@ -3,13 +3,9 @@ import streamlit as st
 from login import (
     users,
     permissions,
-    user_permissions
-)
+    user_permissions)
 
-
-# --------------------------------------------------
-# AVAILABLE PAGE PERMISSIONS
-# --------------------------------------------------
+# Available page permissions
 
 PAGE_NAMES = {
     "dashboard": "Dashboard",
@@ -20,21 +16,17 @@ PAGE_NAMES = {
     "risk_assessment": "Risk Assessment",
     "reports": "Reports",
     "questions": "Questions & Answers",
-    "manage_users": "Manage Users"
-}
+    "manage_users": "Manage Users"}
 
 
-# --------------------------------------------------
-# AVAILABLE ROLES
-# --------------------------------------------------
+# Available roles
 
 ROLES = [
     "Administrator",
     "Safety Officer",
     "Mining Manager",
     "Maintenance Engineer",
-    "Worker"
-]
+    "Worker"]
 
 
 # --------------------------------------------------
@@ -66,9 +58,7 @@ def get_current_permissions(username):
     return get_original_permissions(username)
 
 
-# --------------------------------------------------
-# SHOW USER INFORMATION
-# --------------------------------------------------
+# Show user information
 
 def show_user_information(username):
 

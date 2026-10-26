@@ -10,8 +10,7 @@ def load_worker_data():
         columns = [
             "Worker ID", "Department", "Job role", "Shift", 
             "PPE compliance", "Safety training status", "Fatigue level", 
-            "Safety observations", "Near misses", "Previous incidents"
-        ]
+            "Safety observations", "Near misses", "Previous incidents"]
         return pd.DataFrame(columns=columns)
     return pd.read_csv(WORKER_FILE)
 
@@ -63,8 +62,7 @@ def add_worker_section(workers):
             "Fatigue level": fatigue_level,
             "Safety observations": safety_observations,
             "Near misses": near_misses,
-            "Previous incidents": previous_incidents
-        }
+            "Previous incidents": previous_incidents}
 
         new_row = pd.DataFrame([new_worker])
         updated_workers = pd.concat([workers, new_row], ignore_index=True)
@@ -115,9 +113,7 @@ def render_worker_health_page():
             st.info("No worker records found. Please add a worker using the 'Add Worker' tab.")
             return
 
-        # --------------------------------------------------
-        # KEY INDICATORS
-        # --------------------------------------------------
+        # Key Indicators
 
         total_workers = len(workers)
         average_ppe = workers["PPE compliance"].mean()
@@ -140,9 +136,7 @@ def render_worker_health_page():
 
         st.divider()
 
-        # --------------------------------------------------
-        # FILTERS
-        # --------------------------------------------------
+        # Filters
 
         st.subheader("Worker Filters")
 
@@ -160,21 +154,17 @@ def render_worker_health_page():
             fatigue_levels = ["All"] + sorted(workers["Fatigue level"].dropna().astype(str).unique().tolist())
             selected_fatigue = st.selectbox("Fatigue Level", fatigue_levels)
 
-        # --------------------------------------------------
-        # APPLY FILTERS
-        # --------------------------------------------------
+        # Apply filters
 
         filtered_workers = workers.copy()
 
         if selected_department != "All":
             filtered_workers = filtered_workers[
-                filtered_workers["Department"].astype(str) == selected_department
-            ]
+                filtered_workers["Department"].astype(str) == selected_department ]
 
         if selected_shift != "All":
             filtered_workers = filtered_workers[
-                filtered_workers["Shift"].astype(str) == selected_shift
-            ]
+                filtered_workers["Shift"].astype(str) == selected_shift]
 
         if selected_fatigue != "All":
             filtered_workers = filtered_workers[
@@ -183,35 +173,27 @@ def render_worker_health_page():
 
         st.divider()
 
-        # --------------------------------------------------
-        # PPE COMPLIANCE
-        # --------------------------------------------------
+        # PPE compliance
 
         st.subheader("PPE Compliance")
         filtered_ppe = filtered_workers["PPE compliance"].mean() if not filtered_workers.empty else 0.0
         st.metric("Filtered Average PPE Compliance", f"{filtered_ppe:.1f}%")
 
-        # --------------------------------------------------
-        # TRAINING STATUS
-        # --------------------------------------------------
+        # Training status
 
         st.subheader("Safety Training Status")
         if not filtered_workers.empty:
             training_counts = filtered_workers["Safety training status"].value_counts()
             st.bar_chart(training_counts)
 
-        # --------------------------------------------------
-        # FATIGUE
-        # --------------------------------------------------
+        # Fataque
 
         st.subheader("Fatigue Levels")
         if not filtered_workers.empty:
             fatigue_counts = filtered_workers["Fatigue level"].value_counts()
             st.bar_chart(fatigue_counts)
 
-        # --------------------------------------------------
-        # SAFETY OBSERVATIONS
-        # --------------------------------------------------
+        # Safety observations
 
         st.subheader("Safety Observations")
         if not filtered_workers.empty:
@@ -219,13 +201,10 @@ def render_worker_health_page():
                 filtered_workers
                 .groupby("Department")["Safety observations"]
                 .sum()
-                .sort_values(ascending=False)
-            )
+                .sort_values(ascending=False))
             st.bar_chart(observation_data)
 
-        # --------------------------------------------------
-        # NEAR MISSES
-        # --------------------------------------------------
+        # Near misses
 
         st.subheader("Near Misses")
         if not filtered_workers.empty:
@@ -233,20 +212,16 @@ def render_worker_health_page():
                 filtered_workers
                 .groupby("Department")["Near misses"]
                 .sum()
-                .sort_values(ascending=False)
-            )
+                .sort_values(ascending=False))
             st.bar_chart(near_miss_data)
 
-        # --------------------------------------------------
-        # WORKER DATA
-        # --------------------------------------------------
+        # Worker data
 
         st.subheader("Worker Records")
         st.dataframe(
             filtered_workers,
             use_container_width=True,
-            hide_index=True
-        )
+            hide_index=True )
 
     with tab_add:
         add_worker_section(workers)

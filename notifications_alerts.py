@@ -3,9 +3,6 @@ import pandas as pd
 from pathlib import Path
 
 
-# =====================================================
-# LOAD EQUIPMENT DATA
-# =====================================================
 
 def load_equipment_data():
     folder = Path(__file__).parent
@@ -73,9 +70,7 @@ def load_equipment_data():
     return data
 
 
-# =====================================================
-# TEMPERATURE CLASSIFICATION
-# =====================================================
+
 
 def check_temperature(temperature):
     if temperature > 100:
@@ -85,9 +80,7 @@ def check_temperature(temperature):
     return "Normal"
 
 
-# =====================================================
-# VIBRATION CLASSIFICATION
-# =====================================================
+
 
 def check_vibration(vibration):
     if vibration > 8:
@@ -97,9 +90,7 @@ def check_vibration(vibration):
     return "Normal"
 
 
-# =====================================================
-# GENERATE OVERALL EQUIPMENT ALERT
-# =====================================================
+
 
 def generate_alert(equipment_id, temperature, vibration):
     temperature_status = check_temperature(temperature)
@@ -134,9 +125,6 @@ def generate_alert(equipment_id, temperature, vibration):
     }
 
 
-# =====================================================
-# GENERATE NOTIFICATIONS FROM CSV
-# =====================================================
 
 def generate_notifications():
     data = load_equipment_data()
@@ -225,9 +213,7 @@ def generate_notifications():
     return notifications
 
 
-# =====================================================
-# DISPLAY ONE FORMATTED MINING MONITORING ALERT
-# =====================================================
+
 
 def display_mining_alert(alert):
     separator = "=" * 65
@@ -253,9 +239,6 @@ def display_mining_alert(alert):
     st.caption("Figure 1: Mining monitoring alert.")
 
 
-# =====================================================
-# INTERACTIVE NOTIFICATIONS PAGE
-# =====================================================
 
 def render_notifications_page():
     st.title("Notifications & Alerts")
@@ -492,9 +475,6 @@ def render_notifications_page():
         st.success("No matching warning or critical alerts were found.")
 
 
-# =====================================================
-# RUN DIRECTLY AS A STREAMLIT PAGE
-# =====================================================
 
 if __name__ == "__main__":
     render_notifications_page()

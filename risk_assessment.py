@@ -6,7 +6,6 @@ from datetime import datetime
 # File locations
 MANAGEMENT_FILE = "risk_management.csv"
 
-# Risk assessment follows the brief:
 # Risk Score = Likelihood × Consequence
 # Both values must be between 1 and 5.
 
@@ -680,8 +679,7 @@ def render_risk_assessment_page():
                 save_risk_management(management)
                 st.success(
                     "Risk removed from the active list. "
-                    "The original source CSV data has not been deleted."
-                )
+                    "The original source CSV data has not been deleted.")
                 st.rerun()
 
     # Restore removed risk
@@ -708,8 +706,7 @@ def render_risk_assessment_page():
         for index, risk in removed_risks.iterrows():
             label = (
                 f"{risk['Risk Type']} | ID: {risk['Record ID']} | "
-                f"{risk['Risk Level']} | Item {index}"
-            )
+                f"{risk['Risk Level']} | Item {index}")
             restore_options[label] = index
 
         restore_label = st.selectbox(

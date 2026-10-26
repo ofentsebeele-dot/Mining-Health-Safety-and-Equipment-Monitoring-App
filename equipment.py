@@ -1,94 +1,38 @@
 import streamlit as st
 import pandas as pd
 import os
-from dark_theme import apply_dark_theme
-
-# BLACK BACKGROUND AND LIGHT WHITE FONT
-
-st.markdown("""
-<style>
-
-/* Main page background */
-.stApp {
-    background-color: #000000 !important;
-}
-
-/* Main text */
-.stApp p,
-.stApp h1,
-.stApp h2,
-.stApp h3,
-.stApp h4,
-.stApp h5,
-.stApp h6,
-.stApp label,
-.stApp li,
-.stApp [data-testid="stMetricLabel"],
-.stApp [data-testid="stMetricValue"],
-.stApp [data-testid="stCaptionContainer"] {
-    color: #E6E6E6 !important;
-}
-
-/* Sidebar background and text */
-[data-testid="stSidebar"] {
-    background-color: #000000 !important;
-}
-
-[data-testid="stSidebar"] * {
-    color: #E6E6E6 !important;
-}
-
-/* Dropdowns and input boxes */
-.stSelectbox div[data-baseweb="select"] > div,
-.stTextInput input,
-.stTextArea textarea,
-.stNumberInput input {
-    background-color: #1A1A1A !important;
-    color: #E6E6E6 !important;
-}
-
-/* Buttons */
-.stButton button,
-.stDownloadButton button {
-    background-color: #222222 !important;
-    color: #E6E6E6 !important;
-    border: 1px solid #666666 !important;
-}
-
-/* Horizontal dividers */
-hr {
-    border-color: #444444 !important;
-}
-
-/* Expanders */
-[data-testid="stExpander"] {
-    background-color: #111111 !important;
-    border: 1px solid #333333 !important;
-}
-
-/* Dataframe border */
-[data-testid="stDataFrame"] {
-    border: 1px solid #444444 !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
-from notifications_alerts import generate_alert
 
 
 def load_equipment_data():
-    if not os.path.exists("equipment.csv"):
-        return pd.DataFrame(columns=[
-            "Equipment ID", "Equipment type", "Manufacturer", "Operating hours",
-            "Temperature", "Vibration", "Fuel consumption", "Brake status",
-            "Tyre status", "Engine status", "Maintenance status", "Downtime"
-        ])
-    return pd.read_csv("equipment.csv")
+    """Load equipment data from equipment.csv."""
+    file_path = "equipment.csv"
+
+    if not os.path.exists(file_path):
+        return pd.DataFrame()
+
+    try:
+        return pd.read_csv(file_path)
+    except Exception as error:
+        st.error(f"Unable to read equipment.csv: {error}")
+        return pd.DataFrame()
 
 
 def calculate_availability(equipment):
-    total_time = equipment["Operating hours"] + equipment["Downtime"]
-    availability = (equipment["Operating hours"] / total_time.replace(0, 1)) * 100
+    """Calculate equipment availability as a percentage."""
+    operating_hours = pd.to_numeric(
+        equipment["Operating hours"], errors="coerce"
+    ).fillna(0)
+
+    downtime = pd.to_numeric(
+        equipment["Downtime"], errors="coerce"
+    ).fillna(0)
+
+    total_time = operating_hours + downtime
+
+    availability = (
+        operating_hours / total_time.replace(0, 1)
+    ) * 100
+
     return availability
 
 
@@ -96,18 +40,67 @@ def render_equipment_page():
     equipment = load_equipment_data()
 
     if equipment.empty:
-        st.error("Equipment data file ('equipment.csv') is missing or empty.")
+        st.error(
+            "Equipment data file ('equipment.csv') is missing or empty."
+        )
         return
 
+    # Check that the required CSV columns exist
+    required_columns = [
+        "Equipment ID",
+        "Equipment type",
+        "Manufacturer",
+        "Operating hours",
+        "Temperature",
+        "Vibration",
+        "Fuel consumption",
+        "Brake status",
+        "Tyre status",
+        "Engine status",
+        "Maintenance status",
+        "Downtime"
+    ]
+
+    missing_columns = [
+        column for column in required_columns
+        if column not in equipment.columns
+    ]
+
+    if missing_columns:
+        st.error(
+            "Missing columns in equipment.csv: "
+            + ", ".join(missing_columns)
+        )
+        return
+
+    # Convert numerical columns safely
+    numeric_columns = [
+        "Operating hours",
+        "Temperature",
+        "Vibration",
+        "Fuel consumption",
+        "Downtime"
+    ]
+
+    for column in numeric_columns:
+        equipment[column] = pd.to_numeric(
+            equipment[column], errors="coerce"
+        )
+
+    # Calculate availability
     equipment["Availability"] = calculate_availability(equipment)
 
+    # Page heading
     st.title("Equipment Monitoring")
 
-    st.write("Monitor mining equipment condition, operating hours, maintenance status and availability.")
+    st.write(
+        "Monitor mining equipment condition, operating hours, "
+        "maintenance status and availability."
+    )
 
     st.divider()
 
-    # Summary
+    # Equipment summary
     total_equipment = len(equipment)
     average_availability = equipment["Availability"].mean()
     total_downtime = equipment["Downtime"].sum()
@@ -119,91 +112,137 @@ def render_equipment_page():
         st.metric("Total Equipment", total_equipment)
 
     with col2:
-        st.metric("Average Availability", f"{average_availability:.1f}%")
+        availability_text = (
+            f"{average_availability:.1f}%"
+            if pd.notna(average_availability)
+            else "N/A"
+        )
+        st.metric("Average Availability", availability_text)
 
     with col3:
-        st.metric("Total Downtime", f"{total_downtime:.1f} hrs")
+        downtime_text = (
+            f"{total_downtime:.1f} hrs"
+            if pd.notna(total_downtime)
+            else "N/A"
+        )
+        st.metric("Total Downtime", downtime_text)
 
     with col4:
-        st.metric("Average Temperature", f"{average_temperature:.1f}°C")
+        temperature_text = (
+            f"{average_temperature:.1f}°C"
+            if pd.notna(average_temperature)
+            else "N/A"
+        )
+        st.metric("Average Temperature", temperature_text)
 
     st.divider()
 
-    # Filters
+    # Equipment filters
     st.subheader("Equipment Filters")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        equipment_types = sorted(equipment["Equipment type"].dropna().astype(str).unique().tolist())
-        selected_type = st.selectbox("Equipment Type", ["All"] + equipment_types, key="equipment_type")
+        equipment_types = sorted(
+            equipment["Equipment type"]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .unique()
+            .tolist()
+        )
+
+        selected_type = st.selectbox(
+            "Equipment Type",
+            ["All"] + equipment_types,
+            key="equipment_type"
+        )
 
     with col2:
-        maintenance_statuses = sorted(equipment["Maintenance status"].dropna().astype(str).unique().tolist())
-        selected_maintenance = st.selectbox("Maintenance Status", ["All"] + maintenance_statuses, key="equipment_maintenance")
+        maintenance_statuses = sorted(
+            equipment["Maintenance status"]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .unique()
+            .tolist()
+        )
+
+        selected_maintenance = st.selectbox(
+            "Maintenance Status",
+            ["All"] + maintenance_statuses,
+            key="equipment_maintenance"
+        )
 
     with col3:
-        manufacturers = sorted(equipment["Manufacturer"].dropna().astype(str).unique().tolist())
-        selected_manufacturer = st.selectbox("Manufacturer", ["All"] + manufacturers, key="equipment_manufacturer")
+        manufacturers = sorted(
+            equipment["Manufacturer"]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .unique()
+            .tolist()
+        )
 
-    # Apply Filters (Robust String Matching)
+        selected_manufacturer = st.selectbox(
+            "Manufacturer",
+            ["All"] + manufacturers,
+            key="equipment_manufacturer"
+        )
+
+    # Apply selected filters
     filtered_equipment = equipment.copy()
 
     if selected_type != "All":
         filtered_equipment = filtered_equipment[
-            filtered_equipment["Equipment type"].astype(str).str.strip() == selected_type
+            filtered_equipment["Equipment type"]
+            .astype(str)
+            .str.strip() == selected_type
         ]
 
     if selected_maintenance != "All":
         filtered_equipment = filtered_equipment[
-            filtered_equipment["Maintenance status"].astype(str).str.strip() == selected_maintenance
+            filtered_equipment["Maintenance status"]
+            .astype(str)
+            .str.strip() == selected_maintenance
         ]
 
     if selected_manufacturer != "All":
         filtered_equipment = filtered_equipment[
-            filtered_equipment["Manufacturer"].astype(str).str.strip() == selected_manufacturer
+            filtered_equipment["Manufacturer"]
+            .astype(str)
+            .str.strip() == selected_manufacturer
         ]
 
     st.divider()
 
-    # Automated Alerts Integration (Section 3h)
-    st.subheader("Automated Equipment Alerts")
-    alert_triggered = False
-    for _, row in filtered_equipment.iterrows():
-        alert_info = generate_alert(row["Equipment ID"], row["Temperature"], row["Vibration"])
-        if alert_info["alert_level"] == "Critical":
-            alert_triggered = True
-            st.error(f"**[CRITICAL] Equipment ID:** {alert_info['equipment_id']} | Temp: {alert_info['temperature']}°C ({alert_info['temperature_status']}) | Vib: {alert_info['vibration']} mm/s ({alert_info['vibration_status']}) — {alert_info['alert_message']}")
-        elif alert_info["alert_level"] == "Warning":
-            alert_triggered = True
-            st.warning(f"**[WARNING] Equipment ID:** {alert_info['equipment_id']} | Temp: {alert_info['temperature']}°C ({alert_info['temperature_status']}) | Vib: {alert_info['vibration']} mm/s ({alert_info['vibration_status']}) — {alert_info['alert_message']}")
-
-    if not alert_triggered:
-        st.success("NORMAL: All filtered equipment operating within defined monitoring limits.")
-
-    st.divider()
-
-    # Equipment Condition
+    # Equipment condition records
     st.subheader("Equipment Condition Records")
 
     if not filtered_equipment.empty:
-        condition_data = filtered_equipment[
-            [
-                "Equipment ID",
-                "Equipment type",
-                "Manufacturer",
-                "Operating hours",
-                "Temperature",
-                "Vibration",
-                "Fuel consumption",
-                "Brake status",
-                "Tyre status",
-                "Engine status",
-                "Maintenance status",
-                "Downtime",
-                "Availability"
-            ]
+        condition_columns = [
+            "Equipment ID",
+            "Equipment type",
+            "Manufacturer",
+            "Operating hours",
+            "Temperature",
+            "Vibration",
+            "Fuel consumption",
+            "Brake status",
+            "Tyre status",
+            "Engine status",
+            "Maintenance status",
+            "Downtime",
+            "Availability"
         ]
+
+        condition_data = filtered_equipment[
+            condition_columns
+        ].copy()
+
+        condition_data["Availability"] = (
+            condition_data["Availability"].round(1)
+        )
 
         st.dataframe(
             condition_data,
@@ -215,7 +254,7 @@ def render_equipment_page():
 
     st.divider()
 
-    # Availability by Equipment Type
+    # Average availability by equipment type
     st.subheader("Average Availability by Equipment Type")
 
     if not filtered_equipment.empty:
@@ -225,13 +264,14 @@ def render_equipment_page():
             .mean()
             .round(1)
         )
+
         st.bar_chart(availability_by_type)
     else:
         st.info("No availability data available.")
 
     st.divider()
 
-    # Downtime
+    # Downtime by equipment type
     st.subheader("Downtime by Equipment Type")
 
     if not filtered_equipment.empty:
@@ -241,6 +281,12 @@ def render_equipment_page():
             .sum()
             .sort_values(ascending=False)
         )
+
         st.bar_chart(downtime_by_type)
     else:
         st.info("No downtime data available.")
+
+
+# Run the page when this file is executed directly
+if __name__ == "__main__":
+    render_equipment_page()

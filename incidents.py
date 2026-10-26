@@ -3,16 +3,9 @@ import pandas as pd
 import os
 
 
-# ==================================================
-# INCIDENT CSV FILE
-# ==================================================
 
 INCIDENT_FILE = "incidents.csv"
 
-
-# ==================================================
-# LOAD INCIDENT DATA
-# ==================================================
 
 def load_incidents():
 
@@ -43,9 +36,7 @@ def load_incidents():
     return pd.read_csv(INCIDENT_FILE)
 
 
-# ==================================================
-# SAVE INCIDENT DATA
-# ==================================================
+
 
 def save_incidents(incidents):
 
@@ -62,9 +53,7 @@ def save_incidents(incidents):
     )
 
 
-# ==================================================
-# ADD INCIDENT
-# ==================================================
+
 
 def add_incident(incidents):
 
@@ -262,10 +251,6 @@ def add_incident(incidents):
         st.rerun()
 
 
-# ==================================================
-# VIEW INCIDENTS
-# ==================================================
-
 def view_incidents(incidents):
 
     # Display the section heading
@@ -290,9 +275,7 @@ def view_incidents(incidents):
     )
 
 
-# ==================================================
-# SEARCH INCIDENTS
-# ==================================================
+
 
 def search_incidents(incidents):
 
@@ -358,9 +341,7 @@ def search_incidents(incidents):
         )
 
 
-# ==================================================
-# FILTER INCIDENTS
-# ==================================================
+
 
 def filter_incidents(incidents):
 
@@ -532,11 +513,6 @@ def filter_incidents(incidents):
         hide_index=True
     )
 
-
-# ==================================================
-# CATEGORIZE INCIDENTS
-# ==================================================
-
 def categorize_incidents(incidents):
 
     # Display the section heading
@@ -587,9 +563,7 @@ def categorize_incidents(incidents):
     )
 
 
-# ==================================================
-# COUNT INCIDENTS
-# ==================================================
+
 
 def count_incidents(incidents):
 
@@ -675,9 +649,7 @@ def count_incidents(incidents):
         )
 
 
-# ==================================================
-# INCIDENT TREND ANALYSIS
-# ==================================================
+
 
 def analyse_incident_trends(incidents):
 
@@ -808,9 +780,7 @@ def analyse_incident_trends(incidents):
     )
 
 
-# ==================================================
-# MAIN INCIDENT PAGE
-# ==================================================
+
 
 def render_incidents_page():
 

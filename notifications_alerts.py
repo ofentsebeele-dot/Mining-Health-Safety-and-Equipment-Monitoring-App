@@ -1,32 +1,34 @@
+
 import streamlit as st
 import pandas as pd
 from pathlib import Path
 
 
+# --------------------------------------------------
+# LOAD EQUIPMENT DATA
+# --------------------------------------------------
 
 def load_equipment_data():
-    folder = Path(__file__).parent
-
-    possible_files = [
-        folder / "equipment(1).csv",
-        folder / "equipment.csv",
-        folder / "data" / "equipment.csv",
+    possible_paths = [
+        Path(__file__).parent / "equipment.csv",
+        Path(__file__).parent / "equipment.csv",
+        Path(__file__).parent / "data" / "equipment.csv",
     ]
 
-    file_path = None
+    equipment_file = None
 
-    for path in possible_files:
+    for path in possible_paths:
         if path.exists():
-            file_path = path
+            equipment_file = path
             break
 
-    if file_path is None:
+    if equipment_file is None:
         raise FileNotFoundError(
-            "Equipment CSV file not found. "
-            "Place equipment(1).csv in the same folder as app.py."
+            "Equipment data was not found. Place equipment.csv "
+            "or equipment(1).csv in the same folder as app.py."
         )
 
-    data = pd.read_csv(file_path)
+    data = pd.read_csv(equipment_file)
 
     required_columns = [
         "Equipment ID",
@@ -41,17 +43,14 @@ def load_equipment_data():
 
     if missing_columns:
         raise ValueError(
-            "Missing CSV columns: " + ", ".join(missing_columns)
+            "Missing required columns: "
+            + ", ".join(missing_columns)
         )
 
-    data["Equipment ID"] = (
-        data["Equipment ID"].astype("string").str.strip()
-    )
-
+    data["Equipment ID"] = data["Equipment ID"].astype(str).str.strip()
     data["Temperature"] = pd.to_numeric(
         data["Temperature"], errors="coerce"
     )
-
     data["Vibration"] = pd.to_numeric(
         data["Vibration"], errors="coerce"
     )
@@ -64,417 +63,302 @@ def load_equipment_data():
 
     if data.empty:
         raise ValueError(
-            "No valid equipment readings were found in the CSV."
+            "The equipment file contains no valid equipment readings."
         )
 
     return data
 
 
-
+# --------------------------------------------------
+# CHECK TEMPERATURE
+# --------------------------------------------------
 
 def check_temperature(temperature):
     if temperature > 100:
         return "Critical"
+
     elif temperature >= 80:
         return "Warning"
+
     return "Normal"
 
 
-
+# --------------------------------------------------
+# CHECK VIBRATION
+# --------------------------------------------------
 
 def check_vibration(vibration):
     if vibration > 8:
         return "Critical"
+
     elif vibration >= 5:
         return "Warning"
+
     return "Normal"
 
 
-
+# --------------------------------------------------
+# GENERATE EQUIPMENT ALERT
+# --------------------------------------------------
 
 def generate_alert(equipment_id, temperature, vibration):
     temperature_status = check_temperature(temperature)
     vibration_status = check_vibration(vibration)
 
-    if (
-        temperature_status == "Critical"
-        or vibration_status == "Critical"
-    ):
-        alert_level = "Critical"
-        alert_message = "Urgent equipment assessment required."
+    severity_order = {
+        "Normal": 1,
+        "Warning": 2,
+        "Critical": 3,
+    }
 
-    elif (
-        temperature_status == "Warning"
-        or vibration_status == "Warning"
-    ):
-        alert_level = "Warning"
-        alert_message = "Equipment requires attention."
+    alert_level = max(
+        [temperature_status, vibration_status],
+        key=lambda status: severity_order[status]
+    )
+
+    if alert_level == "Critical":
+        alert_message = (
+            "Urgent equipment inspection and appropriate "
+            "maintenance or safety action are required."
+        )
+
+    elif alert_level == "Warning":
+        alert_message = (
+            "Equipment requires inspection and appropriate "
+            "maintenance follow-up."
+        )
 
     else:
-        alert_level = "Normal"
-        alert_message = "Equipment readings are normal."
+        alert_message = (
+            "Equipment readings are within the defined normal ranges."
+        )
 
     return {
         "equipment_id": str(equipment_id),
         "temperature": float(temperature),
-        "temperature_status": temperature_status,
         "vibration": float(vibration),
+        "temperature_status": temperature_status,
         "vibration_status": vibration_status,
         "alert_level": alert_level,
         "alert_message": alert_message,
     }
 
 
+# --------------------------------------------------
+# GENERATE NOTIFICATIONS FROM CSV DATA
+# --------------------------------------------------
 
 def generate_notifications():
     data = load_equipment_data()
     notifications = []
 
     for _, row in data.iterrows():
-        equipment_id = str(row["Equipment ID"])
+        alert = generate_alert(
+            row["Equipment ID"],
+            row["Temperature"],
+            row["Vibration"],
+        )
+
         equipment_type = row.get("Equipment type", "Not specified")
 
-        temperature = float(row["Temperature"])
-        vibration = float(row["Vibration"])
+        if alert["alert_level"] == "Normal":
+            continue
 
-        # Create a separate alert for abnormal temperature.
-        temperature_status = check_temperature(temperature)
-
-        if temperature_status != "Normal":
-            if temperature_status == "Critical":
-                action = (
-                    "Inspect equipment immediately and initiate "
-                    "appropriate maintenance and safety procedures."
-                )
-            else:
-                action = (
-                    "Inspect the cooling system and monitor "
-                    "equipment temperature."
-                )
-
+        if alert["temperature_status"] != "Normal":
             notifications.append({
-                "equipment_id": equipment_id,
+                "equipment_id": alert["equipment_id"],
                 "equipment_type": equipment_type,
                 "parameter": "Temperature",
-                "value": temperature,
+                "value": alert["temperature"],
                 "unit": "°C",
-                "status": temperature_status,
-                "threshold": (
-                    "Above Critical Threshold"
-                    if temperature_status == "Critical"
-                    else "At or Above Warning Threshold"
-                ),
-                "recommended_action": action,
+                "status": alert["temperature_status"],
+                "recommended_action": alert["alert_message"],
             })
 
-        # Create a separate alert for abnormal vibration.
-        vibration_status = check_vibration(vibration)
-
-        if vibration_status != "Normal":
-            if vibration_status == "Critical":
-                action = (
-                    "Inspect equipment and initiate appropriate "
-                    "maintenance and safety procedures."
-                )
-            else:
-                action = (
-                    "Inspect equipment for excessive vibration "
-                    "and arrange maintenance if necessary."
-                )
-
+        if alert["vibration_status"] != "Normal":
             notifications.append({
-                "equipment_id": equipment_id,
+                "equipment_id": alert["equipment_id"],
                 "equipment_type": equipment_type,
                 "parameter": "Vibration",
-                "value": vibration,
+                "value": alert["vibration"],
                 "unit": "mm/s",
-                "status": vibration_status,
-                "threshold": (
-                    "Above Critical Threshold"
-                    if vibration_status == "Critical"
-                    else "At or Above Warning Threshold"
-                ),
-                "recommended_action": action,
+                "status": alert["vibration_status"],
+                "recommended_action": alert["alert_message"],
             })
 
-    # Display Critical alerts before Warning alerts.
-    priority = {
-        "Critical": 0,
-        "Warning": 1,
-    }
-
     notifications.sort(
-        key=lambda alert: (
-            priority[alert["status"]],
-            alert["equipment_id"],
+        key=lambda item: (
+            0 if item["status"] == "Critical" else 1,
+            item["equipment_id"],
         )
     )
 
     return notifications
 
 
-
-
-def display_mining_alert(alert):
-    separator = "=" * 65
-
-    st.markdown(f"**{separator}**")
-    st.markdown("## MINING MONITORING ALERT")
-    st.markdown(f"**{separator}**")
-
-    st.markdown(f"### [{alert['status']}]")
-
-    st.write(f"**Equipment ID:** {alert['equipment_id']}")
-    st.write(f"**Equipment Type:** {alert['equipment_type']}")
-    st.write(f"**Parameter:** {alert['parameter']}")
-    st.write(
-        f"**Value:** {alert['value']:.1f} {alert['unit']}"
-    )
-    st.write(f"**Status:** {alert['threshold']}")
-
-    st.write("**Recommended Action:**")
-    st.write(alert["recommended_action"])
-
-    st.markdown(f"**{separator}**")
-    st.caption("Figure 1: Mining monitoring alert.")
-
-
+# --------------------------------------------------
+# DISPLAY ONE EQUIPMENT AT A TIME
+# --------------------------------------------------
 
 def render_notifications_page():
-    st.title("Notifications & Alerts")
+    st.header("Notifications & Alerts")
 
     try:
-        data = load_equipment_data()
-        notifications = generate_notifications()
+        equipment_data = load_equipment_data()
 
     except (FileNotFoundError, ValueError, OSError) as error:
-        st.error(str(error))
+        st.error(f"Could not load equipment data: {error}")
         return
 
-    except pd.errors.ParserError:
-        st.error("The equipment CSV file could not be read.")
+    if equipment_data.empty:
+        st.warning("No equipment records are available.")
         return
 
-    # Summary counts
-    critical_count = sum(
-        1 for alert in notifications
-        if alert["status"] == "Critical"
+    equipment_ids = (
+        equipment_data["Equipment ID"]
+        .drop_duplicates()
+        .tolist()
     )
 
-    warning_count = sum(
-        1 for alert in notifications
-        if alert["status"] == "Warning"
+    if not equipment_ids:
+        st.warning("No equipment IDs were found.")
+        return
+
+    # Initialise the selected equipment position.
+    if "notification_equipment_index" not in st.session_state:
+        st.session_state["notification_equipment_index"] = 0
+
+    index = st.session_state["notification_equipment_index"]
+    index = max(0, min(index, len(equipment_ids) - 1))
+
+    st.session_state["notification_equipment_index"] = index
+
+    # Equipment navigation.
+    previous_col, selector_col, next_col = st.columns([1, 2, 1])
+
+    with previous_col:
+        if st.button(
+            "Previous",
+            disabled=(index == 0),
+            use_container_width=True,
+            key="notification_previous",
+        ):
+            st.session_state["notification_equipment_index"] = index - 1
+            st.rerun()
+
+    with selector_col:
+        selected_equipment = st.selectbox(
+            "Select Equipment ID",
+            equipment_ids,
+            index=index,
+            key="notification_equipment_selector",
+        )
+
+    with next_col:
+        if st.button(
+            "Next",
+            disabled=(index == len(equipment_ids) - 1),
+            use_container_width=True,
+            key="notification_next",
+        ):
+            st.session_state["notification_equipment_index"] = index + 1
+            st.rerun()
+
+    selected_index = equipment_ids.index(selected_equipment)
+
+    if selected_index != index:
+        st.session_state["notification_equipment_index"] = selected_index
+        st.rerun()
+
+    st.caption(
+        f"Equipment {selected_index + 1} of {len(equipment_ids)}"
     )
 
-    col1, col2, col3 = st.columns(3)
-
-    col1.metric("Critical Alerts", critical_count)
-    col2.metric("Warnings", warning_count)
-    col3.metric("Equipment Records", len(data))
-
-    st.divider()
-
-    # Equipment selection
-    st.subheader("Check Equipment")
-
-    equipment_ids = sorted(
-        data["Equipment ID"].drop_duplicates().tolist()
-    )
-
-    selected_equipment = st.selectbox(
-        "Select Equipment ID",
-        equipment_ids,
-        key="alert_equipment_selector",
-    )
-
-    selected_rows = data[
-        data["Equipment ID"] == selected_equipment
+    # Read only the selected equipment's record.
+    selected_rows = equipment_data[
+        equipment_data["Equipment ID"] == selected_equipment
     ]
 
     if selected_rows.empty:
-        st.warning("No equipment data was found.")
+        st.warning("No readings found for the selected equipment.")
         return
 
-    row = selected_rows.iloc[0]
+    equipment = selected_rows.iloc[0]
 
-    equipment_type = row.get("Equipment type", "Not specified")
-    csv_temperature = float(row["Temperature"])
-    csv_vibration = float(row["Vibration"])
+    temperature = float(equipment["Temperature"])
+    vibration = float(equipment["Vibration"])
+    equipment_type = equipment.get("Equipment type", "Not specified")
+
+    # Equipment information.
+    st.divider()
+    st.subheader("Equipment Details")
 
     st.write(f"**Equipment ID:** {selected_equipment}")
     st.write(f"**Equipment Type:** {equipment_type}")
 
-    col1, col2 = st.columns(2)
+    temperature_col, vibration_col = st.columns(2)
 
-    col1.metric(
-        "Recorded Temperature",
-        f"{csv_temperature:.1f} °C",
+    with temperature_col:
+        st.metric(
+            "Temperature",
+            f"{temperature:.1f} °C",
+        )
+
+    with vibration_col:
+        st.metric(
+            "Vibration",
+            f"{vibration:.1f} mm/s",
+        )
+
+    # Generate an alert for the selected equipment.
+    alert = generate_alert(
+        selected_equipment,
+        temperature,
+        vibration,
     )
 
-    col2.metric(
-        "Recorded Vibration",
-        f"{csv_vibration:.1f} mm/s",
-    )
-
-    # Optional interactive test readings
-    test_mode = st.checkbox(
-        "Enter test readings",
-        key=f"alert_test_mode_{selected_equipment}",
-    )
-
-    if test_mode:
-        temperature = st.number_input(
-            "Temperature (°C)",
-            min_value=0.0,
-            max_value=500.0,
-            value=csv_temperature,
-            step=1.0,
-            key=f"alert_test_temperature_{selected_equipment}",
-        )
-
-        vibration = st.number_input(
-            "Vibration (mm/s)",
-            min_value=0.0,
-            max_value=100.0,
-            value=csv_vibration,
-            step=0.1,
-            key=f"alert_test_vibration_{selected_equipment}",
-        )
-    else:
-        temperature = csv_temperature
-        vibration = csv_vibration
-
-    # Check selected equipment
-    if st.button(
-        "Generate Equipment Alert",
-        type="primary",
-        key="generate_equipment_alert",
-    ):
-        result = generate_alert(
-            selected_equipment,
-            temperature,
-            vibration,
-        )
-
-        st.session_state["latest_mining_alert"] = result
-        st.session_state["latest_mining_alert"]["equipment_type"] = (
-            equipment_type
-        )
-
-    # Display the result of the selected equipment check
-    latest_alert = st.session_state.get("latest_mining_alert")
-
-    if (
-        latest_alert
-        and latest_alert["equipment_id"] == selected_equipment
-    ):
-        st.divider()
-        st.subheader("Selected Equipment Alert")
-
-        temperature_status = check_temperature(
-            latest_alert["temperature"]
-        )
-
-        vibration_status = check_vibration(
-            latest_alert["vibration"]
-        )
-
-        # Display an alert for each abnormal parameter.
-        parameter_alerts = []
-
-        if temperature_status != "Normal":
-            parameter_alerts.append({
-                "equipment_id": selected_equipment,
-                "equipment_type": equipment_type,
-                "parameter": "Temperature",
-                "value": latest_alert["temperature"],
-                "unit": "°C",
-                "status": temperature_status,
-                "threshold": (
-                    "Above Critical Threshold"
-                    if temperature_status == "Critical"
-                    else "At or Above Warning Threshold"
-                ),
-                "recommended_action": (
-                    "Inspect equipment immediately and initiate "
-                    "appropriate maintenance and safety procedures."
-                    if temperature_status == "Critical"
-                    else
-                    "Inspect the cooling system and monitor "
-                    "equipment temperature."
-                ),
-            })
-
-        if vibration_status != "Normal":
-            parameter_alerts.append({
-                "equipment_id": selected_equipment,
-                "equipment_type": equipment_type,
-                "parameter": "Vibration",
-                "value": latest_alert["vibration"],
-                "unit": "mm/s",
-                "status": vibration_status,
-                "threshold": (
-                    "Above Critical Threshold"
-                    if vibration_status == "Critical"
-                    else "At or Above Warning Threshold"
-                ),
-                "recommended_action": (
-                    "Inspect equipment and initiate appropriate "
-                    "maintenance and safety procedures."
-                    if vibration_status == "Critical"
-                    else
-                    "Inspect equipment for excessive vibration "
-                    "and arrange maintenance if necessary."
-                ),
-            })
-
-        if parameter_alerts:
-            for alert in parameter_alerts:
-                display_mining_alert(alert)
-        else:
-            st.success(
-                "Equipment readings are normal. "
-                "No warning or critical alert was generated."
-            )
-
-    # Search and filter all equipment alerts
+    # Display the selected equipment's alert only.
     st.divider()
-    st.subheader("Equipment Alert Search")
+    st.subheader("Equipment Alert")
 
-    search_id = st.text_input(
-        "Search Equipment ID",
-        placeholder="Enter equipment ID",
-        key="alert_search_id",
-    )
+    if alert["alert_level"] == "Critical":
+        st.error("CRITICAL ALERT")
 
-    alert_filter = st.selectbox(
-        "Filter Alerts",
-        ["All", "Critical", "Warning"],
-        key="alert_filter_level",
-    )
+    elif alert["alert_level"] == "Warning":
+        st.warning("WARNING")
 
-    filtered_alerts = notifications
-
-    if search_id.strip():
-        filtered_alerts = [
-            alert for alert in filtered_alerts
-            if search_id.strip().lower()
-            in alert["equipment_id"].lower()
-        ]
-
-    if alert_filter != "All":
-        filtered_alerts = [
-            alert for alert in filtered_alerts
-            if alert["status"] == alert_filter
-        ]
-
-    if filtered_alerts:
-        for alert in filtered_alerts:
-            display_mining_alert(alert)
     else:
-        st.success("No matching warning or critical alerts were found.")
+        st.success("NORMAL")
+
+    st.write(f"**Alert Level:** {alert['alert_level']}")
+    st.write(
+        f"**Temperature Status:** {alert['temperature_status']}"
+    )
+    st.write(
+        f"**Vibration Status:** {alert['vibration_status']}"
+    )
+
+    if alert["alert_level"] == "Critical":
+        st.write(
+            "**Recommended Action:** Inspect equipment urgently "
+            "and initiate appropriate maintenance and safety procedures."
+        )
+
+    elif alert["alert_level"] == "Warning":
+        st.write(
+            "**Recommended Action:** Inspect equipment and arrange "
+            "appropriate maintenance."
+        )
+
+    else:
+        st.write(
+            "**Recommended Action:** Continue routine monitoring."
+        )
 
 
+# --------------------------------------------------
+# RUN PAGE DIRECTLY IF NEEDED
+# --------------------------------------------------
 
 if __name__ == "__main__":
     render_notifications_page()

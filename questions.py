@@ -101,7 +101,7 @@ def render_questions_page():
 
         st.divider()
 
-        # Qusetion 1
+        # Question 1
 
         if selected_question == questions[0]:
 
@@ -109,7 +109,7 @@ def render_questions_page():
                 "Safety Incidents",
                 len(incidents))
 
-        # Qusetion 2
+        # Question 2
 
         elif selected_question == questions[1]:
 
@@ -136,7 +136,7 @@ def render_questions_page():
                 st.bar_chart(
                     department_counts )
 
-        # Qusetion 3
+        # Question 3
 
         elif selected_question == questions[2]:
 
@@ -163,7 +163,7 @@ def render_questions_page():
                 st.bar_chart(
                     shift_counts)
 
-        # Qusetion 4
+        # Question 4
 
         elif selected_question == questions[3]:
 
@@ -179,7 +179,7 @@ def render_questions_page():
                 "PPE Compliance",
                 f"{percentage:.1f}%")
 
-        # Qusetion 5
+        # Question 5
 
         elif selected_question == questions[4]:
 
@@ -191,7 +191,7 @@ def render_questions_page():
                 "Near Misses",
                 int(near_misses))
 
-        # Qusetion 6
+        # Question 6
 
         elif selected_question == questions[5]:
 
@@ -206,7 +206,7 @@ def render_questions_page():
             st.bar_chart(
                 incident_types)
 
-        # Qusetion 7
+        # Question 7
 
         elif selected_question == questions[6]:
 
@@ -227,7 +227,7 @@ def render_questions_page():
                 "High or Critical Incidents",
                 len(high_critical))
 
-        # Qusetion 8
+        # Question 8
 
         elif selected_question == questions[7]:
 
@@ -249,7 +249,7 @@ def render_questions_page():
                 department_risk,
                 use_container_width=True)
 
-        # Qusetion 9
+        # Question 9
 
         elif selected_question == questions[8]:
 
@@ -278,7 +278,7 @@ def render_questions_page():
                     f"and lowest incident counts is "
                     f"{difference}.")
 
-        # Qusetion 10
+        # Question 10
 
         elif selected_question == questions[9]:
 
@@ -311,7 +311,7 @@ def render_questions_page():
                 hide_index=True)
 
 
-    # Equipment Qusetion 
+    # Equipment Question 
 
     elif selected_category == "Equipment":
 
@@ -343,7 +343,7 @@ def render_questions_page():
 
         st.divider()
 
-        # Qusetion 1
+        # Question 1
 
         if selected_question == questions[0]:
 
@@ -356,7 +356,7 @@ def render_questions_page():
                 f"has the highest downtime: "
                 f"{equipment_row['Downtime']} hours.")
 
-        # Qusetion 2
+        # Question 2
         elif selected_question == questions[1]:
 
             equipment_row = equipment.loc[
@@ -367,7 +367,7 @@ def render_questions_page():
                 f"has the lowest availability: "
                 f"{equipment_row['Availability']:.1f}%." )
 
-        # Qusetion 3
+        # Question 3
 
         elif selected_question == questions[2]:
 
@@ -379,7 +379,7 @@ def render_questions_page():
                 f"has the highest vibration: "
                 f"{equipment_row['Vibration']}.")
 
-        # Qusetion 4
+        # Question 4
 
         elif selected_question == questions[3]:
 
@@ -393,7 +393,7 @@ def render_questions_page():
                 f"{equipment_row['Temperature']}."
             )
 
-        # Qusetion 5
+        # Question 5
         elif selected_question == questions[4]:
 
             st.info(
@@ -422,7 +422,7 @@ def render_questions_page():
                 use_container_width=True,
                 hide_index=True)
 
-        # Qusetion 6
+        # Question 6
 
         elif selected_question == questions[5]:
 
@@ -441,7 +441,7 @@ def render_questions_page():
                 use_container_width=True,
                 hide_index=True)
 
-        # Qusetion 7
+        # Question 7
 
         elif selected_question == questions[6]:
 
@@ -463,7 +463,7 @@ def render_questions_page():
                     use_container_width=True,
                     hide_index=True)
 
-        # Qusetion 8
+        # Question 8
 
         elif selected_question == questions[7]:
 
@@ -475,7 +475,7 @@ def render_questions_page():
                 "Average Equipment Availability",
                 f"{average_availability:.1f}%")
 
-        # Qusetion 9
+        # Question 9
 
         elif selected_question == questions[8]:
 
@@ -496,7 +496,7 @@ def render_questions_page():
                     f"{downtime.idxmax()} has the "
                     f"highest total downtime." )
 
-        # Qusetion 10
+        # Question 10
 
         elif selected_question == questions[9]:
 
@@ -526,7 +526,7 @@ def render_questions_page():
             )
 
 
-    # Integrated Qusetions
+    # Integrated Questions
 
     else:
 
@@ -558,7 +558,7 @@ def render_questions_page():
 
         st.divider()
 
-        # Qusetion 1
+        # Question 1
 
         if selected_question == questions[0]:
 
@@ -574,7 +574,7 @@ def render_questions_page():
                 "This shows the distribution of "
                 "incidents across shifts.")
 
-        # Qusetion 2
+        # Question 2
 
         elif selected_question == questions[1]:
 
@@ -601,7 +601,7 @@ def render_questions_page():
             st.bar_chart(
                 department_downtime )
 
-        # Qusetion 3
+        # Question 3
 
         elif selected_question == questions[2]:
 
@@ -626,7 +626,7 @@ def render_questions_page():
                 use_container_width=True,
                 hide_index=True )
 
-        # Qusetion 4
+        # Question 4
 
         elif selected_question == questions[3]:
 
@@ -654,7 +654,7 @@ def render_questions_page():
                 use_container_width=True,
                 hide_index=True)
 
-        # Qusetion 5
+        # Question 5
 
         elif selected_question == questions[4]:
 
@@ -667,7 +667,7 @@ def render_questions_page():
             st.bar_chart(
                 causes)
 
-        # Qusetion 6
+        # Question 6
 
         elif selected_question == questions[5]:
 
@@ -693,7 +693,7 @@ def render_questions_page():
                 hide_index=True
             )
 
-        # Qusetion 7
+        # Question 7
 
         elif selected_question == questions[6]:
 
@@ -719,7 +719,7 @@ def render_questions_page():
                 "Operating Normally",
                 f"{percentage:.1f}%")
 
-        # Qusetion 8
+        # Question 8
 
         elif selected_question == questions[7]:
 
@@ -741,7 +741,7 @@ def render_questions_page():
                 len(critical_alerts)
             )
 
-        # Qusetion 9
+        # Question 9
 
         elif selected_question == questions[8]:
 
@@ -767,7 +767,7 @@ def render_questions_page():
                     "Downtime"]
                 .sum())
 
-        #Qusetion 10
+        #Question 10
 
         elif selected_question == questions[9]:
 

@@ -242,7 +242,7 @@ def login():
         unsafe_allow_html=True
     )
 
-    st.title("Khwezi Mining Monitoring System")
+    st.title("Monitoring System")
     st.subheader("Login")
 
     username = st.text_input(

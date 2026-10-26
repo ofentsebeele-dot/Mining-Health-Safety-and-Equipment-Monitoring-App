@@ -1,5 +1,4 @@
 
-# ============================================================
 # KHWEZI MINING MONITORING SYSTEM
 # Dashboard: Worker Safety, Incidents and Equipment
 # ============================================================
@@ -11,8 +10,6 @@ from datetime import datetime
 import pandas as pd
 import streamlit as st
 
-# Plotly is used for interactive charts.
-# The dashboard can still run if Plotly is not installed.
 try:
     import plotly.express as px
     PLOTLY_AVAILABLE = True
@@ -25,8 +22,6 @@ except ImportError:
 # ============================================================
 
 def find_csv_path(filename):
-    """Find a CSV file in the main folder or the data folder."""
-
     possible_paths = [
         filename,
         os.path.join("data", filename)
@@ -40,8 +35,6 @@ def find_csv_path(filename):
 
 
 def load_csv(filename):
-    """Load a CSV file and report a clear error if it is missing."""
-
     path = find_csv_path(filename)
 
     if path is None:
@@ -50,22 +43,18 @@ def load_csv(filename):
             "Place it in the project folder or the data folder."
         )
 
-    # Read the CSV each time the dashboard reruns.
     return pd.read_csv(path)
 
 
 def load_worker_data():
-    """Load worker safety records."""
     return load_csv("workers.csv")
 
 
 def load_incident_data():
-    """Load incident records."""
     return load_csv("incidents.csv")
 
 
 def load_equipment_data():
-    """Load equipment monitoring records."""
     return load_csv("equipment.csv")
 
 
@@ -74,33 +63,30 @@ def load_equipment_data():
 # ============================================================
 
 def numeric_column(data, column_name):
-    """Convert a column to numbers without crashing on bad values."""
-
     if column_name not in data.columns:
         return pd.Series(float("nan"), index=data.index)
 
     values = data[column_name].astype(str).str.strip()
-
-    # Allow values such as 95% in percentage columns.
     values = values.str.replace("%", "", regex=False)
 
     return pd.to_numeric(values, errors="coerce")
 
 
 def category_column(data, column_name):
-    """Return a clean text column for grouping and charting."""
-
     if column_name not in data.columns:
         return pd.Series("Unknown", index=data.index)
 
-    values = data[column_name].fillna("Unknown").astype(str).str.strip()
+    values = (
+        data[column_name]
+        .fillna("Unknown")
+        .astype(str)
+        .str.strip()
+    )
 
     return values.replace("", "Unknown")
 
 
 def show_table(data, columns):
-    """Display only the requested columns that actually exist."""
-
     available = [
         column for column in columns
         if column in data.columns
@@ -113,19 +99,18 @@ def show_table(data, columns):
             hide_index=True
         )
     else:
-        st.info("The expected columns are not available in this CSV.")
+        st.info(
+            "The expected columns are not available in this CSV."
+        )
 
 
 # ============================================================
-# 3. BACKGROUND IMAGE
+# 3. BACKGROUND IMAGE AND TEXT STYLING
 # ============================================================
 
 def set_background(image_file="mine_background.png"):
-    """Set an optional background image if it exists."""
-
     path = find_csv_path(image_file)
 
-    # find_csv_path also checks the data folder.
     if path is None:
         return
 
@@ -138,6 +123,8 @@ def set_background(image_file="mine_background.png"):
         st.markdown(
             f"""
             <style>
+
+            /* Keep the mine background and existing overlay */
             .stApp {{
                 background-image:
                     linear-gradient(
@@ -145,24 +132,112 @@ def set_background(image_file="mine_background.png"):
                         rgba(8, 20, 31, 0.84)
                     ),
                     url("data:image/png;base64,{encoded_image}");
+
                 background-size: cover;
                 background-position: center;
+                background-repeat: no-repeat;
                 background-attachment: fixed;
             }}
 
-            [data-testid="stMetric"] {{
-                background-color: rgba(255, 255, 255, 0.08);
-                border: 1px solid rgba(255, 255, 255, 0.18);
-                border-radius: 10px;
-                padding: 12px;
+            /* Main dashboard headings */
+            .stApp h1,
+            .stApp h2,
+            .stApp h3,
+            .stApp h4 {{
+                color: #FFFFFF !important;
+                font-weight: 800 !important;
+                text-shadow: 1px 1px 3px #000000;
             }}
+
+            /* Paragraphs, labels and general text */
+            .stApp p,
+            .stApp label {{
+                color: #FFFFFF !important;
+                font-weight: 600 !important;
+            }}
+
+            /* Metric cards */
+            [data-testid="stMetric"] {{
+                background-color: rgba(0, 0, 0, 0.65);
+                border: 1px solid rgba(255, 255, 255, 0.65);
+                border-radius: 10px;
+                padding: 14px;
+            }}
+
+            /* Strong white KPI numbers */
+            [data-testid="stMetricValue"],
+            [data-testid="stMetricValue"] * {{
+                color: #FFFFFF !important;
+                font-weight: 800 !important;
+                opacity: 1 !important;
+                text-shadow: 1px 1px 2px #000000;
+            }}
+
+            /* Strong white KPI labels */
+            [data-testid="stMetricLabel"],
+            [data-testid="stMetricLabel"] * {{
+                color: #FFFFFF !important;
+                font-weight: 700 !important;
+                opacity: 1 !important;
+            }}
+
+            /* KPI delta text */
+            [data-testid="stMetricDelta"],
+            [data-testid="stMetricDelta"] * {{
+                color: #FFFFFF !important;
+                opacity: 1 !important;
+            }}
+
+            /* Sidebar */
+            [data-testid="stSidebar"] {{
+                background-color: #101820;
+            }}
+
+            [data-testid="stSidebar"] * {{
+                color: #FFFFFF !important;
+            }}
+
+            /* Expandable table sections */
+            [data-testid="stExpander"] {{
+                background-color: rgba(0, 0, 0, 0.60);
+                border: 1px solid rgba(255, 255, 255, 0.35);
+                border-radius: 8px;
+            }}
+
+            [data-testid="stExpander"] summary,
+            [data-testid="stExpander"] summary p {{
+                color: #FFFFFF !important;
+                font-weight: 700 !important;
+            }}
+
+            /* Data table container */
+            [data-testid="stDataFrame"] {{
+                border: 1px solid rgba(255, 255, 255, 0.35);
+                border-radius: 6px;
+            }}
+
+            /* Informational messages */
+            [data-testid="stAlert"] p {{
+                color: #FFFFFF !important;
+                font-weight: 600 !important;
+            }}
+
+            /* Captions */
+            [data-testid="stCaptionContainer"] {{
+                color: #FFFFFF !important;
+            }}
+
+            /* Dividers */
+            hr {{
+                border-color: rgba(255, 255, 255, 0.55) !important;
+            }}
+
             </style>
             """,
             unsafe_allow_html=True
         )
 
     except OSError:
-        # The dashboard still works without the background image.
         pass
 
 
@@ -171,19 +246,11 @@ def set_background(image_file="mine_background.png"):
 # ============================================================
 
 def calculate_availability(equipment):
-    """
-    Calculate equipment availability as a percentage.
-
-    Availability = Operating hours /
-                   (Operating hours + Downtime) * 100
-    """
-
     operating = numeric_column(equipment, "Operating hours")
     downtime = numeric_column(equipment, "Downtime")
 
     total_time = operating + downtime
 
-    # Avoid division by zero when both values are zero.
     availability = (
         operating / total_time.where(total_time > 0)
     ) * 100
@@ -195,9 +262,46 @@ def calculate_availability(equipment):
 # 5. CHART FUNCTIONS
 # ============================================================
 
-def show_pie_chart(data, column, title):
-    """Display a pie chart of records by category."""
+def style_plotly_chart(fig):
+    """Improve Plotly chart text against the dashboard background."""
 
+    fig.update_layout(
+        font=dict(
+            color="#FFFFFF",
+            size=14,
+            family="Arial"
+        ),
+        title_font=dict(
+            color="#FFFFFF",
+            size=19,
+            family="Arial"
+        ),
+        paper_bgcolor="rgba(0,0,0,0.55)",
+        plot_bgcolor="rgba(0,0,0,0.35)",
+        legend=dict(
+            font=dict(color="#FFFFFF", size=12)
+        ),
+        margin=dict(l=25, r=25, t=65, b=35)
+    )
+
+    fig.update_xaxes(
+        title_font=dict(color="#FFFFFF", size=13),
+        tickfont=dict(color="#FFFFFF", size=12),
+        gridcolor="rgba(255,255,255,0.18)",
+        zerolinecolor="rgba(255,255,255,0.3)"
+    )
+
+    fig.update_yaxes(
+        title_font=dict(color="#FFFFFF", size=13),
+        tickfont=dict(color="#FFFFFF", size=12),
+        gridcolor="rgba(255,255,255,0.18)",
+        zerolinecolor="rgba(255,255,255,0.3)"
+    )
+
+    return fig
+
+
+def show_pie_chart(data, column, title):
     if data.empty or column not in data.columns:
         st.info(f"No data is available for {title}.")
         return
@@ -220,19 +324,26 @@ def show_pie_chart(data, column, title):
 
         fig.update_traces(
             textposition="inside",
-            textinfo="percent+label"
+            textinfo="percent+label",
+            textfont=dict(
+                color="#FFFFFF",
+                size=13,
+                family="Arial"
+            )
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        fig = style_plotly_chart(fig)
 
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
     else:
         st.subheader(title)
         st.bar_chart(chart_data.set_index(column))
 
 
 def show_bar_chart(data, column, title):
-    """Display a bar chart counting records in each category."""
-
     if data.empty or column not in data.columns:
         st.info(f"No data is available for {title}.")
         return
@@ -253,21 +364,27 @@ def show_bar_chart(data, column, title):
             text="Count"
         )
 
-        fig.update_layout(
-            xaxis_title=column,
-            yaxis_title="Number of records"
+        fig.update_traces(
+            textfont=dict(
+                color="#FFFFFF",
+                size=13,
+                family="Arial"
+            ),
+            textposition="outside"
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        fig = style_plotly_chart(fig)
 
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
     else:
         st.subheader(title)
         st.bar_chart(chart_data.set_index(column))
 
 
 def show_histogram(data, column, title, x_title=None):
-    """Display a histogram of numeric values."""
-
     if column not in data.columns:
         st.info(f"{column} is not available.")
         return
@@ -289,8 +406,12 @@ def show_histogram(data, column, title, x_title=None):
             }
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        fig = style_plotly_chart(fig)
 
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
     else:
         st.subheader(title)
         st.bar_chart(values.value_counts().sort_index())
@@ -301,8 +422,6 @@ def show_histogram(data, column, title, x_title=None):
 # ============================================================
 
 def render_dashboard_content():
-    """Load data and display dashboard metrics, charts and tables."""
-
     set_background()
 
     st.title("Khwezi Mining Monitoring System")
@@ -313,11 +432,10 @@ def render_dashboard_content():
         "and maintenance performance."
     )
 
-    # Refresh button: reruns the page and reloads the CSV files.
     if st.button("Refresh Dashboard", type="primary"):
         st.rerun()
 
-    # Load all three data sources.
+    # Load CSV data
     try:
         workers = load_worker_data()
         incidents = load_incident_data()
@@ -337,7 +455,7 @@ def render_dashboard_content():
         )
         return
 
-    # Confirm that the main identifying columns exist.
+    # Check identifying columns
     required_columns = [
         (workers, "Worker ID", "workers.csv"),
         (incidents, "Incident ID", "incidents.csv"),
@@ -351,10 +469,8 @@ def render_dashboard_content():
             )
             return
 
-    # Work on a copy so the original CSV data is not changed.
     equipment = equipment.copy()
 
-    # Calculate availability for dashboard reporting.
     equipment["Calculated Availability (%)"] = (
         calculate_availability(equipment)
     )
@@ -429,7 +545,6 @@ def render_dashboard_content():
         "Calculated Availability (%)"
     ].mean()
 
-    # Identify equipment above the critical thresholds.
     if "Temperature" in equipment.columns:
         critical_temperature = (
             numeric_column(equipment, "Temperature") > 100
@@ -613,6 +728,8 @@ def render_dashboard_content():
                     title="Incidents Recorded by Date"
                 )
 
+                fig = style_plotly_chart(fig)
+
                 st.plotly_chart(
                     fig,
                     use_container_width=True
@@ -696,7 +813,6 @@ def render_dashboard_content():
         "", index=equipment.index, dtype="object"
     )
 
-    # Critical temperature is above 100°C.
     if "Temperature" in equipment.columns:
         temperature = numeric_column(
             equipment, "Temperature"
@@ -709,7 +825,6 @@ def render_dashboard_content():
             "Temperature above 100°C; "
         )
 
-    # Critical vibration is above 8 mm/s.
     if "Vibration" in equipment.columns:
         vibration = numeric_column(
             equipment, "Vibration"
@@ -748,7 +863,6 @@ def render_dashboard_content():
             use_container_width=True,
             hide_index=True
         )
-
     else:
         st.success(
             "No equipment exceeds the critical temperature "
@@ -837,10 +951,6 @@ def render_dashboard_content():
 # ============================================================
 # 7. DASHBOARD ENTRY POINT AND AUTOMATIC REFRESH
 # ============================================================
-
-# app.py imports and calls render_dashboard().
-# Streamlit fragments periodically refresh this dashboard
-# when the installed Streamlit version supports them.
 
 if hasattr(st, "fragment"):
 

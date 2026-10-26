@@ -3,10 +3,7 @@ import pandas as pd
 import os
 from datetime import datetime
 
-# --------------------------------------------------
-# FILE LOCATIONS
-# --------------------------------------------------
-
+# File locations
 MANAGEMENT_FILE = "risk_management.csv"
 
 # Risk assessment follows the brief:
@@ -14,25 +11,21 @@ MANAGEMENT_FILE = "risk_management.csv"
 # Both values must be between 1 and 5.
 
 
-# --------------------------------------------------
-# LOAD CSV FILES
-# --------------------------------------------------
+# Load CSV files
 
 def load_data(filename):
     """Load a CSV from the project folder or the data folder."""
 
     possible_paths = [
         filename,
-        os.path.join("data", filename)
-    ]
+        os.path.join("data", filename)]
 
     for path in possible_paths:
         if os.path.exists(path):
             return pd.read_csv(path)
 
     raise FileNotFoundError(
-        f"{filename} could not be found in the project folder or data folder."
-    )
+        f"{filename} could not be found in the project folder or data folder.")
 
 
 def load_risk_management():
@@ -44,8 +37,7 @@ def load_risk_management():
         "Status",
         "Notes",
         "Removed",
-        "Updated At"
-    ]
+        "Updated At"]
 
     if os.path.exists(MANAGEMENT_FILE):
         try:
@@ -64,8 +56,7 @@ def load_risk_management():
         except (pd.errors.ParserError, OSError, UnicodeDecodeError):
             st.warning(
                 "The saved risk-management file could not be read. "
-                "A new one will be created when you save a change."
-            )
+                "A new one will be created when you save a change.")
 
     return pd.DataFrame(columns=columns)
 
@@ -92,8 +83,7 @@ def update_risk_record(
     # Make sure the management table has the required columns.
     columns = [
         "Risk Type", "Record ID", "Status",
-        "Notes", "Removed", "Updated At"
-    ]
+        "Notes", "Removed", "Updated At"]
 
     if management.empty:
         management = pd.DataFrame(columns=columns)
@@ -104,8 +94,7 @@ def update_risk_record(
 
     matches = (
         (management["Risk Type"].astype(str) == risk_type)
-        & (management["Record ID"].astype(str) == record_id)
-    )
+        & (management["Record ID"].astype(str) == record_id))
 
     if matches.any():
         index = management.index[matches][0]
@@ -129,15 +118,11 @@ def update_risk_record(
         management.loc[index, "Removed"] = str(removed)
 
     management.loc[index, "Updated At"] = datetime.now().strftime(
-        "%Y-%m-%d %H:%M:%S"
-    )
+        "%Y-%m-%d %H:%M:%S")
 
     return management
 
-
-# --------------------------------------------------
-# RISK CLASSIFICATION
-# --------------------------------------------------
+# Risk Classification
 
 def classify_risk(risk_score):
     """Classify a risk score using the project's specified ranges."""
@@ -162,10 +147,7 @@ def calculate_risk_score(likelihood, consequence):
 
     return score, classify_risk(score)
 
-
-# --------------------------------------------------
-# HELPER FUNCTIONS
-# --------------------------------------------------
+# Helper Functions
 
 def get_value(row, column, default=""):
     """Safely get a value from a CSV row."""
@@ -209,8 +191,7 @@ def add_risk(
 
     score, level = calculate_risk_score(
         likelihood,
-        consequence
-    )
+        consequence)
 
     risks.append({
         "Risk Type": risk_type,
@@ -219,13 +200,10 @@ def add_risk(
         "Likelihood": likelihood,
         "Consequence": consequence,
         "Risk Score": score,
-        "Risk Level": level
-    })
+        "Risk Level": level})
 
 
-# --------------------------------------------------
-# IDENTIFY WORKER SAFETY RISKS
-# --------------------------------------------------
+# Identfy woker Safety Risk
 
 def identify_worker_risks(risks):
     """Identify possible safety risks from worker records."""
@@ -239,8 +217,7 @@ def identify_worker_risks(risks):
     for row_number, row in workers.iterrows():
 
         worker_id = make_record_id(
-            row, "Worker ID", row_number
-        )
+            row, "Worker ID", row_number)
 
         department = get_value(row, "Department", "Unknown department")
         issues = []
@@ -293,8 +270,7 @@ def identify_worker_risks(risks):
 
         # Check previous incidents.
         previous_incidents = number_value(
-            get_value(row, "Previous incidents", "0")
-        )
+            get_value(row, "Previous incidents", "0"))
 
         if previous_incidents is not None and previous_incidents > 0:
             issues.append("Previous incidents recorded")
@@ -306,8 +282,7 @@ def identify_worker_risks(risks):
         # Only add workers where at least one concern was identified.
         if issues:
             description = (
-                f"Worker in {department}: " + "; ".join(issues)
-            )
+                f"Worker in {department}: " + "; ".join(issues))
 
             add_risk(
                 risks,
@@ -315,13 +290,10 @@ def identify_worker_risks(risks):
                 worker_id,
                 description,
                 likelihood,
-                consequence
-            )
+                consequence)
 
 
-# --------------------------------------------------
-# IDENTIFY INCIDENT RISKS
-# --------------------------------------------------
+# Identify Incident risks
 
 def identify_incident_risks(risks):
     """Identify incidents that need safety follow-up."""
@@ -335,8 +307,7 @@ def identify_incident_risks(risks):
     for row_number, row in incidents.iterrows():
 
         incident_id = make_record_id(
-            row, "Incident ID", row_number
-        )
+            row, "Incident ID", row_number)
 
         severity = get_value(row, "Severity").lower()
         incident_type = get_value(row, "Incident type", "Unspecified incident")
@@ -379,8 +350,7 @@ def identify_incident_risks(risks):
 
         description = (
             f"{incident_type} in {department}: "
-            + "; ".join(issues)
-        )
+            + "; ".join(issues))
 
         add_risk(
             risks,
@@ -388,13 +358,10 @@ def identify_incident_risks(risks):
             incident_id,
             description,
             likelihood,
-            consequence
-        )
+            consequence)
 
 
-# --------------------------------------------------
-# IDENTIFY EQUIPMENT RISKS
-# --------------------------------------------------
+# Identify Equipment Risks
 
 def identify_equipment_risks(risks):
     """Identify possible equipment risks using available sensor data."""
@@ -408,12 +375,10 @@ def identify_equipment_risks(risks):
     for row_number, row in equipment.iterrows():
 
         equipment_id = make_record_id(
-            row, "Equipment ID", row_number
-        )
+            row, "Equipment ID", row_number)
 
         equipment_type = get_value(
-            row, "Equipment type", "Unknown equipment"
-        )
+            row, "Equipment type", "Unknown equipment")
 
         issues = []
         likelihood = 1
@@ -496,13 +461,9 @@ def identify_equipment_risks(risks):
                 equipment_id,
                 description,
                 likelihood,
-                consequence
-            )
+                consequence)
 
-
-# --------------------------------------------------
-# BUILD THE RISK LIST
-# --------------------------------------------------
+# Build risk list
 
 def identify_risks():
     """Collect risks from worker, incident and equipment CSV files."""
@@ -520,8 +481,7 @@ def identify_risks():
         "Likelihood",
         "Consequence",
         "Risk Score",
-        "Risk Level"
-    ]
+        "Risk Level"]
 
     return pd.DataFrame(risks, columns=columns)
 
@@ -539,8 +499,7 @@ def apply_saved_information(risks, management):
     for index, risk in risks.iterrows():
         matches = management[
             (management["Risk Type"].astype(str) == str(risk["Risk Type"]))
-            & (management["Record ID"].astype(str) == str(risk["Record ID"]))
-        ]
+            & (management["Record ID"].astype(str) == str(risk["Record ID"]))]
 
         if not matches.empty:
             saved = matches.iloc[-1]
@@ -553,9 +512,7 @@ def apply_saved_information(risks, management):
     return risks
 
 
-# --------------------------------------------------
-# RISK ASSESSMENT PAGE
-# --------------------------------------------------
+# Risk Assessment page
 
 def render_risk_assessment_page():
     """Main page called by app.py."""
@@ -576,14 +533,12 @@ def render_risk_assessment_page():
     if risks.empty:
         st.info(
             "No risks were identified from the available data. "
-            "Check that your CSV files contain the expected columns and records."
-        )
+            "Check that your CSV files contain the expected columns and records.")
         return
 
     # Separate active and removed risks.
     removed_mask = risks["Removed"].astype(str).str.lower().isin(
-        ["true", "1", "yes"]
-    )
+        ["true", "1", "yes"] )
 
     active_risks = risks[~removed_mask].copy()
     removed_risks = risks[removed_mask].copy()
@@ -596,24 +551,20 @@ def render_risk_assessment_page():
     col1.metric("Active Risks", len(active_risks))
     col2.metric(
         "High Risks",
-        int((active_risks["Risk Level"] == "High").sum())
-    )
+        int((active_risks["Risk Level"] == "High").sum()))
     col3.metric(
         "Critical Risks",
-        int((active_risks["Risk Level"] == "Critical").sum())
-    )
+        int((active_risks["Risk Level"] == "Critical").sum()))
     col4.metric("Removed Risks", len(removed_risks))
 
     # Show high and critical warnings.
     serious_risks = active_risks[
-        active_risks["Risk Level"].isin(["High", "Critical"])
-    ]
+        active_risks["Risk Level"].isin(["High", "Critical"]) ]
 
     if not serious_risks.empty:
         st.warning(
             f"{len(serious_risks)} active risk(s) are classified as High "
-            "or Critical and should be reviewed promptly."
-        )
+            "or Critical and should be reviewed promptly.")
 
     # Display active risks.
     st.subheader("Identified Risks")
@@ -629,31 +580,25 @@ def render_risk_assessment_page():
             "Consequence",
             "Risk Score",
             "Risk Level",
-            "Status"
-        ]
+            "Status"]
 
         # Allow the user to filter the displayed risks.
         selected_type = st.selectbox(
             "Filter by risk type",
-            ["All"] + sorted(active_risks["Risk Type"].unique().tolist())
-        )
+            ["All"] + sorted(active_risks["Risk Type"].unique().tolist()) )
 
         filtered_risks = active_risks.copy()
 
         if selected_type != "All":
             filtered_risks = filtered_risks[
-                filtered_risks["Risk Type"] == selected_type
-            ]
+                filtered_risks["Risk Type"] == selected_type]
 
         st.dataframe(
             filtered_risks[display_columns],
             use_container_width=True,
-            hide_index=True
-        )
+            hide_index=True )
 
-    # --------------------------------------------------
-    # ASSESS, UPDATE OR REMOVE A RISK
-    # --------------------------------------------------
+    # Assess, Update or remove risk
 
     st.subheader("Assess or Manage a Risk")
 
@@ -665,16 +610,14 @@ def render_risk_assessment_page():
         for index, risk in active_risks.iterrows():
             label = (
                 f"{risk['Risk Type']} | ID: {risk['Record ID']} | "
-                f"{risk['Risk Level']} | Score: {risk['Risk Score']}"
-            )
+                f"{risk['Risk Level']} | Score: {risk['Risk Score']}" )
 
             # Include the row index to avoid duplicate option labels.
             risk_options[f"{label} | Item {index}"] = index
 
         selected_label = st.selectbox(
             "Select a risk to assess",
-            list(risk_options.keys())
-        )
+            list(risk_options.keys()) )
 
         selected_index = risk_options[selected_label]
         selected_risk = active_risks.loc[selected_index]
@@ -682,8 +625,7 @@ def render_risk_assessment_page():
         st.write("**Risk description:**", selected_risk["Risk Description"])
         st.write(
             f"**Risk score:** {selected_risk['Likelihood']} × "
-            f"{selected_risk['Consequence']} = {selected_risk['Risk Score']}"
-        )
+            f"{selected_risk['Consequence']} = {selected_risk['Risk Score']}")
         st.write("**Risk level:**", selected_risk["Risk Level"])
 
         status_options = [
@@ -691,8 +633,7 @@ def render_risk_assessment_page():
             "Under review",
             "Controls applied",
             "Resolved",
-            "Dismissed"
-        ]
+            "Dismissed" ]
 
         current_status = selected_risk["Status"]
 
@@ -702,14 +643,12 @@ def render_risk_assessment_page():
         selected_status = st.selectbox(
             "Assessment status",
             status_options,
-            index=status_options.index(current_status)
-        )
+            index=status_options.index(current_status))
 
         selected_notes = st.text_area(
             "Assessment notes or control measures",
             value=str(selected_risk["Notes"]),
-            placeholder="Record findings, actions taken or control measures."
-        )
+            placeholder="Record findings, actions taken or control measures.")
 
         col_save, col_remove = st.columns(2)
 
@@ -721,8 +660,7 @@ def render_risk_assessment_page():
                     selected_risk["Record ID"],
                     status=selected_status,
                     notes=selected_notes,
-                    removed=False
-                )
+                    removed=False )
 
                 save_risk_management(management)
                 st.success("Risk assessment saved.")
@@ -737,8 +675,7 @@ def render_risk_assessment_page():
                     management,
                     selected_risk["Risk Type"],
                     selected_risk["Record ID"],
-                    removed=True
-                )
+                    removed=True)
 
                 save_risk_management(management)
                 st.success(
@@ -747,9 +684,7 @@ def render_risk_assessment_page():
                 )
                 st.rerun()
 
-    # --------------------------------------------------
-    # RESTORE REMOVED RISKS
-    # --------------------------------------------------
+    # Restore removed risk
 
     st.subheader("Removed Risks")
 
@@ -764,12 +699,9 @@ def render_risk_assessment_page():
                     "Risk Description",
                     "Risk Score",
                     "Risk Level",
-                    "Status"
-                ]
-            ],
+                    "Status"]],
             use_container_width=True,
-            hide_index=True
-        )
+            hide_index=True)
 
         restore_options = {}
 
@@ -782,8 +714,7 @@ def render_risk_assessment_page():
 
         restore_label = st.selectbox(
             "Select a risk to restore",
-            list(restore_options.keys())
-        )
+            list(restore_options.keys()))
 
         restore_index = restore_options[restore_label]
         restore_risk = removed_risks.loc[restore_index]
@@ -793,8 +724,7 @@ def render_risk_assessment_page():
                 management,
                 restore_risk["Risk Type"],
                 restore_risk["Record ID"],
-                removed=False
-            )
+                removed=False)
 
             save_risk_management(management)
             st.success("Risk restored to the active list.")

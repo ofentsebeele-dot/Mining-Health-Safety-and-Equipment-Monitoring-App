@@ -7,7 +7,7 @@ def get_equipment_file():
     folder = Path(__file__).parent
 
     possible_files = [
-        folder / "equipment(1).csv",
+        folder / "equipment.csv",
         folder / "equipment.csv",
         folder / "data" / "equipment.csv",
     ]
@@ -18,7 +18,7 @@ def get_equipment_file():
 
     raise FileNotFoundError(
         "Equipment CSV file not found. "
-        "Place equipment(1).csv or equipment.csv "
+        "Place equipment.csv or equipment.csv "
         "in the same folder as this file."
     )
 

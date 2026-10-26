@@ -5,109 +5,40 @@ import base64
 
 
 # --------------------------------------------------
-# BACKGROUND IMAGE AND FONT STYLING
+# BACKGROUND IMAGE AND TEXT STYLING
 # --------------------------------------------------
 
-def set_login_background():
+def find_image_path(filename):
 
-    image_path = "khwezi_login.png"
+    possible_paths = [
+        filename,
+        os.path.join("data", filename)
+    ]
 
-    if os.path.exists(image_path):
+    for path in possible_paths:
+        if os.path.isfile(path):
+            return path
 
-        with open(image_path, "rb") as image_file:
-            encoded_image = base64.b64encode(
-                image_file.read()
-            ).decode()
+    return None
 
-        background_style = f"""
-        <style>
 
-        /* Main background image with dark overlay */
-        .stApp {{
-            background:
-                linear-gradient(
-                    rgba(0, 0, 0, 0.78),
-                    rgba(0, 0, 0, 0.78)
-                ),
-                url("data:image/png;base64,{encoded_image}");
+def set_login_background(image_file="khwezi_login.png"):
 
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            color: #E6E6E6;
-        }}
+    path = find_image_path(image_file)
 
-        /* Headings */
-        h1, h2, h3, h4, h5, h6 {{
-            color: #E6E6E6 !important;
-        }}
-
-        /* General text and labels */
-        .stApp p,
-        .stApp label,
-        .stApp [data-testid="stMarkdownContainer"],
-        .stApp [data-testid="stCaptionContainer"] {{
-            color: #E6E6E6 !important;
-        }}
-
-        /* Login input fields */
-        .stTextInput input {{
-            background-color: rgba(20, 20, 20, 0.90) !important;
-            color: #F0F0F0 !important;
-            border: 1px solid #777777 !important;
-        }}
-
-        /* Input placeholders */
-        .stTextInput input::placeholder {{
-            color: #BDBDBD !important;
-        }}
-
-        /* Login button */
-        .stButton button {{
-            background-color: rgba(35, 35, 35, 0.95) !important;
-            color: #F0F0F0 !important;
-            border: 1px solid #AAAAAA !important;
-            border-radius: 8px;
-            font-weight: bold;
-        }}
-
-        .stButton button:hover {{
-            background-color: rgba(65, 65, 65, 0.98) !important;
-            border: 1px solid #FFFFFF !important;
-        }}
-
-        /* Sidebar */
-        [data-testid="stSidebar"] {{
-            background-color: #080808 !important;
-        }}
-
-        [data-testid="stSidebar"] * {{
-            color: #E6E6E6 !important;
-        }}
-
-        /* Divider */
-        hr {{
-            border-color: #555555 !important;
-        }}
-
-        </style>
-        """
-
-        st.markdown(
-            background_style,
-            unsafe_allow_html=True
-        )
-
-    else:
+    if path is None:
         st.markdown(
             """
             <style>
             .stApp {
-                background-color: #000000;
-                color: #E6E6E6;
+                background-color: #000000 !important;
             }
-            h1, h2, h3, p, label {
+
+            .stApp h1,
+            .stApp h2,
+            .stApp h3,
+            .stApp p,
+            .stApp label {
                 color: #E6E6E6 !important;
             }
             </style>
@@ -117,12 +48,108 @@ def set_login_background():
 
         st.warning(
             "Background image not found. "
-            "Please place khwezi_login.png in your project folder."
+            "Save khwezi_login.png in the project folder "
+            "or inside the data folder."
+        )
+        return
+
+    try:
+        with open(path, "rb") as image:
+            encoded_image = base64.b64encode(
+                image.read()
+            ).decode("utf-8")
+
+        st.markdown(
+            f"""
+            <style>
+
+            /* Background image with dark overlay */
+            .stApp {{
+                background-image:
+                    linear-gradient(
+                        rgba(0, 0, 0, 0.78),
+                        rgba(0, 0, 0, 0.78)
+                    ),
+                    url("data:image/png;base64,{encoded_image}");
+
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                color: #E6E6E6 !important;
+            }}
+
+            /* Headings */
+            .stApp h1,
+            .stApp h2,
+            .stApp h3,
+            .stApp h4 {{
+                color: #E6E6E6 !important;
+                font-weight: 800 !important;
+                text-shadow: 1px 1px 3px #000000;
+            }}
+
+            /* General text and labels */
+            .stApp p,
+            .stApp label,
+            .stApp [data-testid="stMarkdownContainer"] {{
+                color: #E6E6E6 !important;
+                font-weight: 600 !important;
+            }}
+
+            /* Login input fields */
+            .stTextInput input {{
+                background-color: rgba(15, 15, 15, 0.90) !important;
+                color: #E6E6E6 !important;
+                border: 1px solid #888888 !important;
+                border-radius: 6px;
+            }}
+
+            /* Input placeholder text */
+            .stTextInput input::placeholder {{
+                color: #BBBBBB !important;
+            }}
+
+            /* Login and other buttons */
+            .stButton button {{
+                background-color: rgba(25, 25, 25, 0.95) !important;
+                color: #E6E6E6 !important;
+                border: 1px solid #888888 !important;
+                border-radius: 8px;
+                font-weight: 700 !important;
+            }}
+
+            .stButton button:hover {{
+                background-color: rgba(55, 55, 55, 0.98) !important;
+                border: 1px solid #FFFFFF !important;
+            }}
+
+            /* Sidebar */
+            [data-testid="stSidebar"] {{
+                background-color: #101010 !important;
+            }}
+
+            [data-testid="stSidebar"] * {{
+                color: #E6E6E6 !important;
+            }}
+
+            /* Alerts */
+            [data-testid="stAlert"] p {{
+                color: #E6E6E6 !important;
+            }}
+
+            /* Dividers */
+            hr {{
+                border-color: rgba(230, 230, 230, 0.45) !important;
+            }}
+
+            </style>
+            """,
+            unsafe_allow_html=True
         )
 
-
-# Apply styling
-set_login_background()
+    except OSError as error:
+        st.error(f"Could not load the login background image: {error}")
 
 
 # --------------------------------------------------
@@ -225,6 +252,9 @@ user_permissions = {}
 # --------------------------------------------------
 
 def login():
+
+    # Apply background when the login page is displayed
+    set_login_background()
 
     st.title("Khwezi Mining Monitoring System")
 

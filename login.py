@@ -21,31 +21,18 @@ users = {
         "role": "Mining Manager"
     },
 
-    "engineer": {
-        "password": "engineer123",
-        "role": "Maintenance Engineer"
-    },
-
     "worker": {
         "password": "worker123",
         "role": "Worker"
->>>>>>> 3dc928d (updated)
     }
+}
 
 
-<<<<<<< HEAD
-def load_incidents(file_path="incidents.csv"):
-    data = pd.read_csv(file_path)
-    data.columns = data.columns.astype(str).str.strip()
-    return data.dropna(how="all")
-
-
-def generate_incident_notifications(data):
-    notifications = []
-=======
 # --------------------------------------------------
-# EXISTING ROLE PERMISSIONS (Aligned with Table 1 of Project Brief)
+# EXISTING ROLE PERMISSIONS
 # --------------------------------------------------
+# DO NOT CHANGE THESE PERMISSIONS.
+# These are the original permissions you provided.
 
 permissions = {
 
@@ -81,15 +68,6 @@ permissions = {
         "reports"
     ],
 
-    "Maintenance Engineer": [
-        "dashboard",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "reports",
-        "questions"
-    ],
-
     "Worker": [
         "dashboard",
         "questions",
@@ -101,6 +79,21 @@ permissions = {
 # --------------------------------------------------
 # USER-SPECIFIC PERMISSION CHANGES
 # --------------------------------------------------
+# This dictionary stores changes made by the Administrator.
+#
+# It starts empty, meaning everyone uses their normal
+# role permissions above.
+#
+# Example:
+#
+# user_permissions["worker"] = [
+#     "dashboard",
+#     "questions",
+#     "worker_health",
+#     "incidents"
+# ]
+#
+# This would give the worker an extra permission.
 
 user_permissions = {}
 
@@ -128,26 +121,34 @@ def login():
 
     if st.button("Login"):
 
+        # Check whether the username exists
         if username in users:
 
+            # Check the password
             if users[username]["password"] == password:
 
+                # Save login information
                 st.session_state["logged_in"] = True
                 st.session_state["username"] = username
                 st.session_state["role"] = users[username]["role"]
 
-                st.success("Login successful.")
+                st.success(
+                    "Login successful."
+                )
+
                 st.rerun()
 
             else:
-                st.error("Incorrect password.")
 
-        if severity in ("critical", "high", "severe", "urgent"):
-            alert_level = "Critical"
-        elif severity in ("low", "minor", "normal"):
-            alert_level = "Normal"
+                st.error(
+                    "Incorrect password."
+                )
+
         else:
-            st.error("Username not found.")
+
+            st.error(
+                "Username not found."
+            )
 
 
 # --------------------------------------------------
@@ -171,19 +172,44 @@ def logout():
 
 def has_permission(permission):
 
-    username = st.session_state.get("username", "")
-    role = st.session_state.get("role", "")
+    # Get the logged-in username
+    username = st.session_state.get(
+        "username",
+        ""
+    )
 
+    # Get the logged-in user's role
+    role = st.session_state.get(
+        "role",
+        ""
+    )
+
+    # If the user does not exist, deny access
     if username not in users:
+
         return False
 
+    # Questions are available to everyone
     if permission == "questions":
+
         return True
 
+    # --------------------------------------------------
+    # CHECK FOR ADMINISTRATOR CHANGES
+    # --------------------------------------------------
+    # If the Administrator has created custom permissions
+    # for this user, use those permissions.
+
     if username in user_permissions:
+
         return permission in user_permissions[username]
 
+    # --------------------------------------------------
+    # OTHERWISE USE THE ORIGINAL ROLE PERMISSIONS
+    # --------------------------------------------------
+
     if role not in permissions:
+
         return False
 
     return permission in permissions[role]

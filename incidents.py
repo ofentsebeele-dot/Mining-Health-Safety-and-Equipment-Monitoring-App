@@ -2,52 +2,6 @@ import streamlit as st
 import pandas as pd
 import os
 
-st.markdown("""
-<style>
-.stApp {
-    background-color: #000000 !important;
-    color: #FFFFFF !important;
-}
-
-.stApp h1,
-.stApp h2,
-.stApp h3,
-.stApp h4,
-.stApp p,
-.stApp label,
-.stApp [data-testid="stMetricLabel"],
-.stApp [data-testid="stMetricValue"],
-.stApp [data-testid="stCaptionContainer"] {
-    color: #FFFFFF !important;
-}
-
-[data-testid="stSidebar"] {
-    background-color: #000000 !important;
-}
-
-[data-testid="stSidebar"] * {
-    color: #FFFFFF !important;
-}
-
-.stSelectbox div[data-baseweb="select"] > div,
-.stTextInput input,
-.stTextArea textarea {
-    background-color: #171717 !important;
-    color: #FFFFFF !important;
-}
-
-.stButton button,
-.stDownloadButton button {
-    background-color: #222222 !important;
-    color: #FFFFFF !important;
-    border: 1px solid #FFFFFF !important;
-}
-
-hr {
-    border-color: #555555 !important;
-}
-</style>
-""", unsafe_allow_html=True)
 
 # ==================================================
 # INCIDENT CSV FILE

@@ -1,16 +1,6 @@
-
 import streamlit as st
 
-# --------------------------------------------------
-# IMPORT LOGIN AND PERMISSION FUNCTIONS
-# --------------------------------------------------
-
 from login import login, logout, has_permission
-
-# --------------------------------------------------
-# IMPORT APPLICATION PAGES
-# --------------------------------------------------
-
 from dashboard import render_dashboard
 from worker_health import render_worker_health_page
 from incidents import render_incidents_page
@@ -21,14 +11,8 @@ from reports import render_reports_page
 from user_management import render_user_management_page
 from questions import render_questions_page
 
-# Page Configuration
-st.set_page_config(
-    page_title="Khwezi Mining Monitoring System",
-    page_icon="⛏️",
-    layout="wide"
-)
 
-# Session initialization
+
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
@@ -38,22 +22,27 @@ if "username" not in st.session_state:
 if "role" not in st.session_state:
     st.session_state["role"] = ""
 
-# Authentication Check
+
+
 if not st.session_state["logged_in"]:
     login()
     st.stop()
 
-# Header User Banner
+
+
+
 st.title("Khwezi Mining Monitoring System")
+
 st.success(f"Welcome, {st.session_state['username']}!")
+
 st.write(f"Role: **{st.session_state['role']}**")
 
-# Sidebar Navigation Construction
+# Sidebar navigation
+
 st.sidebar.title("Navigation")
 
 pages = []
 
-# Add pages according to the user's permissions.
 if has_permission("dashboard"):
     pages.append("Dashboard")
 
@@ -78,49 +67,71 @@ if has_permission("reports"):
 if has_permission("questions"):
     pages.append("Questions & Answers")
 
-# Only users with equipment permission can access alerts.
-if has_permission("equipment"):
-    pages.append("Notifications & Alerts")
-
 if has_permission("manage_users"):
     pages.append("Manage Users")
 
-# Permission Check
+
+# Check Permissions
+
 if len(pages) == 0:
+
     st.error("You do not have permission to access any pages.")
+
     st.stop()
 
-# Page Selection via Radio Buttons
+# Page Selection
+
 selected_page = st.sidebar.radio("Select a page", pages)
 
-# Page Routing
+# Page Display
+
 if selected_page == "Dashboard":
+
     render_dashboard()
 
+
 elif selected_page == "Worker Health & Safety":
+
     render_worker_health_page()
 
+
 elif selected_page == "Safety Incidents":
+
     render_incidents_page()
 
+
 elif selected_page == "Equipment":
+
     render_equipment_page()
 
+
 elif selected_page == "Maintenance":
+
     render_maintenance_page()
 
+
 elif selected_page == "Risk Assessment":
+
     render_risk_assessment_page()
 
+
 elif selected_page == "Reports":
+
     render_reports_page()
 
+
 elif selected_page == "Questions & Answers":
+
     render_questions_page()
 
+
 elif selected_page == "Manage Users":
+
     render_user_management_page()
 
-# Logout Section
+
+# Logout
+
 st.sidebar.divider()
+
 logout()

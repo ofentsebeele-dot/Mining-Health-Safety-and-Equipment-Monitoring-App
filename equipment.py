@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+from dark_theme import apply_dark_theme
 
 # BLACK BACKGROUND AND LIGHT WHITE FONT
 

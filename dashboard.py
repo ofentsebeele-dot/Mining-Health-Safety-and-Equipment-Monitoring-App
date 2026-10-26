@@ -1,153 +1,854 @@
-import streamlit as st
-import pandas as pd
+
+# ============================================================
+# KHWEZI MINING MONITORING SYSTEM
+# Dashboard: Worker Safety, Incidents and Equipment
+# ============================================================
+
 import os
+import base64
+from datetime import datetime
+
+import pandas as pd
+import streamlit as st
+
+# Plotly is used for interactive charts.
+# The dashboard can still run if Plotly is not installed.
+try:
+    import plotly.express as px
+    PLOTLY_AVAILABLE = True
+except ImportError:
+    PLOTLY_AVAILABLE = False
+
+
+# ============================================================
+# 1. LOAD CSV FILES
+# ============================================================
+
+def find_csv_path(filename):
+    """Find a CSV file in the main folder or the data folder."""
+
+    possible_paths = [
+        filename,
+        os.path.join("data", filename)
+    ]
+
+    for path in possible_paths:
+        if os.path.isfile(path):
+            return path
+
+    return None
+
+
+def load_csv(filename):
+    """Load a CSV file and report a clear error if it is missing."""
+
+    path = find_csv_path(filename)
+
+    if path is None:
+        raise FileNotFoundError(
+            f"Cannot find {filename}. "
+            "Place it in the project folder or the data folder."
+        )
+
+    # Read the CSV each time the dashboard reruns.
+    return pd.read_csv(path)
 
 
 def load_worker_data():
-    if not os.path.exists("workers.csv"):
-        return pd.DataFrame(columns=["Worker ID", "Department", "Job role", "Shift", "PPE compliance", "Safety training status", "Fatigue level", "Safety observations", "Near misses", "Previous incidents"])
-    return pd.read_csv("workers.csv")
+    """Load worker safety records."""
+    return load_csv("workers.csv")
 
 
 def load_incident_data():
-    if not os.path.exists("incidents.csv"):
-        return pd.DataFrame(columns=["Incident ID", "Date", "Time", "Shift", "Location", "Department", "Incident type", "Severity", "Injury status", "Lost-time injury status", "Cause", "Corrective action", "Incident status"])
-    return pd.read_csv("incidents.csv")
+    """Load incident records."""
+    return load_csv("incidents.csv")
 
 
 def load_equipment_data():
-    if not os.path.exists("equipment.csv"):
-        return pd.DataFrame(columns=["Equipment ID", "Equipment type", "Manufacturer", "Operating hours", "Temperature", "Vibration", "Fuel consumption", "Brake status", "Tyre status", "Engine status", "Maintenance status", "Downtime"])
-    return pd.read_csv("equipment.csv")
+    """Load equipment monitoring records."""
+    return load_csv("equipment.csv")
 
 
-def calculate_equipment_availability(equipment):
-    total_time = equipment["Operating hours"] + equipment["Downtime"]
-    availability = (equipment["Operating hours"] / total_time.replace(0, 1)) * 100
+# ============================================================
+# 2. HELPER FUNCTIONS
+# ============================================================
+
+def numeric_column(data, column_name):
+    """Convert a column to numbers without crashing on bad values."""
+
+    if column_name not in data.columns:
+        return pd.Series(float("nan"), index=data.index)
+
+    values = data[column_name].astype(str).str.strip()
+
+    # Allow values such as 95% in percentage columns.
+    values = values.str.replace("%", "", regex=False)
+
+    return pd.to_numeric(values, errors="coerce")
+
+
+def category_column(data, column_name):
+    """Return a clean text column for grouping and charting."""
+
+    if column_name not in data.columns:
+        return pd.Series("Unknown", index=data.index)
+
+    values = data[column_name].fillna("Unknown").astype(str).str.strip()
+
+    return values.replace("", "Unknown")
+
+
+def show_table(data, columns):
+    """Display only the requested columns that actually exist."""
+
+    available = [
+        column for column in columns
+        if column in data.columns
+    ]
+
+    if available:
+        st.dataframe(
+            data[available],
+            use_container_width=True,
+            hide_index=True
+        )
+    else:
+        st.info("The expected columns are not available in this CSV.")
+
+
+# ============================================================
+# 3. BACKGROUND IMAGE
+# ============================================================
+
+def set_background(image_file="mine_background.png"):
+    """Set an optional background image if it exists."""
+
+    path = find_csv_path(image_file)
+
+    # find_csv_path also checks the data folder.
+    if path is None:
+        return
+
+    try:
+        with open(path, "rb") as image:
+            encoded_image = base64.b64encode(
+                image.read()
+            ).decode("utf-8")
+
+        st.markdown(
+            f"""
+            <style>
+            .stApp {{
+                background-image:
+                    linear-gradient(
+                        rgba(8, 20, 31, 0.84),
+                        rgba(8, 20, 31, 0.84)
+                    ),
+                    url("data:image/png;base64,{encoded_image}");
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
+            }}
+
+            [data-testid="stMetric"] {{
+                background-color: rgba(255, 255, 255, 0.08);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                border-radius: 10px;
+                padding: 12px;
+            }}
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+    except OSError:
+        # The dashboard still works without the background image.
+        pass
+
+
+# ============================================================
+# 4. EQUIPMENT AVAILABILITY
+# ============================================================
+
+def calculate_availability(equipment):
+    """
+    Calculate equipment availability as a percentage.
+
+    Availability = Operating hours /
+                   (Operating hours + Downtime) * 100
+    """
+
+    operating = numeric_column(equipment, "Operating hours")
+    downtime = numeric_column(equipment, "Downtime")
+
+    total_time = operating + downtime
+
+    # Avoid division by zero when both values are zero.
+    availability = (
+        operating / total_time.where(total_time > 0)
+    ) * 100
+
     return availability
 
 
-def render_dashboard():
-    st.title("Khwezi Mining Monitoring Dashboard")
+# ============================================================
+# 5. CHART FUNCTIONS
+# ============================================================
 
-    st.write("Central monitoring dashboard for health, safety and equipment information.")
+def show_pie_chart(data, column, title):
+    """Display a pie chart of records by category."""
 
-    st.divider()
+    if data.empty or column not in data.columns:
+        st.info(f"No data is available for {title}.")
+        return
 
-    # Load data from CSV files
-    workers = load_worker_data()
-    incidents = load_incident_data()
-    equipment = load_equipment_data()
+    chart_data = (
+        category_column(data, column)
+        .value_counts()
+        .rename_axis(column)
+        .reset_index(name="Count")
+    )
 
-    # Worker Data
+    if PLOTLY_AVAILABLE:
+        fig = px.pie(
+            chart_data,
+            names=column,
+            values="Count",
+            title=title,
+            hole=0.35
+        )
+
+        fig.update_traces(
+            textposition="inside",
+            textinfo="percent+label"
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    else:
+        st.subheader(title)
+        st.bar_chart(chart_data.set_index(column))
+
+
+def show_bar_chart(data, column, title):
+    """Display a bar chart counting records in each category."""
+
+    if data.empty or column not in data.columns:
+        st.info(f"No data is available for {title}.")
+        return
+
+    chart_data = (
+        category_column(data, column)
+        .value_counts()
+        .rename_axis(column)
+        .reset_index(name="Count")
+    )
+
+    if PLOTLY_AVAILABLE:
+        fig = px.bar(
+            chart_data,
+            x=column,
+            y="Count",
+            title=title,
+            text="Count"
+        )
+
+        fig.update_layout(
+            xaxis_title=column,
+            yaxis_title="Number of records"
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    else:
+        st.subheader(title)
+        st.bar_chart(chart_data.set_index(column))
+
+
+def show_histogram(data, column, title, x_title=None):
+    """Display a histogram of numeric values."""
+
+    if column not in data.columns:
+        st.info(f"{column} is not available.")
+        return
+
+    values = numeric_column(data, column).dropna()
+
+    if values.empty:
+        st.info(f"No numeric values are available for {column}.")
+        return
+
+    if PLOTLY_AVAILABLE:
+        fig = px.histogram(
+            x=values,
+            nbins=20,
+            title=title,
+            labels={
+                "x": x_title or column,
+                "y": "Number of records"
+            }
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    else:
+        st.subheader(title)
+        st.bar_chart(values.value_counts().sort_index())
+
+
+# ============================================================
+# 6. MAIN DASHBOARD CONTENT
+# ============================================================
+
+def render_dashboard_content():
+    """Load data and display dashboard metrics, charts and tables."""
+
+    set_background()
+
+    st.title("Khwezi Mining Monitoring System")
+    st.subheader("Dashboard")
+
+    st.write(
+        "Monitor worker safety, incidents, equipment conditions "
+        "and maintenance performance."
+    )
+
+    # Refresh button: reruns the page and reloads the CSV files.
+    if st.button("Refresh Dashboard", type="primary"):
+        st.rerun()
+
+    # Load all three data sources.
+    try:
+        workers = load_worker_data()
+        incidents = load_incident_data()
+        equipment = load_equipment_data()
+
+    except (
+        FileNotFoundError,
+        pd.errors.ParserError,
+        OSError,
+        UnicodeDecodeError
+    ) as error:
+        st.error(f"Unable to load dashboard data: {error}")
+
+        st.info(
+            "Check that workers.csv, incidents.csv and equipment.csv "
+            "exist in the project folder or in the data folder."
+        )
+        return
+
+    # Confirm that the main identifying columns exist.
+    required_columns = [
+        (workers, "Worker ID", "workers.csv"),
+        (incidents, "Incident ID", "incidents.csv"),
+        (equipment, "Equipment ID", "equipment.csv")
+    ]
+
+    for data, column, filename in required_columns:
+        if column not in data.columns:
+            st.error(
+                f"The column '{column}' is missing from {filename}."
+            )
+            return
+
+    # Work on a copy so the original CSV data is not changed.
+    equipment = equipment.copy()
+
+    # Calculate availability for dashboard reporting.
+    equipment["Calculated Availability (%)"] = (
+        calculate_availability(equipment)
+    )
+
+    # --------------------------------------------------------
+    # WORKER SAFETY METRICS
+    # --------------------------------------------------------
+
     total_workers = len(workers)
-    total_near_misses = workers["Near misses"].sum() if not workers.empty else 0
-    total_safety_observations = workers["Safety observations"].sum() if not workers.empty else 0
-    average_ppe_compliance = workers["PPE compliance"].mean() if not workers.empty else 0.0
 
-    # Incident Data (Fixed severity matching to include Serious, High, and Critical)
+    if "Near misses" in workers.columns:
+        total_near_misses = numeric_column(
+            workers, "Near misses"
+        ).sum()
+    else:
+        total_near_misses = None
+
+    if "Safety observations" in workers.columns:
+        total_observations = numeric_column(
+            workers, "Safety observations"
+        ).sum()
+    else:
+        total_observations = None
+
+    if "PPE compliance" in workers.columns:
+        average_ppe = numeric_column(
+            workers, "PPE compliance"
+        ).mean()
+    else:
+        average_ppe = float("nan")
+
+    # --------------------------------------------------------
+    # INCIDENT METRICS
+    # --------------------------------------------------------
+
     total_incidents = len(incidents)
-    if not incidents.empty:
-        severity_col = incidents["Severity"].astype(str).str.strip().str.lower()
-        serious_critical_incidents = len(incidents[severity_col.isin(["serious", "high", "critical"])])
-    else:
-        serious_critical_incidents = 0
 
-    # Equipment Data (Account for all maintenance statuses: Operational, Under Maintenance, Due Soon, Overdue)
+    if "Severity" in incidents.columns:
+        severity = category_column(
+            incidents, "Severity"
+        ).str.lower()
+
+        serious_incidents = severity.isin(
+            ["serious", "critical", "high"]
+        ).sum()
+    else:
+        serious_incidents = None
+
+    # --------------------------------------------------------
+    # EQUIPMENT METRICS
+    # --------------------------------------------------------
+
     total_equipment = len(equipment)
-    if not equipment.empty:
-        m_status = equipment["Maintenance status"].astype(str).str.strip().str.lower()
-        equipment_available = len(equipment[m_status == "operational"])
-        equipment_under_maintenance = len(equipment[m_status == "under maintenance"])
-        equipment["Availability"] = calculate_equipment_availability(equipment)
-        average_equipment_availability = equipment["Availability"].mean()
+
+    if "Maintenance status" in equipment.columns:
+        maintenance_status = category_column(
+            equipment, "Maintenance status"
+        ).str.lower()
+
+        operational_count = maintenance_status.isin(
+            ["operational", "available"]
+        ).sum()
+
+        under_maintenance_count = maintenance_status.isin(
+            ["under maintenance", "maintenance"]
+        ).sum()
     else:
-        equipment_available = 0
-        equipment_under_maintenance = 0
-        average_equipment_availability = 0.0
+        operational_count = None
+        under_maintenance_count = None
 
-    # Dashboard KPI Section
-    st.subheader("Health & Safety")
+    average_availability = equipment[
+        "Calculated Availability (%)"
+    ].mean()
 
-    col1, col2, col3, col4 = st.columns(4)
+    # Identify equipment above the critical thresholds.
+    if "Temperature" in equipment.columns:
+        critical_temperature = (
+            numeric_column(equipment, "Temperature") > 100
+        ).fillna(False)
+    else:
+        critical_temperature = pd.Series(
+            False, index=equipment.index
+        )
 
-    with col1:
-        st.metric("Total Workers", total_workers)
+    if "Vibration" in equipment.columns:
+        critical_vibration = (
+            numeric_column(equipment, "Vibration") > 8
+        ).fillna(False)
+    else:
+        critical_vibration = pd.Series(
+            False, index=equipment.index
+        )
 
-    with col2:
-        st.metric("Safety Incidents", total_incidents)
+    critical_alerts = (
+        critical_temperature | critical_vibration
+    ).sum()
 
-    with col3:
-        st.metric("Near Misses", total_near_misses)
-
-    with col4:
-        st.metric("Safety Observations", total_safety_observations)
-
-    st.divider()
-
-    # Second KPI row
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.metric("PPE Compliance", f"{average_ppe_compliance:.1f}%")
-
-    with col2:
-        st.metric("Serious/Critical Incidents", serious_critical_incidents)
-
-    with col3:
-        st.metric("Total Equipment", total_equipment)
-
-    st.divider()
-
-    # Equipment KPI Section
-    st.subheader("Equipment Monitoring")
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.metric("Available Equipment", equipment_available)
-
-    with col2:
-        st.metric("Under Maintenance", equipment_under_maintenance)
-
-    with col3:
-        st.metric("Average Availability", f"{average_equipment_availability:.1f}%")
+    # --------------------------------------------------------
+    # DISPLAY KPI METRICS
+    # --------------------------------------------------------
 
     st.divider()
+    st.subheader("Key Performance Indicators")
 
-    # Equipment Table
-    st.subheader("Equipment Status")
-    if not equipment.empty:
+    row1 = st.columns(4)
+
+    row1[0].metric("Total Workers", f"{total_workers:,}")
+    row1[1].metric("Total Incidents", f"{total_incidents:,}")
+
+    row1[2].metric(
+        "Near Misses",
+        "N/A" if total_near_misses is None
+        else f"{total_near_misses:,.0f}"
+    )
+
+    row1[3].metric(
+        "Safety Observations",
+        "N/A" if total_observations is None
+        else f"{total_observations:,.0f}"
+    )
+
+    row2 = st.columns(4)
+
+    row2[0].metric(
+        "Average PPE Compliance",
+        "N/A" if pd.isna(average_ppe)
+        else f"{average_ppe:.1f}%"
+    )
+
+    row2[1].metric(
+        "Serious/Critical Incidents",
+        "N/A" if serious_incidents is None
+        else f"{int(serious_incidents):,}"
+    )
+
+    row2[2].metric(
+        "Operational Equipment",
+        "N/A" if operational_count is None
+        else f"{int(operational_count):,}"
+    )
+
+    row2[3].metric(
+        "Under Maintenance",
+        "N/A" if under_maintenance_count is None
+        else f"{int(under_maintenance_count):,}"
+    )
+
+    row3 = st.columns(3)
+
+    row3[0].metric(
+        "Total Equipment",
+        f"{total_equipment:,}"
+    )
+
+    row3[1].metric(
+        "Average Availability",
+        "N/A" if pd.isna(average_availability)
+        else f"{average_availability:.1f}%"
+    )
+
+    row3[2].metric(
+        "Critical Equipment Alerts",
+        f"{int(critical_alerts):,}"
+    )
+
+    # --------------------------------------------------------
+    # HEALTH AND SAFETY CHARTS
+    # --------------------------------------------------------
+
+    st.divider()
+    st.subheader("Worker Health and Safety")
+
+    left, right = st.columns(2)
+
+    with left:
+        show_pie_chart(
+            incidents,
+            "Severity",
+            "Incidents by Severity"
+        )
+
+    with right:
+        show_pie_chart(
+            workers,
+            "Fatigue level",
+            "Worker Fatigue Distribution"
+        )
+
+    left, right = st.columns(2)
+
+    with left:
+        show_bar_chart(
+            incidents,
+            "Department",
+            "Incidents by Department"
+        )
+
+    with right:
+        show_bar_chart(
+            incidents,
+            "Shift",
+            "Incidents by Shift"
+        )
+
+    left, right = st.columns(2)
+
+    with left:
+        show_histogram(
+            workers,
+            "PPE compliance",
+            "PPE Compliance Distribution",
+            "PPE compliance (%)"
+        )
+
+    with right:
+        show_bar_chart(
+            incidents,
+            "Incident type",
+            "Incidents by Type"
+        )
+
+    # --------------------------------------------------------
+    # INCIDENT TREND CHART
+    # --------------------------------------------------------
+
+    if "Date" in incidents.columns:
+        trend = incidents.copy()
+
+        trend["Parsed Date"] = pd.to_datetime(
+            trend["Date"],
+            errors="coerce"
+        )
+
+        trend = trend.dropna(subset=["Parsed Date"])
+
+        if not trend.empty:
+            trend["Incident Date"] = (
+                trend["Parsed Date"].dt.date
+            )
+
+            trend_data = (
+                trend.groupby("Incident Date")
+                .size()
+                .reset_index(name="Number of Incidents")
+                .sort_values("Incident Date")
+            )
+
+            st.subheader("Incident Trends Over Time")
+
+            if PLOTLY_AVAILABLE:
+                fig = px.line(
+                    trend_data,
+                    x="Incident Date",
+                    y="Number of Incidents",
+                    markers=True,
+                    title="Incidents Recorded by Date"
+                )
+
+                st.plotly_chart(
+                    fig,
+                    use_container_width=True
+                )
+            else:
+                st.line_chart(
+                    trend_data.set_index("Incident Date")
+                )
+
+    # --------------------------------------------------------
+    # EQUIPMENT CHARTS
+    # --------------------------------------------------------
+
+    st.divider()
+    st.subheader("Equipment Condition and Maintenance")
+
+    left, right = st.columns(2)
+
+    with left:
+        show_pie_chart(
+            equipment,
+            "Maintenance status",
+            "Equipment Maintenance Status"
+        )
+
+    with right:
+        show_bar_chart(
+            equipment,
+            "Equipment type",
+            "Equipment by Type"
+        )
+
+    left, right = st.columns(2)
+
+    with left:
+        show_histogram(
+            equipment,
+            "Temperature",
+            "Equipment Temperature Distribution",
+            "Temperature (°C)"
+        )
+
+    with right:
+        show_histogram(
+            equipment,
+            "Vibration",
+            "Equipment Vibration Distribution",
+            "Vibration (mm/s)"
+        )
+
+    left, right = st.columns(2)
+
+    with left:
+        show_histogram(
+            equipment,
+            "Downtime",
+            "Equipment Downtime Distribution",
+            "Downtime (hours)"
+        )
+
+    with right:
+        show_histogram(
+            equipment,
+            "Calculated Availability (%)",
+            "Equipment Availability Distribution",
+            "Availability (%)"
+        )
+
+    # --------------------------------------------------------
+    # CRITICAL EQUIPMENT ALERTS
+    # --------------------------------------------------------
+
+    st.divider()
+    st.subheader("Equipment Requiring Immediate Attention")
+
+    alert_flags = pd.Series(
+        False, index=equipment.index
+    )
+
+    alert_reasons = pd.Series(
+        "", index=equipment.index, dtype="object"
+    )
+
+    # Critical temperature is above 100°C.
+    if "Temperature" in equipment.columns:
+        temperature = numeric_column(
+            equipment, "Temperature"
+        )
+
+        hot = (temperature > 100).fillna(False)
+        alert_flags = alert_flags | hot
+
+        alert_reasons.loc[hot] += (
+            "Temperature above 100°C; "
+        )
+
+    # Critical vibration is above 8 mm/s.
+    if "Vibration" in equipment.columns:
+        vibration = numeric_column(
+            equipment, "Vibration"
+        )
+
+        high_vibration = (vibration > 8).fillna(False)
+        alert_flags = alert_flags | high_vibration
+
+        alert_reasons.loc[high_vibration] += (
+            "Vibration above 8 mm/s; "
+        )
+
+    if alert_flags.any():
+        alert_table = equipment.loc[alert_flags].copy()
+
+        alert_table["Alert Reason"] = (
+            alert_reasons.loc[alert_flags]
+        )
+
+        alert_columns = [
+            column for column in [
+                "Equipment ID",
+                "Equipment type",
+                "Temperature",
+                "Vibration",
+                "Maintenance status",
+                "Downtime",
+                "Calculated Availability (%)",
+                "Alert Reason"
+            ]
+            if column in alert_table.columns
+        ]
+
         st.dataframe(
-            equipment[["Equipment ID", "Equipment type", "Manufacturer", "Temperature", "Vibration", "Maintenance status", "Downtime", "Availability"]],
+            alert_table[alert_columns],
             use_container_width=True,
             hide_index=True
         )
+
     else:
-        st.info("No equipment data available.")
+        st.success(
+            "No equipment exceeds the critical temperature "
+            "or vibration thresholds in the available data."
+        )
+
+    # --------------------------------------------------------
+    # WORKER, INCIDENT AND EQUIPMENT TABLES
+    # --------------------------------------------------------
 
     st.divider()
 
-    # Worker Table
-    st.subheader("Worker Safety Information")
-    if not workers.empty:
-        st.dataframe(
-            workers[["Worker ID", "Department", "Job role", "Shift", "PPE compliance", "Safety training status", "Fatigue level", "Safety observations", "Near misses", "Previous incidents"]],
-            use_container_width=True,
-            hide_index=True
+    with st.expander("View Worker Safety Records"):
+        show_table(
+            workers,
+            [
+                "Worker ID",
+                "Department",
+                "Job role",
+                "Shift",
+                "PPE compliance",
+                "Safety training status",
+                "Fatigue level",
+                "Safety observations",
+                "Near misses",
+                "Previous incidents"
+            ]
         )
-    else:
-        st.info("No worker data available.")
 
-    st.divider()
-
-    # Incident Table
-    st.subheader("Safety Incidents")
-    if not incidents.empty:
-        st.dataframe(
-            incidents[["Incident ID", "Date", "Time", "Shift", "Location", "Department", "Incident type", "Severity", "Injury status", "Lost-time injury status", "Incident status"]],
-            use_container_width=True,
-            hide_index=True
+    with st.expander("View Incident Records"):
+        show_table(
+            incidents,
+            [
+                "Incident ID",
+                "Date",
+                "Time",
+                "Shift",
+                "Location",
+                "Department",
+                "Incident type",
+                "Severity",
+                "Injury status",
+                "Lost-time injury status",
+                "Cause",
+                "Corrective action",
+                "Incident status"
+            ]
         )
-    else:
-        st.info("No incident records available.")
+
+    with st.expander("View Equipment Records"):
+        show_table(
+            equipment,
+            [
+                "Equipment ID",
+                "Equipment type",
+                "Manufacturer",
+                "Operating hours",
+                "Temperature",
+                "Vibration",
+                "Fuel consumption",
+                "Brake status",
+                "Tyre status",
+                "Engine status",
+                "Maintenance status",
+                "Downtime",
+                "Calculated Availability (%)"
+            ]
+        )
+
+    # --------------------------------------------------------
+    # LAST REFRESHED TIME
+    # --------------------------------------------------------
+
+    st.caption(
+        "Dashboard last refreshed: "
+        + datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    )
+
+    if not PLOTLY_AVAILABLE:
+        st.info(
+            "To enable interactive pie charts and histograms, "
+            "add plotly to requirements.txt."
+        )
+
+
+# ============================================================
+# 7. DASHBOARD ENTRY POINT AND AUTOMATIC REFRESH
+# ============================================================
+
+# app.py imports and calls render_dashboard().
+# Streamlit fragments periodically refresh this dashboard
+# when the installed Streamlit version supports them.
+
+if hasattr(st, "fragment"):
+
+    @st.fragment(run_every=30)
+    def render_dashboard():
+        render_dashboard_content()
+
+else:
+
+    def render_dashboard():
+        render_dashboard_content()

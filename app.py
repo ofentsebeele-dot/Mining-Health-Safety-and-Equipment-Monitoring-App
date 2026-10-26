@@ -147,6 +147,5 @@ elif selected_page == "Manage Users":
 
 st.sidebar.divider()
 
-if st.sidebar.button("Logout"):
+if st.sidebar.button("Logout", key="logout_button"):
     logout()
-    st.rerun()

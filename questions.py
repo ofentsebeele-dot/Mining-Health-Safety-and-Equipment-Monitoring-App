@@ -794,5 +794,4 @@ def render_questions_page():
                 "• Review overdue maintenance.")
 
             st.write(
-                "• Investigate recurring incident causes."
-            )
+                "• Investigate recurring incident causes.")

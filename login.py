@@ -1,4 +1,128 @@
+
 import streamlit as st
+import os
+import base64
+
+
+# --------------------------------------------------
+# BACKGROUND IMAGE AND FONT STYLING
+# --------------------------------------------------
+
+def set_login_background():
+
+    image_path = "khwezi_login.png"
+
+    if os.path.exists(image_path):
+
+        with open(image_path, "rb") as image_file:
+            encoded_image = base64.b64encode(
+                image_file.read()
+            ).decode()
+
+        background_style = f"""
+        <style>
+
+        /* Main background image with dark overlay */
+        .stApp {{
+            background:
+                linear-gradient(
+                    rgba(0, 0, 0, 0.78),
+                    rgba(0, 0, 0, 0.78)
+                ),
+                url("data:image/png;base64,{encoded_image}");
+
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: #E6E6E6;
+        }}
+
+        /* Headings */
+        h1, h2, h3, h4, h5, h6 {{
+            color: #E6E6E6 !important;
+        }}
+
+        /* General text and labels */
+        .stApp p,
+        .stApp label,
+        .stApp [data-testid="stMarkdownContainer"],
+        .stApp [data-testid="stCaptionContainer"] {{
+            color: #E6E6E6 !important;
+        }}
+
+        /* Login input fields */
+        .stTextInput input {{
+            background-color: rgba(20, 20, 20, 0.90) !important;
+            color: #F0F0F0 !important;
+            border: 1px solid #777777 !important;
+        }}
+
+        /* Input placeholders */
+        .stTextInput input::placeholder {{
+            color: #BDBDBD !important;
+        }}
+
+        /* Login button */
+        .stButton button {{
+            background-color: rgba(35, 35, 35, 0.95) !important;
+            color: #F0F0F0 !important;
+            border: 1px solid #AAAAAA !important;
+            border-radius: 8px;
+            font-weight: bold;
+        }}
+
+        .stButton button:hover {{
+            background-color: rgba(65, 65, 65, 0.98) !important;
+            border: 1px solid #FFFFFF !important;
+        }}
+
+        /* Sidebar */
+        [data-testid="stSidebar"] {{
+            background-color: #080808 !important;
+        }}
+
+        [data-testid="stSidebar"] * {{
+            color: #E6E6E6 !important;
+        }}
+
+        /* Divider */
+        hr {{
+            border-color: #555555 !important;
+        }}
+
+        </style>
+        """
+
+        st.markdown(
+            background_style,
+            unsafe_allow_html=True
+        )
+
+    else:
+        st.markdown(
+            """
+            <style>
+            .stApp {
+                background-color: #000000;
+                color: #E6E6E6;
+            }
+            h1, h2, h3, p, label {
+                color: #E6E6E6 !important;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.warning(
+            "Background image not found. "
+            "Please place khwezi_login.png in your project folder."
+        )
+
+
+# Apply styling
+set_login_background()
 
 
 # --------------------------------------------------
@@ -35,9 +159,8 @@ users = {
 
 # --------------------------------------------------
 # EXISTING ROLE PERMISSIONS
+# DO NOT CHANGE THESE PERMISSIONS
 # --------------------------------------------------
-# DO NOT CHANGE THESE PERMISSIONS.
-# These are the original permissions you provided.
 
 permissions = {
 
@@ -93,21 +216,6 @@ permissions = {
 # --------------------------------------------------
 # USER-SPECIFIC PERMISSION CHANGES
 # --------------------------------------------------
-# This dictionary stores changes made by the Administrator.
-#
-# It starts empty, meaning everyone uses their normal
-# role permissions above.
-#
-# Example:
-#
-# user_permissions["worker"] = [
-#     "dashboard",
-#     "questions",
-#     "worker_health",
-#     "incidents"
-# ]
-#
-# This would give the worker an extra permission.
 
 user_permissions = {}
 
@@ -200,30 +308,18 @@ def has_permission(permission):
 
     # If the user does not exist, deny access
     if username not in users:
-
         return False
 
     # Questions are available to everyone
     if permission == "questions":
-
         return True
 
-    # --------------------------------------------------
-    # CHECK FOR ADMINISTRATOR CHANGES
-    # --------------------------------------------------
-    # If the Administrator has created custom permissions
-    # for this user, use those permissions.
-
+    # Check for administrator changes
     if username in user_permissions:
-
         return permission in user_permissions[username]
 
-    # --------------------------------------------------
-    # OTHERWISE USE THE ORIGINAL ROLE PERMISSIONS
-    # --------------------------------------------------
-
+    # Otherwise use the original role permissions
     if role not in permissions:
-
         return False
 
     return permission in permissions[role]

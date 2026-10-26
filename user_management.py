@@ -29,10 +29,6 @@ ROLES = [
     "Worker"]
 
 
-# --------------------------------------------------
-# GET ORIGINAL ROLE PERMISSIONS
-# --------------------------------------------------
-
 def get_original_permissions(username):
 
     # Get the user's role
@@ -41,10 +37,6 @@ def get_original_permissions(username):
     # Return a copy of the original role permissions
     return permissions.get(role, []).copy()
 
-
-# --------------------------------------------------
-# GET CURRENT USER PERMISSIONS
-# --------------------------------------------------
 
 def get_current_permissions(username):
 
@@ -98,9 +90,7 @@ def show_user_information(username):
 
     st.divider()
 
-    # --------------------------------------------------
-    # ORIGINAL ROLE PERMISSIONS
-    # --------------------------------------------------
+    # Original permissions
 
     st.write("### Original Role Permissions")
 
@@ -124,9 +114,7 @@ def show_user_information(username):
 
     st.divider()
 
-    # --------------------------------------------------
     # CURRENT PERMISSIONS
-    # --------------------------------------------------
 
     st.write("### Current Permissions")
 
@@ -148,10 +136,6 @@ def show_user_information(username):
                 f"✗ {permission_name}"
             )
 
-
-# --------------------------------------------------
-# CHANGE USER PERMISSIONS
-# --------------------------------------------------
 
 def change_permissions(username):
 
@@ -206,9 +190,6 @@ def change_permissions(username):
                 permission_key
             )
 
-    # --------------------------------------------------
-    # SAVE PERMISSION CHANGES
-    # --------------------------------------------------
 
     if st.button(
         "Save Permissions",
@@ -239,9 +220,6 @@ def change_permissions(username):
         st.rerun()
 
 
-# --------------------------------------------------
-# RESET USER PERMISSIONS
-# --------------------------------------------------
 
 def reset_permissions(username):
 
@@ -269,10 +247,6 @@ def reset_permissions(username):
 
         st.rerun()
 
-
-# --------------------------------------------------
-# CHANGE USER ROLE
-# --------------------------------------------------
 
 def change_role(username):
 
@@ -327,10 +301,6 @@ def change_role(username):
         st.rerun()
 
 
-# --------------------------------------------------
-# CHANGE PASSWORD
-# --------------------------------------------------
-
 def change_password(username):
 
     st.subheader("Change Password")
@@ -379,10 +349,6 @@ def change_password(username):
         st.rerun()
 
 
-# --------------------------------------------------
-# BLOCK / UNBLOCK USER
-# --------------------------------------------------
-
 def block_unblock_user(username):
 
     st.subheader("Block / Unblock User")
@@ -396,10 +362,7 @@ def block_unblock_user(username):
     st.write(
         f"Current Status: **{current_status}**"
     )
-
-    # --------------------------------------------------
-    # BLOCK USER
-    # --------------------------------------------------
+    
 
     if current_status == "Active":
 
@@ -425,10 +388,6 @@ def block_unblock_user(username):
 
             st.rerun()
 
-    # --------------------------------------------------
-    # UNBLOCK USER
-    # --------------------------------------------------
-
     else:
 
         if st.button(
@@ -445,10 +404,6 @@ def block_unblock_user(username):
 
             st.rerun()
 
-
-# --------------------------------------------------
-# ADD USER
-# --------------------------------------------------
 
 def add_user():
 
@@ -517,10 +472,6 @@ def add_user():
         st.rerun()
 
 
-# --------------------------------------------------
-# DELETE USER
-# --------------------------------------------------
-
 def delete_user(username):
 
     st.subheader("Delete User")
@@ -573,10 +524,6 @@ def delete_user(username):
         st.rerun()
 
 
-# --------------------------------------------------
-# VIEW ALL USERS
-# --------------------------------------------------
-
 def view_all_users():
 
     st.subheader("All Existing Users")
@@ -619,9 +566,6 @@ def view_all_users():
     )
 
 
-# --------------------------------------------------
-# MAIN USER MANAGEMENT PAGE
-# --------------------------------------------------
 
 def render_user_management_page():
 
@@ -641,10 +585,6 @@ def render_user_management_page():
 
         return
 
-    # --------------------------------------------------
-    # TABS
-    # --------------------------------------------------
-
     tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
         [
             "Add User",
@@ -656,17 +596,11 @@ def render_user_management_page():
         ]
     )
 
-    # --------------------------------------------------
-    # ADD USER
-    # --------------------------------------------------
 
     with tab1:
 
         add_user()
 
-    # --------------------------------------------------
-    # MANAGE USER
-    # --------------------------------------------------
 
     with tab2:
 
@@ -702,9 +636,6 @@ def render_user_management_page():
                 "No users available."
             )
 
-    # --------------------------------------------------
-    # PERMISSIONS
-    # --------------------------------------------------
 
     with tab3:
 
@@ -734,9 +665,6 @@ def render_user_management_page():
                 "No users available."
             )
 
-    # --------------------------------------------------
-    # BLOCK / UNBLOCK
-    # --------------------------------------------------
 
     with tab4:
 
@@ -760,9 +688,6 @@ def render_user_management_page():
                 "No users available."
             )
 
-    # --------------------------------------------------
-    # DELETE USER
-    # --------------------------------------------------
 
     with tab5:
 
@@ -786,9 +711,6 @@ def render_user_management_page():
                 "No users available."
             )
 
-    # --------------------------------------------------
-    # ALL USERS
-    # --------------------------------------------------
 
     with tab6:
 

@@ -3,12 +3,10 @@ import os
 import base64
 
 
-# Find login background image
 def find_image_path(filename):
     possible_paths = [
         filename,
-        os.path.join("data", filename)
-    ]
+        os.path.join("data", filename)]
 
     for path in possible_paths:
         if os.path.isfile(path):
@@ -17,7 +15,6 @@ def find_image_path(filename):
     return None
 
 
-# Set login background
 def set_login_background(image_file="khwezi_login.png"):
     path = find_image_path(image_file)
 
@@ -50,6 +47,7 @@ def set_login_background(image_file="khwezi_login.png"):
             f"""
             <style>
 
+            /* Background image with a lighter dark overlay */
             .stApp {{
                 background-image:
                     linear-gradient(
@@ -65,13 +63,13 @@ def set_login_background(image_file="khwezi_login.png"):
                 color: #FFFFFF !important;
             }}
 
-            /* Move login content down */
+            /* Move the login content down */
             .block-container {{
                 padding-top: 150px !important;
                 padding-bottom: 40px !important;
             }}
 
-            /* Login headings */
+            /* Login title and headings */
             .stApp h1,
             .stApp h2,
             .stApp h3,
@@ -90,7 +88,7 @@ def set_login_background(image_file="khwezi_login.png"):
                 text-shadow: 1px 1px 3px #000000;
             }}
 
-            /* Login inputs */
+            /* Login input fields */
             .stTextInput input {{
                 background-color: rgba(15, 15, 15, 0.80) !important;
                 color: #FFFFFF !important;
@@ -142,181 +140,92 @@ def set_login_background(image_file="khwezi_login.png"):
         )
 
     except OSError as error:
-        st.error(
-            f"Could not load the login background image: {error}"
-        )
+        st.error(f"Could not load the login background image: {error}")
 
 
-# --------------------------------------------------
-# USER ACCOUNTS
-# --------------------------------------------------
+# Users
 
-users = {
-    "admin": {
-        "password": "admin1",
-        "role": "Administrator"
-    },
-    "safety": {
-        "password": "safety1",
-        "role": "Safety Officer"
-    },
-    "manager": {
-        "password": "manager1",
-        "role": "Mining Manager"
-    },
-    "maintenance": {
-        "password": "maintenance1",
-        "role": "Maintenance Engineer"
-    },
-    "worker": {
-        "password": "worker1",
-        "role": "Worker"
-    }
-}
+users = {"admin": { "password": "admin1", "role": "Administrator"},
+         "safety": {"password": "safety1", "role": "Safety Officer"},
+         "manager": {"password": "manager1","role": "Mining Manager"},
+         "maintenance": {"password": "maintenance1","role": "Maintenance Engineer"},
+         "worker": { "password": "worker1", "role": "Worker"}}
 
 
-# --------------------------------------------------
-# DEFAULT ROLE PERMISSIONS
-# --------------------------------------------------
+# Default role permissions
 
-permissions = {
-    "Administrator": [
-        "dashboard",
-        "worker_health",
-        "incidents",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "reports",
-        "questions",
-        "manage_users",
-        "notifications_alerts"
-    ],
-
-    "Safety Officer": [
-        "dashboard",
-        "worker_health",
-        "incidents",
-        "risk_assessment",
-        "questions",
-        "reports",
-        "notifications_alerts"
-    ],
-
-    "Mining Manager": [
-        "dashboard",
-        "worker_health",
-        "incidents",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "questions",
-        "reports",
-        "notifications_alerts"
-    ],
-
-    "Maintenance Engineer": [
-        "dashboard",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "reports",
-        "questions",
-        "notifications_alerts"
-    ],
-
-    "Worker": [
-        "dashboard",
-        "questions",
-        "worker_health",
-        "notifications_alerts"
-    ]
-}
+permissions = {"Administrator": ["dashboard", "worker_health", "incidents", "equipment", "maintenance", "risk_assessment","reports", "questions", "manage_users", "notifications_alerts"],
+               "Safety Officer": ["dashboard","worker_health", "incidents", "risk_assessment", "questions", "reports", "notifications_alerts"],
+               "Mining Manager": ["dashboard", "worker_health", "incidents", "equipment", "maintenance",  "risk_assessment", "questions", "reports", "notifications_alerts" ],
+               "Maintenance Engineer": [ "dashboard","equipment", "maintenance", "risk_assessment", "reports", "questions", "notifications_alerts"],
+               "Worker": ["dashboard", "questions","worker_health", "notifications_alerts"]}
 
 
-# Administrator-customised permissions for individual users
 user_permissions = {}
 
-
-# --------------------------------------------------
-# LOGIN FUNCTION
-# --------------------------------------------------
+# Login Function
 
 def login():
     set_login_background()
 
+    # Add space above the login title
     st.markdown(
         '<div style="height: 20px;"></div>',
-        unsafe_allow_html=True
-    )
+        unsafe_allow_html=True)
 
     st.title("Monitoring System")
     st.subheader("Login")
 
     username = st.text_input(
         "Username",
-        key="login_username"
-    )
+        key="login_username")
 
     password = st.text_input(
         "Password",
         type="password",
-        key="login_password"
-    )
+        key="login_password" )
 
     if st.button("Login"):
         if username in users:
             if users[username]["password"] == password:
-
                 st.session_state["logged_in"] = True
                 st.session_state["username"] = username
                 st.session_state["role"] = users[username]["role"]
 
                 st.success("Login successful.")
                 st.rerun()
-
             else:
                 st.error("Incorrect password.")
-
         else:
             st.error("Username not found.")
 
-
-# --------------------------------------------------
-# LOGOUT FUNCTION
-# --------------------------------------------------
+# Logout Functions
 
 def logout():
     st.session_state["logged_in"] = False
     st.session_state["username"] = ""
     st.session_state["role"] = ""
-
     st.rerun()
 
 
-# --------------------------------------------------
-# PERMISSION CHECK
-# --------------------------------------------------
+# Permission
 
 def has_permission(permission):
     username = st.session_state.get("username", "")
     role = st.session_state.get("role", "")
 
-    # User must be logged in with a valid account
+    # Only logged-in users with valid accounts can access pages
     if (
         not st.session_state.get("logged_in", False)
         or username not in users
     ):
         return False
 
-    # Everyone logged in can access these pages
-    if permission in [
-        "questions",
-        "notifications_alerts"
-    ]:
+    # Questions and Notifications & Alerts are available to everyone
+    if permission in ["questions", "notifications_alerts"]:
         return True
 
-    # Use customised permissions when available
+    # Use administrator-customised permissions if available
     if username in user_permissions:
         return permission in user_permissions[username]
 
@@ -324,4 +233,5 @@ def has_permission(permission):
     if role not in permissions:
         return False
 
+    return permission in permissions[role]
     return permission in permissions[role]

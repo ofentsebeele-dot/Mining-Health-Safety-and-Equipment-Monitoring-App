@@ -14,9 +14,7 @@ from questions import render_questions_page
 from notifications_alerts import render_notifications_page
 
 
-# --------------------------------------------------
-# APP BACKGROUND AND WHITE FONT
-# --------------------------------------------------
+# App background: black and white font
 
 st.markdown("""
 <style>
@@ -146,10 +144,7 @@ hr {
 </style>
 """, unsafe_allow_html=True)
 
-
-# --------------------------------------------------
-# SESSION STATE
-# --------------------------------------------------
+# Session date
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -160,30 +155,23 @@ if "username" not in st.session_state:
 if "role" not in st.session_state:
     st.session_state["role"] = ""
 
-
-# --------------------------------------------------
-# LOGIN
-# --------------------------------------------------
+# Login
 
 if not st.session_state["logged_in"]:
     login()
     st.stop()
 
 
-# --------------------------------------------------
-# MAIN TITLE
-# --------------------------------------------------
+# Main tittle
 
-st.title("Khwezi Mining Monitoring System")
+st.title("Monitoring System")
 
 st.success(f"Welcome, {st.session_state['username']}!")
 
 st.write(f"Role: **{st.session_state['role']}**")
 
 
-# --------------------------------------------------
-# SIDEBAR NAVIGATION
-# --------------------------------------------------
+# Sidebar Navigation
 
 st.sidebar.title("Navigation")
 
@@ -220,28 +208,16 @@ if has_permission("manage_users"):
     pages.append("Manage Users")
 
 
-# --------------------------------------------------
-# CHECK PERMISSIONS
-# --------------------------------------------------
+# Check permissions
 
 if not pages:
     st.error("You do not have permission to access any pages.")
     st.stop()
 
+# Page Selection
+selected_page = st.sidebar.radio("Select a page", pages)
 
-# --------------------------------------------------
-# PAGE SELECTION
-# --------------------------------------------------
-
-selected_page = st.sidebar.radio(
-    "Select a page",
-    pages
-)
-
-
-# --------------------------------------------------
-# PAGE DISPLAY
-# --------------------------------------------------
+# Page Display
 
 if selected_page == "Dashboard":
     render_dashboard()
@@ -273,10 +249,7 @@ elif selected_page == "Notifications & Alerts":
 elif selected_page == "Manage Users":
     render_user_management_page()
 
-
-# --------------------------------------------------
-# LOGOUT
-# --------------------------------------------------
+# Logout
 
 st.sidebar.divider()
 

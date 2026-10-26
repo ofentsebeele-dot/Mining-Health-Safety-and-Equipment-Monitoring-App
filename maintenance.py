@@ -22,9 +22,7 @@ def render_maintenance_page():
 
     st.divider()
 
-    # --------------------------------------------------
-    # SUMMARY
-    # --------------------------------------------------
+
 
     total_equipment = len(equipment)
 
@@ -72,9 +70,6 @@ def render_maintenance_page():
 
     st.divider()
 
-    # --------------------------------------------------
-    # FILTER
-    # --------------------------------------------------
 
     st.subheader("Maintenance Filter")
 
@@ -107,9 +102,6 @@ def render_maintenance_page():
 
     st.divider()
 
-    # --------------------------------------------------
-    # MAINTENANCE STATUS
-    # --------------------------------------------------
 
     st.subheader("Maintenance Status")
 
@@ -135,9 +127,7 @@ def render_maintenance_page():
 
     st.divider()
 
-    # --------------------------------------------------
-    # DOWNTIME BY EQUIPMENT TYPE
-    # --------------------------------------------------
+
 
     st.subheader(
         "Downtime by Equipment Type"
@@ -164,9 +154,6 @@ def render_maintenance_page():
 
     st.divider()
 
-    # --------------------------------------------------
-    # MAINTENANCE RECORDS
-    # --------------------------------------------------
 
     st.subheader("Maintenance Records")
 

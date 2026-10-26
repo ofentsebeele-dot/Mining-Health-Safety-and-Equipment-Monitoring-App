@@ -217,8 +217,8 @@ def has_permission(permission):
     if username not in users:
         return False
 
-    # Questions are available to everyone
-    if permission == "questions":
+    # Questions and Notifications & Alerts are available to everyone
+    if permission in ["questions", "notifications_alerts"]:
         return True
 
     # Use administrator-customised permissions if available

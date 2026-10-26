@@ -1,6 +1,77 @@
 import streamlit as st
 import pandas as pd
 import os
+
+# BLACK BACKGROUND AND LIGHT WHITE FONT
+
+st.markdown("""
+<style>
+
+/* Main page background */
+.stApp {
+    background-color: #000000 !important;
+}
+
+/* Main text */
+.stApp p,
+.stApp h1,
+.stApp h2,
+.stApp h3,
+.stApp h4,
+.stApp h5,
+.stApp h6,
+.stApp label,
+.stApp li,
+.stApp [data-testid="stMetricLabel"],
+.stApp [data-testid="stMetricValue"],
+.stApp [data-testid="stCaptionContainer"] {
+    color: #E6E6E6 !important;
+}
+
+/* Sidebar background and text */
+[data-testid="stSidebar"] {
+    background-color: #000000 !important;
+}
+
+[data-testid="stSidebar"] * {
+    color: #E6E6E6 !important;
+}
+
+/* Dropdowns and input boxes */
+.stSelectbox div[data-baseweb="select"] > div,
+.stTextInput input,
+.stTextArea textarea,
+.stNumberInput input {
+    background-color: #1A1A1A !important;
+    color: #E6E6E6 !important;
+}
+
+/* Buttons */
+.stButton button,
+.stDownloadButton button {
+    background-color: #222222 !important;
+    color: #E6E6E6 !important;
+    border: 1px solid #666666 !important;
+}
+
+/* Horizontal dividers */
+hr {
+    border-color: #444444 !important;
+}
+
+/* Expanders */
+[data-testid="stExpander"] {
+    background-color: #111111 !important;
+    border: 1px solid #333333 !important;
+}
+
+/* Dataframe border */
+[data-testid="stDataFrame"] {
+    border: 1px solid #444444 !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
 from notifications_alerts import generate_alert
 
 

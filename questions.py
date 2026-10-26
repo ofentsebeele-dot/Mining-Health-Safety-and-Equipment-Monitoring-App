@@ -2,41 +2,33 @@ import streamlit as st
 import pandas as pd
 
 
-# --------------------------------------------------
-# LOAD DATA
-# --------------------------------------------------
+# load csv
 
 def load_worker_data():
 
     return pd.read_csv(
-        "workers.csv"
-    )
+        "workers.csv")
 
 
 def load_incident_data():
 
     return pd.read_csv(
-        "incidents.csv"
-    )
+        "incidents.csv")
 
 
 def load_equipment_data():
 
     return pd.read_csv(
-        "equipment.csv"
-    )
+        "equipment.csv")
 
 
-# --------------------------------------------------
-# CALCULATE EQUIPMENT AVAILABILITY
-# --------------------------------------------------
+# Calculate equipment availability
 
 def calculate_availability(equipment):
 
     total_time = (
         equipment["Operating hours"]
-        + equipment["Downtime"]
-    )
+        + equipment["Downtime"])
 
     equipment["Availability"] = (
         equipment["Operating hours"]
@@ -45,10 +37,7 @@ def calculate_availability(equipment):
 
     return equipment
 
-
-# --------------------------------------------------
-# RENDER QUESTIONS PAGE
-# --------------------------------------------------
+# Render questions page
 
 def render_questions_page():
 
@@ -59,36 +48,28 @@ def render_questions_page():
     equipment = load_equipment_data()
 
     equipment = calculate_availability(
-        equipment
-    )
+        equipment )
 
     st.title("Safety & Equipment Questions")
 
     st.write(
         "Select a question from the project brief "
-        "to view the answer based on the monitoring data."
-    )
+        "to view the answer based on the monitoring data.")
 
     st.divider()
 
-    # --------------------------------------------------
-    # QUESTION CATEGORIES
-    # --------------------------------------------------
+    # Question categories
 
     categories = [
         "Health and Safety",
         "Equipment",
-        "Integrated Safety and Equipment Analysis"
-    ]
+        "Integrated Safety and Equipment Analysis"]
 
     selected_category = st.selectbox(
         "Question Category",
-        categories
-    )
+        categories)
 
-    # --------------------------------------------------
-    # HEALTH AND SAFETY QUESTIONS
-    # --------------------------------------------------
+    # Health and Safety questions
 
     if selected_category == "Health and Safety":
 
@@ -112,30 +93,23 @@ def render_questions_page():
 
             "Is there an observable difference in incidents between day and night shifts?",
 
-            "Which safety conditions require immediate attention?"
-        ]
+            "Which safety conditions require immediate attention?" ]
 
         selected_question = st.selectbox(
             "Select a question",
-            questions
-        )
+            questions)
 
         st.divider()
 
-        # --------------------------------------------------
-        # QUESTION 1
-        # --------------------------------------------------
+        # Qusetion 1
 
         if selected_question == questions[0]:
 
             st.metric(
                 "Safety Incidents",
-                len(incidents)
-            )
+                len(incidents))
 
-        # --------------------------------------------------
-        # QUESTION 2
-        # --------------------------------------------------
+        # Qusetion 2
 
         elif selected_question == questions[1]:
 
@@ -143,33 +117,26 @@ def render_questions_page():
                 incidents[
                     "Department"
                 ]
-                .value_counts()
-            )
+                .value_counts())
 
             if not department_counts.empty:
 
                 department = (
                     department_counts
-                    .idxmax()
-                )
+                    .idxmax())
 
                 count = (
                     department_counts
-                    .max()
-                )
+                    .max())
 
                 st.success(
                     f"{department} has the highest "
-                    f"number of incidents with {count} incidents."
-                )
+                    f"number of incidents with {count} incidents.")
 
                 st.bar_chart(
-                    department_counts
-                )
+                    department_counts )
 
-        # --------------------------------------------------
-        # QUESTION 3
-        # --------------------------------------------------
+        # Qusetion 3
 
         elif selected_question == questions[2]:
 
@@ -177,39 +144,31 @@ def render_questions_page():
                 incidents[
                     "Shift"
                 ]
-                .value_counts()
-            )
+                .value_counts())
 
             if not shift_counts.empty:
 
                 shift = (
                     shift_counts
-                    .idxmax()
-                )
+                    .idxmax())
 
                 count = (
                     shift_counts
-                    .max()
-                )
+                    .max())
 
                 st.success(
                     f"The {shift} shift records the most "
-                    f"incidents with {count} incidents."
-                )
+                    f"incidents with {count} incidents." )
 
                 st.bar_chart(
-                    shift_counts
-                )
+                    shift_counts)
 
-        # --------------------------------------------------
-        # QUESTION 4
-        # --------------------------------------------------
+        # Qusetion 4
 
         elif selected_question == questions[3]:
 
             compliant_workers = workers[
-                workers["PPE compliance"] >= 95
-            ]
+                workers["PPE compliance"] >= 95]
 
             percentage = (
                 len(compliant_workers)
@@ -218,12 +177,9 @@ def render_questions_page():
 
             st.metric(
                 "PPE Compliance",
-                f"{percentage:.1f}%"
-            )
+                f"{percentage:.1f}%")
 
-        # --------------------------------------------------
-        # QUESTION 5
-        # --------------------------------------------------
+        # Qusetion 5
 
         elif selected_question == questions[4]:
 
@@ -233,33 +189,24 @@ def render_questions_page():
 
             st.metric(
                 "Near Misses",
-                int(near_misses)
-            )
+                int(near_misses))
 
-        # --------------------------------------------------
-        # QUESTION 6
-        # --------------------------------------------------
+        # Qusetion 6
 
         elif selected_question == questions[5]:
 
             incident_types = (
                 incidents[
-                    "Incident type"
-                ]
-                .value_counts()
-            )
+                    "Incident type"]
+                .value_counts())
 
             st.write(
-                "Most frequent incident types:"
-            )
+                "Most frequent incident types:" )
 
             st.bar_chart(
-                incident_types
-            )
+                incident_types)
 
-        # --------------------------------------------------
-        # QUESTION 7
-        # --------------------------------------------------
+        # Qusetion 7
 
         elif selected_question == questions[6]:
 
@@ -268,26 +215,19 @@ def render_questions_page():
                     "Severity"
                 ]
                 .astype(str)
-                .str.lower()
-            )
+                .str.lower())
 
             high_critical = incidents[
                 severity.isin(
                     [
                         "high",
-                        "critical"
-                    ]
-                )
-            ]
+                        "critical"])]
 
             st.metric(
                 "High or Critical Incidents",
-                len(high_critical)
-            )
+                len(high_critical))
 
-        # --------------------------------------------------
-        # QUESTION 8
-        # --------------------------------------------------
+        # Qusetion 8
 
         elif selected_question == questions[7]:
 
@@ -297,27 +237,19 @@ def render_questions_page():
                     [
                         "Near misses",
                         "Previous incidents",
-                        "Fatigue level"
-                    ]
-                ]
+                        "Fatigue level" ]]
                 .sum(
-                    numeric_only=True
-                )
-            )
+                    numeric_only=True))
 
             st.write(
                 "Departments with the highest "
-                "safety indicators:"
-            )
+                "safety indicators:" )
 
             st.dataframe(
                 department_risk,
-                use_container_width=True
-            )
+                use_container_width=True)
 
-        # --------------------------------------------------
-        # QUESTION 9
-        # --------------------------------------------------
+        # Qusetion 9
 
         elif selected_question == questions[8]:
 
@@ -325,16 +257,13 @@ def render_questions_page():
                 incidents[
                     "Shift"
                 ]
-                .value_counts()
-            )
+                .value_counts())
 
             st.write(
-                "Incident distribution by shift:"
-            )
+                "Incident distribution by shift:" )
 
             st.bar_chart(
-                shift_counts
-            )
+                shift_counts)
 
             if len(shift_counts) >= 2:
 
@@ -347,34 +276,26 @@ def render_questions_page():
                 st.info(
                     f"The difference between the highest "
                     f"and lowest incident counts is "
-                    f"{difference}."
-                )
+                    f"{difference}.")
 
-        # --------------------------------------------------
-        # QUESTION 10
-        # --------------------------------------------------
+        # Qusetion 10
 
         elif selected_question == questions[9]:
 
             st.write(
                 "Safety conditions requiring attention "
                 "are identified using PPE compliance, "
-                "fatigue, near misses and previous incidents."
-            )
+                "fatigue, near misses and previous incidents.")
 
             attention = workers[
                 (
-                    workers["PPE compliance"] < 95
-                )
+                    workers["PPE compliance"] < 95)
                 |
                 (
-                    workers["Near misses"] >= 2
-                )
+                    workers["Near misses"] >= 2)
                 |
                 (
-                    workers["Previous incidents"] >= 2
-                )
-            ]
+                    workers["Previous incidents"] >= 2)]
 
             st.dataframe(
                 attention[
@@ -385,17 +306,12 @@ def render_questions_page():
                         "PPE compliance",
                         "Fatigue level",
                         "Near misses",
-                        "Previous incidents"
-                    ]
-                ],
+                        "Previous incidents"]],
                 use_container_width=True,
-                hide_index=True
-            )
+                hide_index=True)
 
 
-    # --------------------------------------------------
-    # EQUIPMENT QUESTIONS
-    # --------------------------------------------------
+    # Equipment Qusetion 
 
     elif selected_category == "Equipment":
 
@@ -419,19 +335,15 @@ def render_questions_page():
 
             "Which equipment type has the highest downtime?",
 
-            "Which equipment requires immediate inspection?"
-        ]
+            "Which equipment requires immediate inspection?"]
 
         selected_question = st.selectbox(
             "Select a question",
-            questions
-        )
+            questions)
 
         st.divider()
 
-        # --------------------------------------------------
-        # QUESTION 1
-        # --------------------------------------------------
+        # Qusetion 1
 
         if selected_question == questions[0]:
 
@@ -442,44 +354,32 @@ def render_questions_page():
             st.success(
                 f"{equipment_row['Equipment ID']} "
                 f"has the highest downtime: "
-                f"{equipment_row['Downtime']} hours."
-            )
+                f"{equipment_row['Downtime']} hours.")
 
-        # --------------------------------------------------
-        # QUESTION 2
-        # --------------------------------------------------
-
+        # Qusetion 2
         elif selected_question == questions[1]:
 
             equipment_row = equipment.loc[
-                equipment["Availability"].idxmin()
-            ]
+                equipment["Availability"].idxmin()]
 
             st.success(
                 f"{equipment_row['Equipment ID']} "
                 f"has the lowest availability: "
-                f"{equipment_row['Availability']:.1f}%."
-            )
+                f"{equipment_row['Availability']:.1f}%." )
 
-        # --------------------------------------------------
-        # QUESTION 3
-        # --------------------------------------------------
+        # Qusetion 3
 
         elif selected_question == questions[2]:
 
             equipment_row = equipment.loc[
-                equipment["Vibration"].idxmax()
-            ]
+                equipment["Vibration"].idxmax()]
 
             st.success(
                 f"{equipment_row['Equipment ID']} "
                 f"has the highest vibration: "
-                f"{equipment_row['Vibration']}."
-            )
+                f"{equipment_row['Vibration']}.")
 
-        # --------------------------------------------------
-        # QUESTION 4
-        # --------------------------------------------------
+        # Qusetion 4
 
         elif selected_question == questions[3]:
 
@@ -493,26 +393,20 @@ def render_questions_page():
                 f"{equipment_row['Temperature']}."
             )
 
-        # --------------------------------------------------
-        # QUESTION 5
-        # --------------------------------------------------
-
+        # Qusetion 5
         elif selected_question == questions[4]:
 
             st.info(
                 "Alert generation will be based on abnormal "
                 "equipment conditions such as high temperature, "
-                "high vibration and equipment status."
-            )
+                "high vibration and equipment status." )
 
             alerts = equipment[
                 (
-                    equipment["Temperature"] >= 80
-                )
+                    equipment["Temperature"] >= 80)
                 |
                 (
-                    equipment["Vibration"] >= 5
-                )
+                    equipment["Vibration"] >= 5)
                 |
                 (
                     equipment["Maintenance status"]
@@ -521,21 +415,14 @@ def render_questions_page():
                     .isin(
                         [
                             "overdue",
-                            "critical"
-                        ]
-                    )
-                )
-            ]
+                            "critical" ]))]
 
             st.dataframe(
                 alerts,
                 use_container_width=True,
-                hide_index=True
-            )
+                hide_index=True)
 
-        # --------------------------------------------------
-        # QUESTION 6
-        # --------------------------------------------------
+        # Qusetion 6
 
         elif selected_question == questions[5]:
 
@@ -547,20 +434,14 @@ def render_questions_page():
                     [
                         "under maintenance",
                         "maintenance required",
-                        "overdue"
-                    ]
-                )
-            ]
+                        "overdue"])]
 
             st.dataframe(
                 maintenance,
                 use_container_width=True,
-                hide_index=True
-            )
+                hide_index=True)
 
-        # --------------------------------------------------
-        # QUESTION 7
-        # --------------------------------------------------
+        # Qusetion 7
 
         elif selected_question == questions[6]:
 
@@ -568,96 +449,75 @@ def render_questions_page():
                 equipment["Maintenance status"]
                 .astype(str)
                 .str.lower()
-                == "overdue"
-            ]
+                == "overdue"]
 
             if overdue.empty:
 
                 st.success(
-                    "No equipment is currently marked overdue."
-                )
+                    "No equipment is currently marked overdue." )
 
             else:
 
                 st.dataframe(
                     overdue,
                     use_container_width=True,
-                    hide_index=True
-                )
+                    hide_index=True)
 
-        # --------------------------------------------------
-        # QUESTION 8
-        # --------------------------------------------------
+        # Qusetion 8
 
         elif selected_question == questions[7]:
 
             average_availability = (
                 equipment["Availability"]
-                .mean()
-            )
+                .mean())
 
             st.metric(
                 "Average Equipment Availability",
-                f"{average_availability:.1f}%"
-            )
+                f"{average_availability:.1f}%")
 
-        # --------------------------------------------------
-        # QUESTION 9
-        # --------------------------------------------------
+        # Qusetion 9
 
         elif selected_question == questions[8]:
 
             downtime = (
                 equipment
                 .groupby("Equipment type")[
-                    "Downtime"
-                ]
+                    "Downtime"]
                 .sum()
                 .sort_values(
-                    ascending=False
-                )
-            )
+                    ascending=False))
 
             st.bar_chart(
-                downtime
-            )
+                downtime)
 
             if not downtime.empty:
 
                 st.success(
                     f"{downtime.idxmax()} has the "
-                    f"highest total downtime."
-                )
+                    f"highest total downtime." )
 
-        # --------------------------------------------------
-        # QUESTION 10
-        # --------------------------------------------------
+        # Qusetion 10
 
         elif selected_question == questions[9]:
 
             inspection = equipment[
                 (
-                    equipment["Temperature"] >= 80
-                )
+                    equipment["Temperature"] >= 80)
                 |
                 (
-                    equipment["Vibration"] >= 5
-                )
+                    equipment["Vibration"] >= 5)
                 |
                 (
                     equipment["Brake status"]
                     .astype(str)
                     .str.lower()
-                    != "good"
-                )
+                    != "good")
                 |
                 (
                     equipment["Engine status"]
                     .astype(str)
                     .str.lower()
-                    != "good"
-                )
-            ]
+                    != "good") ]
 
             st.dataframe(
                 inspection,
@@ -666,9 +526,7 @@ def render_questions_page():
             )
 
 
-    # --------------------------------------------------
-    # INTEGRATED QUESTIONS
-    # --------------------------------------------------
+    # Integrated Qusetions
 
     else:
 
@@ -692,89 +550,67 @@ def render_questions_page():
 
             "Which areas of the operation require the greatest attention?",
 
-            "What recommendations can be generated from the monitoring results?"
-        ]
+            "What recommendations can be generated from the monitoring results?"]
 
         selected_question = st.selectbox(
             "Select a question",
-            questions
-        )
+            questions)
 
         st.divider()
 
-        # --------------------------------------------------
-        # QUESTION 1
-        # --------------------------------------------------
+        # Qusetion 1
 
         if selected_question == questions[0]:
 
             shift_counts = (
                 incidents[
-                    "Shift"
-                ]
-                .value_counts()
-            )
+                    "Shift"]
+                .value_counts())
 
             st.bar_chart(
-                shift_counts
-            )
+                shift_counts)
 
             st.write(
                 "This shows the distribution of "
-                "incidents across shifts."
-            )
+                "incidents across shifts.")
 
-        # --------------------------------------------------
-        # QUESTION 2
-        # --------------------------------------------------
+        # Qusetion 2
 
         elif selected_question == questions[1]:
 
             department_incidents = (
                 incidents[
-                    "Department"
-                ]
-                .value_counts()
-            )
+                    "Department"]
+                .value_counts())
 
             department_downtime = (
                 equipment
                 .groupby("Equipment type")[
-                    "Downtime"
-                ]
-                .sum()
-            )
+                    "Downtime"]
+                .sum())
 
             st.write(
-                "Incident levels by department:"
-            )
+                "Incident levels by department:")
 
             st.bar_chart(
-                department_incidents
-            )
+                department_incidents)
 
             st.write(
-                "Equipment downtime by equipment type:"
-            )
+                "Equipment downtime by equipment type:")
 
             st.bar_chart(
-                department_downtime
-            )
+                department_downtime )
 
-        # --------------------------------------------------
-        # QUESTION 3
-        # --------------------------------------------------
+        # Qusetion 3
 
         elif selected_question == questions[2]:
 
             alerts = equipment[
                 (
-                    equipment["Temperature"] >= 80
-                )
+                    equipment["Temperature"] >= 80)
                 |
                 (
-                    equipment["Vibration"] >= 5
-                )
+                    equipment["Vibration"] >= 5)
                 |
                 (
                     equipment["Maintenance status"]
@@ -783,21 +619,14 @@ def render_questions_page():
                     .isin(
                         [
                             "overdue",
-                            "critical"
-                        ]
-                    )
-                )
-            ]
+                            "critical"]))]
 
             st.dataframe(
                 alerts,
                 use_container_width=True,
-                hide_index=True
-            )
+                hide_index=True )
 
-        # --------------------------------------------------
-        # QUESTION 4
-        # --------------------------------------------------
+        # Qusetion 4
 
         elif selected_question == questions[3]:
 
@@ -806,13 +635,11 @@ def render_questions_page():
             priority["Priority Score"] = (
                 priority["Downtime"] * 0.4
                 + priority["Vibration"] * 10
-                + priority["Temperature"] * 0.2
-            )
+                + priority["Temperature"] * 0.2)
 
             priority = priority.sort_values(
                 "Priority Score",
-                ascending=False
-            )
+                ascending=False)
 
             st.dataframe(
                 priority[
@@ -823,34 +650,24 @@ def render_questions_page():
                         "Vibration",
                         "Temperature",
                         "Maintenance status",
-                        "Priority Score"
-                    ]
-                ],
+                        "Priority Score"]],
                 use_container_width=True,
-                hide_index=True
-            )
+                hide_index=True)
 
-        # --------------------------------------------------
-        # QUESTION 5
-        # --------------------------------------------------
+        # Qusetion 5
 
         elif selected_question == questions[4]:
 
             causes = (
                 incidents[
-                    "Cause"
-                ]
+                    "Cause"]
                 .astype(str)
-                .value_counts()
-            )
+                .value_counts())
 
             st.bar_chart(
-                causes
-            )
+                causes)
 
-        # --------------------------------------------------
-        # QUESTION 6
-        # --------------------------------------------------
+        # Qusetion 6
 
         elif selected_question == questions[5]:
 
@@ -858,22 +675,17 @@ def render_questions_page():
                 "Indicators requiring management attention "
                 "include repeated incidents, near misses, "
                 "poor PPE compliance and abnormal equipment "
-                "conditions."
-            )
+                "conditions." )
 
             management_attention = workers[
                 (
-                    workers["PPE compliance"] < 95
-                )
+                    workers["PPE compliance"] < 95)
                 |
                 (
-                    workers["Near misses"] >= 2
-                )
+                    workers["Near misses"] >= 2)
                 |
                 (
-                    workers["Previous incidents"] >= 2
-                )
-            ]
+                    workers["Previous incidents"] >= 2) ]
 
             st.dataframe(
                 management_attention,
@@ -881,28 +693,22 @@ def render_questions_page():
                 hide_index=True
             )
 
-        # --------------------------------------------------
-        # QUESTION 7
-        # --------------------------------------------------
+        # Qusetion 7
 
         elif selected_question == questions[6]:
 
             normal = equipment[
                 (
-                    equipment["Temperature"] < 80
-                )
+                    equipment["Temperature"] < 80)
                 &
                 (
-                    equipment["Vibration"] < 5
-                )
+                    equipment["Vibration"] < 5)
                 &
                 (
                     equipment["Maintenance status"]
                     .astype(str)
                     .str.lower()
-                    == "operational"
-                )
-            ]
+                    == "operational") ]
 
             percentage = (
                 len(normal)
@@ -911,105 +717,81 @@ def render_questions_page():
 
             st.metric(
                 "Operating Normally",
-                f"{percentage:.1f}%"
-            )
+                f"{percentage:.1f}%")
 
-        # --------------------------------------------------
-        # QUESTION 8
-        # --------------------------------------------------
+        # Qusetion 8
 
         elif selected_question == questions[7]:
 
             critical_alerts = equipment[
                 (
-                    equipment["Temperature"] >= 100
-                )
+                    equipment["Temperature"] >= 100)
                 |
                 (
-                    equipment["Vibration"] >= 8
-                )
+                    equipment["Vibration"] >= 8)
                 |
                 (
                     equipment["Maintenance status"]
                     .astype(str)
                     .str.lower()
-                    == "critical"
-                )
-            ]
+                    == "critical")]
 
             st.metric(
                 "Critical Alerts",
                 len(critical_alerts)
             )
 
-        # --------------------------------------------------
-        # QUESTION 9
-        # --------------------------------------------------
+        # Qusetion 9
 
         elif selected_question == questions[8]:
 
             st.write(
                 "Areas requiring attention are identified "
                 "from incident frequency, worker safety "
-                "indicators and equipment condition."
-            )
+                "indicators and equipment condition." )
 
             st.subheader(
-                "Incident Areas"
-            )
+                "Incident Areas" )
 
             st.bar_chart(
                 incidents[
                     "Department"
-                ].value_counts()
-            )
+                ].value_counts())
 
             st.subheader(
-                "Equipment Areas"
-            )
+                "Equipment Areas")
 
             st.bar_chart(
                 equipment
                 .groupby("Equipment type")[
-                    "Downtime"
-                ]
-                .sum()
-            )
+                    "Downtime"]
+                .sum())
 
-        # --------------------------------------------------
-        # QUESTION 10
-        # --------------------------------------------------
+        #Qusetion 10
 
         elif selected_question == questions[9]:
 
             st.subheader(
-                "Recommended Actions"
-            )
+                "Recommended Actions" )
 
             st.write(
-                "• Investigate departments with repeated incidents."
-            )
+                "• Investigate departments with repeated incidents.")
 
             st.write(
-                "• Review workers with poor PPE compliance."
-            )
+                "• Review workers with poor PPE compliance.")
 
             st.write(
-                "• Investigate repeated near misses."
-            )
+                "• Investigate repeated near misses.")
 
             st.write(
-                "• Prioritise equipment with high downtime."
-            )
+                "• Prioritise equipment with high downtime.")
 
             st.write(
                 "• Inspect equipment with abnormal vibration "
-                "or temperature."
-            )
+                "or temperature.")
 
             st.write(
-                "• Review overdue maintenance."
-            )
+                "• Review overdue maintenance.")
 
             st.write(
                 "• Investigate recurring incident causes."

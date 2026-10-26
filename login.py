@@ -289,15 +289,10 @@ def login():
 
 
 def logout():
-
-    if st.sidebar.button("Logout"):
-
-        st.session_state["logged_in"] = False
-        st.session_state["username"] = ""
-        st.session_state["role"] = ""
-
-        st.rerun()
-
+    st.session_state["logged_in"] = False
+    st.session_state["username"] = ""
+    st.session_state["role"] = ""
+    st.rerun()
 
 
 

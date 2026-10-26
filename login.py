@@ -6,8 +6,7 @@ import base64
 def find_image_path(filename):
     possible_paths = [
         filename,
-        os.path.join("data", filename)
-    ]
+        os.path.join("data", filename)]
 
     for path in possible_paths:
         if os.path.isfile(path):
@@ -144,94 +143,27 @@ def set_login_background(image_file="khwezi_login.png"):
         st.error(f"Could not load the login background image: {error}")
 
 
-# --------------------------------------------------
-# USERS
-# --------------------------------------------------
+# Users
 
-users = {
-    "admin": {
-        "password": "admin123",
-        "role": "Administrator"
-    },
-    "safety": {
-        "password": "safety123",
-        "role": "Safety Officer"
-    },
-    "manager": {
-        "password": "manager123",
-        "role": "Mining Manager"
-    },
-    "maintenance": {
-        "password": "maintenance123",
-        "role": "Maintenance Engineer"
-    },
-    "worker": {
-        "password": "worker123",
-        "role": "Worker"
-    }
-}
+users = {"admin": { "password": "admin1", "role": "Administrator"},
+         "safety": {"password": "safety1", "role": "Safety Officer"},
+         "manager": {"password": "manager1","role": "Mining Manager"},
+         "maintenance": {"password": "maintenance1","role": "Maintenance Engineer"},
+         "worker": { "password": "worker1", "role": "Worker"}}
 
 
-# --------------------------------------------------
-# DEFAULT ROLE PERMISSIONS
-# --------------------------------------------------
+# Default role permissions
 
-permissions = {
-    "Administrator": [
-        "dashboard",
-        "worker_health",
-        "incidents",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "reports",
-        "questions",
-        "manage_users"
-    ],
-
-    "Safety Officer": [
-        "dashboard",
-        "worker_health",
-        "incidents",
-        "risk_assessment",
-        "questions",
-        "reports"
-    ],
-
-    "Mining Manager": [
-        "dashboard",
-        "worker_health",
-        "incidents",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "questions",
-        "reports"
-    ],
-
-    "Maintenance Engineer": [
-        "dashboard",
-        "equipment",
-        "maintenance",
-        "risk_assessment",
-        "reports",
-        "questions"
-    ],
-
-    "Worker": [
-        "dashboard",
-        "questions",
-        "worker_health"
-    ]
-}
+permissions = {"Administrator": ["dashboard", "worker_health", "incidents", "equipment", "maintenance", "risk_assessment","reports", "questions", "manage_users"],
+               "Safety Officer": ["dashboard","worker_health", "incidents", "risk_assessment", "questions", "reports"],
+               "Mining Manager": ["dashboard", "worker_health", "incidents", "equipment", "maintenance",  "risk_assessment", "questions", "reports" ],
+               "Maintenance Engineer": [ "dashboard","equipment", "maintenance", "risk_assessment", "reports", "questions"],
+               "Worker": ["dashboard", "questions","worker_health"]}
 
 
 user_permissions = {}
 
-
-# --------------------------------------------------
-# LOGIN FUNCTION
-# --------------------------------------------------
+# Login Function
 
 def login():
     set_login_background()
@@ -239,22 +171,19 @@ def login():
     # Add space above the login title
     st.markdown(
         '<div style="height: 20px;"></div>',
-        unsafe_allow_html=True
-    )
+        unsafe_allow_html=True)
 
     st.title("Monitoring System")
     st.subheader("Login")
 
     username = st.text_input(
         "Username",
-        key="login_username"
-    )
+        key="login_username")
 
     password = st.text_input(
         "Password",
         type="password",
-        key="login_password"
-    )
+        key="login_password" )
 
     if st.button("Login"):
         if username in users:
@@ -270,10 +199,7 @@ def login():
         else:
             st.error("Username not found.")
 
-
-# --------------------------------------------------
-# LOGOUT FUNCTION
-# --------------------------------------------------
+# Logout Functions
 
 def logout():
     st.session_state["logged_in"] = False
@@ -282,9 +208,7 @@ def logout():
     st.rerun()
 
 
-# --------------------------------------------------
-# PERMISSION CHECK
-# --------------------------------------------------
+# Permission
 
 def has_permission(permission):
     username = st.session_state.get("username", "")

@@ -32,6 +32,7 @@ ROLES = [
     "Administrator",
     "Safety Officer",
     "Mining Manager",
+    "Maintenance Engineer",
     "Worker"
 ]
 
@@ -754,7 +755,7 @@ def render_user_management_page():
             selected_user = st.selectbox(
                 "Select User",
                 list(users.keys()),
-                key="block_user"
+                key="manage_block_user"
             )
 
             st.divider()
@@ -780,7 +781,7 @@ def render_user_management_page():
             selected_user = st.selectbox(
                 "Select User",
                 list(users.keys()),
-                key="delete_user"
+                key="manage_delete_user"
             )
 
             st.divider()

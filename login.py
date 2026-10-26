@@ -21,6 +21,11 @@ users = {
         "role": "Mining Manager"
     },
 
+    "maintenance": {
+        "password": "maintenance123",
+        "role": "Maintenance Engineer"
+    },
+
     "worker": {
         "password": "worker123",
         "role": "Worker"
@@ -66,6 +71,15 @@ permissions = {
         "risk_assessment",
         "questions",
         "reports"
+    ],
+
+    "Maintenance Engineer": [
+        "dashboard",
+        "equipment",
+        "maintenance",
+        "risk_assessment",
+        "reports",
+        "questions"
     ],
 
     "Worker": [

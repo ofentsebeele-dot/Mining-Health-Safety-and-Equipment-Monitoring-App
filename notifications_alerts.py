@@ -1,4 +1,3 @@
-```python
 import pandas as pd
 from pathlib import Path
 
@@ -220,4 +219,3 @@ def run_demo():
 
 if __name__ == "__main__":
     run_demo()
-```

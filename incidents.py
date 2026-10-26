@@ -13,21 +13,7 @@ def load_incidents():
     if not os.path.exists(INCIDENT_FILE):
 
         # Create the required columns if the file does not exist
-        columns = [
-            "Incident ID",
-            "Date",
-            "Time",
-            "Shift",
-            "Location",
-            "Department",
-            "Incident type",
-            "Severity",
-            "Injury status",
-            "Lost-time injury status",
-            "Cause",
-            "Corrective action",
-            "Incident status"
-        ]
+        columns = ["Incident ID", "Date", "Time", "Shift", "Location", "Department", "Incident type", "Severity", "Injury status", "Lost-time injury status", "Cause","Corrective action", "Incident status"]
 
         # Return an empty table with the correct columns
         return pd.DataFrame(columns=columns)
@@ -36,24 +22,17 @@ def load_incidents():
     return pd.read_csv(INCIDENT_FILE)
 
 
-
-
 def save_incidents(incidents):
 
     # Make sure the data folder exists
     os.makedirs(
         "data",
-        exist_ok=True
-    )
+        exist_ok=True)
 
     # Save the updated incidents to the CSV file
     incidents.to_csv(
         INCIDENT_FILE,
-        index=False
-    )
-
-
-
+        index=False)
 
 def add_incident(incidents):
 
@@ -63,37 +42,30 @@ def add_incident(incidents):
     # Create the incident entry form
     with st.form(
         "add_incident_form",
-        clear_on_submit=True
-    ):
+        clear_on_submit=True):
 
         # Incident identification
         incident_id = st.text_input(
-            "Incident ID"
-        )
+            "Incident ID")
 
         # Incident date
         date = st.date_input(
-            "Date"
-        )
+            "Date")
 
         # Incident time
         time = st.time_input(
-            "Time"
-        )
+            "Time" )
 
         # Select the work shift
         shift = st.selectbox(
             "Shift",
             [
                 "Day",
-                "Night"
-            ]
-        )
+                "Night"])
 
         # Enter the incident location
         location = st.text_input(
-            "Location"
-        )
+            "Location")
 
         # Select the department
         department = st.selectbox(
@@ -105,9 +77,7 @@ def add_incident(incidents):
                 "Maintenance",
                 "Health and Safety",
                 "Logistics",
-                "Administration"
-            ]
-        )
+                "Administration"])
 
         # Categorise the incident type
         incident_type = st.selectbox(
@@ -121,9 +91,7 @@ def add_incident(incidents):
                 "Environmental Incident",
                 "Fire",
                 "Vehicle Incident",
-                "Other"
-            ]
-        )
+                "Other"])
 
         # Select the incident severity
         severity = st.selectbox(
@@ -132,37 +100,29 @@ def add_incident(incidents):
                 "Minor",
                 "Moderate",
                 "High",
-                "Critical"
-            ]
-        )
+                "Critical"])
 
         # Record whether an injury occurred
         injury_status = st.selectbox(
             "Injury Status",
             [
                 "No",
-                "Yes"
-            ]
-        )
+                "Yes"])
 
         # Record whether the injury resulted in lost time
         lost_time = st.selectbox(
             "Lost-time Injury Status",
             [
                 "No",
-                "Yes"
-            ]
-        )
+                "Yes"] )
 
         # Record the cause of the incident
         cause = st.text_area(
-            "Cause"
-        )
+            "Cause")
 
         # Record the corrective action
         corrective_action = st.text_area(
-            "Corrective Action"
-        )
+            "Corrective Action"  )
 
         # Record the current incident status
         incident_status = st.selectbox(
@@ -171,14 +131,11 @@ def add_incident(incidents):
                 "Open",
                 "Under Investigation",
                 "Corrective Action Required",
-                "Closed"
-            ]
-        )
+                "Closed"])
 
         # Submit button
         submitted = st.form_submit_button(
-            "Add Incident"
-        )
+            "Add Incident")
 
     # Process the form after submission
     if submitted:
@@ -190,8 +147,7 @@ def add_incident(incidents):
         if incident_id == "":
 
             st.error(
-                "Incident ID is required."
-            )
+                "Incident ID is required.")
 
             return
 
@@ -201,8 +157,7 @@ def add_incident(incidents):
         ].astype(str).values:
 
             st.error(
-                "This Incident ID already exists."
-            )
+                "This Incident ID already exists.")
 
             return
 
@@ -220,32 +175,26 @@ def add_incident(incidents):
             "Lost-time injury status": lost_time,
             "Cause": cause,
             "Corrective action": corrective_action,
-            "Incident status": incident_status
-        }
+            "Incident status": incident_status}
 
         # Convert the new incident into a DataFrame
         new_row = pd.DataFrame(
-            [new_incident]
-        )
+            [new_incident])
 
         # Add the new incident to the existing data
         incidents = pd.concat(
             [
                 incidents,
-                new_row
-            ],
-            ignore_index=True
-        )
+                new_row],
+            ignore_index=True)
 
         # Save the updated data to the CSV file
         save_incidents(
-            incidents
-        )
+            incidents)
 
         # Tell the user that the incident was successfully added
         st.success(
-            "Incident added successfully."
-        )
+            "Incident added successfully.")
 
         # Refresh the application
         st.rerun()
@@ -255,15 +204,13 @@ def view_incidents(incidents):
 
     # Display the section heading
     st.subheader(
-        "View Incidents"
-    )
+        "View Incidents")
 
     # Check whether there are any incidents
     if incidents.empty:
 
         st.info(
-            "No incidents have been recorded."
-        )
+            "No incidents have been recorded.")
 
         return
 
@@ -271,30 +218,23 @@ def view_incidents(incidents):
     st.dataframe(
         incidents,
         use_container_width=True,
-        hide_index=True
-    )
-
-
-
+        hide_index=True)
 
 def search_incidents(incidents):
 
     # Display the section heading
     st.subheader(
-        "Search Incidents"
-    )
+        "Search Incidents")
 
     # Create a search box
     search_term = st.text_input(
-        "Search incidents"
-    )
+        "Search incidents" )
 
     # Do not search if the search box is empty
     if search_term.strip() == "":
 
         st.info(
-            "Enter a search term."
-        )
+            "Enter a search term.")
 
         return
 
@@ -308,28 +248,22 @@ def search_incidents(incidents):
             lambda column:
             column.str.lower().str.contains(
                 search_term,
-                na=False
-            )
-        )
-        .any(axis=1)
-    )
+                na=False))
+        .any(axis=1))
 
     # Return matching incidents
     results = incidents[
-        mask
-    ]
+        mask]
 
     # Display the number of results
     st.write(
-        f"Search results: {len(results)}"
-    )
+        f"Search results: {len(results)}")
 
     # Display a message when no results are found
     if results.empty:
 
         st.warning(
-            "No matching incidents found."
-        )
+            "No matching incidents found.")
 
     else:
 
@@ -337,25 +271,19 @@ def search_incidents(incidents):
         st.dataframe(
             results,
             use_container_width=True,
-            hide_index=True
-        )
-
-
-
+            hide_index=True)
 
 def filter_incidents(incidents):
 
     # Display the section heading
     st.subheader(
-        "Filter Incidents"
-    )
+        "Filter Incidents")
 
     # Check whether incident data exists
     if incidents.empty:
 
         st.info(
-            "No incidents available for filtering."
-        )
+            "No incidents available for filtering.")
 
         return
 
@@ -372,13 +300,11 @@ def filter_incidents(incidents):
             .dropna()
             .astype(str)
             .unique()
-            .tolist()
-        )
+            .tolist() )
 
         selected_departments = st.multiselect(
             "Department",
-            departments
-        )
+            departments)
 
     # Shift filter
     with col2:
@@ -390,13 +316,11 @@ def filter_incidents(incidents):
             .dropna()
             .astype(str)
             .unique()
-            .tolist()
-        )
+            .tolist())
 
         selected_shifts = st.multiselect(
             "Shift",
-            shifts
-        )
+            shifts )
 
     # Create another two columns
     col3, col4 = st.columns(2)
@@ -411,13 +335,11 @@ def filter_incidents(incidents):
             .dropna()
             .astype(str)
             .unique()
-            .tolist()
-        )
+            .tolist())
 
         selected_severities = st.multiselect(
             "Severity",
-            severities
-        )
+            severities)
 
     # Incident type filter
     with col4:
@@ -429,13 +351,11 @@ def filter_incidents(incidents):
             .dropna()
             .astype(str)
             .unique()
-            .tolist()
-        )
+            .tolist() )
 
         selected_types = st.multiselect(
             "Incident Type",
-            incident_types
-        )
+            incident_types)
 
     # Incident status filter
     statuses = sorted(
@@ -445,13 +365,11 @@ def filter_incidents(incidents):
         .dropna()
         .astype(str)
         .unique()
-        .tolist()
-    )
+        .tolist() )
 
     selected_statuses = st.multiselect(
         "Incident Status",
-        statuses
-    )
+        statuses)
 
     # Start with all incidents
     filtered = incidents.copy()
@@ -461,71 +379,57 @@ def filter_incidents(incidents):
 
         filtered = filtered[
             filtered["Department"].isin(
-                selected_departments
-            )
-        ]
+                selected_departments )]
 
     # Apply shift filter
     if selected_shifts:
 
         filtered = filtered[
             filtered["Shift"].isin(
-                selected_shifts
-            )
-        ]
+                selected_shifts)]
 
     # Apply severity filter
     if selected_severities:
 
         filtered = filtered[
             filtered["Severity"].isin(
-                selected_severities
-            )
-        ]
+                selected_severities)]
 
     # Apply incident type filter
     if selected_types:
 
         filtered = filtered[
             filtered["Incident type"].isin(
-                selected_types
-            )
-        ]
+                selected_types )]
 
     # Apply status filter
     if selected_statuses:
 
         filtered = filtered[
             filtered["Incident status"].isin(
-                selected_statuses
-            )
-        ]
+                selected_statuses)]
 
     # Display the number of filtered incidents
     st.write(
-        f"Filtered incidents: {len(filtered)}"
-    )
+        f"Filtered incidents: {len(filtered)}")
 
     # Display the filtered results
     st.dataframe(
         filtered,
         use_container_width=True,
-        hide_index=True
-    )
+        hide_index=True )
 
 def categorize_incidents(incidents):
 
     # Display the section heading
     st.subheader(
-        "Incident Categories"
-    )
+        "Incident Categories" )
 
     # Check whether incident data exists
     if incidents.empty:
 
         st.info(
-            "No incident data available."
-        )
+            "No incident data available.")
 
         return
 
@@ -534,48 +438,38 @@ def categorize_incidents(incidents):
         incidents[
             "Incident type"
         ]
-        .value_counts()
-    )
+        .value_counts())
 
     # Display a chart of incident categories
     st.bar_chart(
-        category_counts
-    )
+        category_counts)
 
     # Convert the category counts into a table
     category_table = (
         category_counts
         .rename("Incident Count")
-        .reset_index()
-    )
+        .reset_index())
 
     # Rename the table columns
     category_table.columns = [
         "Incident Category",
-        "Incident Count"
-    ]
+        "Incident Count" ]
 
     # Display the category table
     st.dataframe(
         category_table,
         use_container_width=True,
-        hide_index=True
-    )
-
-
-
+        hide_index=True )
 
 def count_incidents(incidents):
 
     # Display the section heading
     st.subheader(
-        "Incident Counts"
-    )
+        "Incident Counts")
 
     # Count all incidents
     total = len(
-        incidents
-    )
+        incidents )
 
     # Count near misses
     near_misses = len(
@@ -585,9 +479,7 @@ def count_incidents(incidents):
             ]
             .astype(str)
             .str.lower()
-            == "near miss"
-        ]
-    )
+            == "near miss"])
 
     # Count incidents involving injuries
     injuries = len(
@@ -597,9 +489,7 @@ def count_incidents(incidents):
             ]
             .astype(str)
             .str.lower()
-            == "yes"
-        ]
-    )
+            == "yes"] )
 
     # Count lost-time injuries
     lost_time = len(
@@ -609,9 +499,7 @@ def count_incidents(incidents):
             ]
             .astype(str)
             .str.lower()
-            == "yes"
-        ]
-    )
+            == "yes"])
 
     # Create four metric columns
     col1, col2, col3, col4 = st.columns(4)
@@ -621,49 +509,40 @@ def count_incidents(incidents):
 
         st.metric(
             "Total Incidents",
-            total
-        )
+            total)
 
     # Display near misses
     with col2:
 
         st.metric(
             "Near Misses",
-            near_misses
-        )
+            near_misses)
 
     # Display injuries
     with col3:
 
         st.metric(
             "Injuries",
-            injuries
-        )
+            injuries )
 
     # Display lost-time injuries
     with col4:
 
         st.metric(
             "Lost-time Injuries",
-            lost_time
-        )
-
-
-
+            lost_time)
 
 def analyse_incident_trends(incidents):
 
     # Display the section heading
     st.subheader(
-        "Incident Trend Analysis"
-    )
+        "Incident Trend Analysis" )
 
     # Check whether incident data exists
     if incidents.empty:
 
         st.info(
-            "No incident data available."
-        )
+            "No incident data available.")
 
         return
 
@@ -673,20 +552,17 @@ def analyse_incident_trends(incidents):
     # Convert the Date column to a proper date
     trend_data["Date"] = pd.to_datetime(
         trend_data["Date"],
-        errors="coerce"
-    )
+        errors="coerce" )
 
     # Remove records with invalid dates
     trend_data = trend_data.dropna(
-        subset=["Date"]
-    )
+        subset=["Date"] )
 
     # Stop if no valid dates exist
     if trend_data.empty:
 
         st.warning(
-            "Valid incident dates are required."
-        )
+            "Valid incident dates are required.")
 
         return
 
@@ -694,8 +570,7 @@ def analyse_incident_trends(incidents):
     trend_data["Month"] = (
         trend_data["Date"]
         .dt.to_period("M")
-        .astype(str)
-    )
+        .astype(str))
 
     # Count incidents for each month
     monthly_incidents = (
@@ -703,84 +578,66 @@ def analyse_incident_trends(incidents):
             "Month"
         ]
         .value_counts()
-        .sort_index()
-    )
+        .sort_index())
 
     # Display monthly trend
     st.write(
-        "Incidents by Month"
-    )
+        "Incidents by Month")
 
     st.line_chart(
-        monthly_incidents
-    )
+        monthly_incidents)
 
     # Count incidents by shift
     st.write(
-        "Incidents by Shift"
-    )
+        "Incidents by Shift" )
 
     shift_counts = (
         incidents[
             "Shift"
         ]
-        .value_counts()
-    )
+        .value_counts())
 
     st.bar_chart(
-        shift_counts
-    )
+        shift_counts)
 
     # Count incidents by department
     st.write(
-        "Incidents by Department"
-    )
+        "Incidents by Department")
 
     department_counts = (
         incidents[
             "Department"
         ]
-        .value_counts()
-    )
+        .value_counts())
 
     st.bar_chart(
-        department_counts
-    )
+        department_counts )
 
     # Count incidents by severity
     st.write(
-        "Incidents by Severity"
-    )
+        "Incidents by Severity")
 
     severity_counts = (
         incidents[
             "Severity"
         ]
-        .value_counts()
-    )
+        .value_counts())
 
     st.bar_chart(
-        severity_counts
-    )
+        severity_counts)
 
     # Count incidents by incident type
     st.write(
-        "Incidents by Type"
-    )
+        "Incidents by Type")
 
     type_counts = (
         incidents[
             "Incident type"
         ]
-        .value_counts()
-    )
+        .value_counts() )
 
     st.bar_chart(
-        type_counts
-    )
-
-
-
+        type_counts )
 
 def render_incidents_page():
 
@@ -789,14 +646,12 @@ def render_incidents_page():
 
     # Display the page title
     st.title(
-        "Safety Incidents"
-    )
+        "Safety Incidents")
 
     # Explain what users can do
     st.write(
         "Record, view, search, filter, categorize "
-        "and analyse safety incidents."
-    )
+        "and analyse safety incidents.")
 
     # Add a separator
     st.divider()
@@ -810,51 +665,43 @@ def render_incidents_page():
             "Filter",
             "Categories",
             "Counts",
-            "Trend Analysis"
-        ]
-    )
+            "Trend Analysis"])
 
     # Add incidents
     with tabs[0]:
 
         add_incident(
-            incidents
-        )
+            incidents)
 
     # View incidents
     with tabs[1]:
 
         view_incidents(
-            incidents
-        )
+            incidents)
 
     # Search incidents
     with tabs[2]:
 
         search_incidents(
-            incidents
-        )
+            incidents)
 
     # Filter incidents
     with tabs[3]:
 
         filter_incidents(
-            incidents
-        )
+            incidents)
 
     # Categorize incidents
     with tabs[4]:
 
         categorize_incidents(
-            incidents
-        )
+            incidents)
 
     # Count incidents
     with tabs[5]:
 
         count_incidents(
-            incidents
-        )
+            incidents)
 
     # Analyse incident trends
     with tabs[6]:

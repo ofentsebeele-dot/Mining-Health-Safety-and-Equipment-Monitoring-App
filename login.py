@@ -154,11 +154,11 @@ users = {"admin": { "password": "admin1", "role": "Administrator"},
 
 # Default role permissions
 
-permissions = {"Administrator": ["dashboard", "worker_health", "incidents", "equipment", "maintenance", "risk_assessment","reports", "questions", "manage_users"],
-               "Safety Officer": ["dashboard","worker_health", "incidents", "risk_assessment", "questions", "reports"],
-               "Mining Manager": ["dashboard", "worker_health", "incidents", "equipment", "maintenance",  "risk_assessment", "questions", "reports" ],
-               "Maintenance Engineer": [ "dashboard","equipment", "maintenance", "risk_assessment", "reports", "questions"],
-               "Worker": ["dashboard", "questions","worker_health"]}
+permissions = {"Administrator": ["dashboard", "worker_health", "incidents", "equipment", "maintenance", "risk_assessment","reports", "questions", "manage_users", "notifications_alerts"],
+               "Safety Officer": ["dashboard","worker_health", "incidents", "risk_assessment", "questions", "reports", "notifications_alerts"],
+               "Mining Manager": ["dashboard", "worker_health", "incidents", "equipment", "maintenance",  "risk_assessment", "questions", "reports", "notifications_alerts" ],
+               "Maintenance Engineer": [ "dashboard","equipment", "maintenance", "risk_assessment", "reports", "questions", "notifications_alerts"],
+               "Worker": ["dashboard", "questions","worker_health", "notifications_alerts"]}
 
 
 user_permissions = {}

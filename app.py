@@ -163,7 +163,7 @@ if not st.session_state["logged_in"]:
 
 # Main tittle
 
-st.title("Monitoring System")
+st.title("Khwezi Mining Monitoring System")
 
 st.success(f"Welcome, {st.session_state['username']}!")
 

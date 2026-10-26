@@ -4,10 +4,6 @@ import os
 import base64
 
 
-# --------------------------------------------------
-# BACKGROUND IMAGE AND TEXT STYLING
-# --------------------------------------------------
-
 def find_image_path(filename):
 
     possible_paths = [
@@ -152,9 +148,6 @@ def set_login_background(image_file="khwezi_login.png"):
         st.error(f"Could not load the login background image: {error}")
 
 
-# --------------------------------------------------
-# USERS
-# --------------------------------------------------
 
 users = {
     "admin": {
@@ -184,10 +177,7 @@ users = {
 }
 
 
-# --------------------------------------------------
-# EXISTING ROLE PERMISSIONS
-# DO NOT CHANGE THESE PERMISSIONS
-# --------------------------------------------------
+
 
 permissions = {
 
@@ -240,16 +230,10 @@ permissions = {
 }
 
 
-# --------------------------------------------------
-# USER-SPECIFIC PERMISSION CHANGES
-# --------------------------------------------------
 
 user_permissions = {}
 
 
-# --------------------------------------------------
-# LOGIN
-# --------------------------------------------------
 
 def login():
 
@@ -303,9 +287,6 @@ def login():
             )
 
 
-# --------------------------------------------------
-# LOGOUT
-# --------------------------------------------------
 
 def logout():
 
@@ -318,9 +299,7 @@ def logout():
         st.rerun()
 
 
-# --------------------------------------------------
-# PERMISSION CHECK
-# --------------------------------------------------
+
 
 def has_permission(permission):
 

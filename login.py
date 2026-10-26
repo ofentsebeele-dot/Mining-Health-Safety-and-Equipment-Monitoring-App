@@ -1,11 +1,9 @@
-
 import streamlit as st
 import os
 import base64
 
 
 def find_image_path(filename):
-
     possible_paths = [
         filename,
         os.path.join("data", filename)
@@ -19,34 +17,25 @@ def find_image_path(filename):
 
 
 def set_login_background(image_file="khwezi_login.png"):
-
     path = find_image_path(image_file)
 
     if path is None:
-        st.markdown(
-            """
-            <style>
-            .stApp {
-                background-color: #000000 !important;
-            }
+        st.markdown("""
+        <style>
+        .stApp {
+            background-color: #000000 !important;
+        }
 
-            .stApp h1,
-            .stApp h2,
-            .stApp h3,
-            .stApp p,
-            .stApp label {
-                color: #E6E6E6 !important;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
-
-        st.warning(
-            "Background image not found. "
-            "Save khwezi_login.png in the project folder "
-            "or inside the data folder."
-        )
+        .stApp h1,
+        .stApp h2,
+        .stApp h3,
+        .stApp h4,
+        .stApp p,
+        .stApp label {
+            color: #FFFFFF !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
         return
 
     try:
@@ -59,12 +48,12 @@ def set_login_background(image_file="khwezi_login.png"):
             f"""
             <style>
 
-            /* Background image with dark overlay */
+            /* Background image with a lighter dark overlay */
             .stApp {{
                 background-image:
                     linear-gradient(
-                        rgba(0, 0, 0, 0.78),
-                        rgba(0, 0, 0, 0.78)
+                        rgba(0, 0, 0, 0.40),
+                        rgba(0, 0, 0, 0.40)
                     ),
                     url("data:image/png;base64,{encoded_image}");
 
@@ -72,51 +61,57 @@ def set_login_background(image_file="khwezi_login.png"):
                 background-position: center;
                 background-repeat: no-repeat;
                 background-attachment: fixed;
-                color: #E6E6E6 !important;
+                color: #FFFFFF !important;
             }}
 
-            /* Headings */
+            /* Move the login content down */
+            .block-container {{
+                padding-top: 150px !important;
+                padding-bottom: 40px !important;
+            }}
+
+            /* Login title and headings */
             .stApp h1,
             .stApp h2,
             .stApp h3,
             .stApp h4 {{
-                color: #E6E6E6 !important;
+                color: #FFFFFF !important;
                 font-weight: 800 !important;
-                text-shadow: 1px 1px 3px #000000;
+                text-shadow: 2px 2px 5px #000000;
             }}
 
             /* General text and labels */
             .stApp p,
             .stApp label,
             .stApp [data-testid="stMarkdownContainer"] {{
-                color: #E6E6E6 !important;
+                color: #FFFFFF !important;
                 font-weight: 600 !important;
+                text-shadow: 1px 1px 3px #000000;
             }}
 
             /* Login input fields */
             .stTextInput input {{
-                background-color: rgba(15, 15, 15, 0.90) !important;
-                color: #E6E6E6 !important;
-                border: 1px solid #888888 !important;
+                background-color: rgba(15, 15, 15, 0.80) !important;
+                color: #FFFFFF !important;
+                border: 1px solid #CCCCCC !important;
                 border-radius: 6px;
             }}
 
-            /* Input placeholder text */
             .stTextInput input::placeholder {{
-                color: #BBBBBB !important;
+                color: #DDDDDD !important;
             }}
 
-            /* Login and other buttons */
+            /* Login buttons */
             .stButton button {{
-                background-color: rgba(25, 25, 25, 0.95) !important;
-                color: #E6E6E6 !important;
-                border: 1px solid #888888 !important;
+                background-color: rgba(25, 25, 25, 0.85) !important;
+                color: #FFFFFF !important;
+                border: 1px solid #CCCCCC !important;
                 border-radius: 8px;
                 font-weight: 700 !important;
             }}
 
             .stButton button:hover {{
-                background-color: rgba(55, 55, 55, 0.98) !important;
+                background-color: rgba(55, 55, 55, 0.95) !important;
                 border: 1px solid #FFFFFF !important;
             }}
 
@@ -126,17 +121,18 @@ def set_login_background(image_file="khwezi_login.png"):
             }}
 
             [data-testid="stSidebar"] * {{
-                color: #E6E6E6 !important;
+                color: #FFFFFF !important;
             }}
 
             /* Alerts */
             [data-testid="stAlert"] p {{
-                color: #E6E6E6 !important;
+                color: #FFFFFF !important;
+                text-shadow: none !important;
             }}
 
             /* Dividers */
             hr {{
-                border-color: rgba(230, 230, 230, 0.45) !important;
+                border-color: rgba(255, 255, 255, 0.45) !important;
             }}
 
             </style>
@@ -148,28 +144,27 @@ def set_login_background(image_file="khwezi_login.png"):
         st.error(f"Could not load the login background image: {error}")
 
 
+# --------------------------------------------------
+# USERS
+# --------------------------------------------------
 
 users = {
     "admin": {
         "password": "admin123",
         "role": "Administrator"
     },
-
     "safety": {
         "password": "safety123",
         "role": "Safety Officer"
     },
-
     "manager": {
         "password": "manager123",
         "role": "Mining Manager"
     },
-
     "maintenance": {
         "password": "maintenance123",
         "role": "Maintenance Engineer"
     },
-
     "worker": {
         "password": "worker123",
         "role": "Worker"
@@ -177,10 +172,11 @@ users = {
 }
 
 
-
+# --------------------------------------------------
+# DEFAULT ROLE PERMISSIONS
+# --------------------------------------------------
 
 permissions = {
-
     "Administrator": [
         "dashboard",
         "worker_health",
@@ -230,18 +226,23 @@ permissions = {
 }
 
 
-
 user_permissions = {}
 
 
+# --------------------------------------------------
+# LOGIN FUNCTION
+# --------------------------------------------------
 
 def login():
-
-    # Apply background when the login page is displayed
     set_login_background()
 
-    st.title("Khwezi Mining Monitoring System")
+    # Add space above the login title
+    st.markdown(
+        '<div style="height: 20px;"></div>',
+        unsafe_allow_html=True
+    )
 
+    st.title("Khwezi Mining Monitoring System")
     st.subheader("Login")
 
     username = st.text_input(
@@ -256,37 +257,23 @@ def login():
     )
 
     if st.button("Login"):
-
-        # Check whether the username exists
         if username in users:
-
-            # Check the password
             if users[username]["password"] == password:
-
-                # Save login information
                 st.session_state["logged_in"] = True
                 st.session_state["username"] = username
                 st.session_state["role"] = users[username]["role"]
 
-                st.success(
-                    "Login successful."
-                )
-
+                st.success("Login successful.")
                 st.rerun()
-
             else:
-
-                st.error(
-                    "Incorrect password."
-                )
-
+                st.error("Incorrect password.")
         else:
-
-            st.error(
-                "Username not found."
-            )
+            st.error("Username not found.")
 
 
+# --------------------------------------------------
+# LOGOUT FUNCTION
+# --------------------------------------------------
 
 def logout():
     st.session_state["logged_in"] = False
@@ -295,22 +282,14 @@ def logout():
     st.rerun()
 
 
+# --------------------------------------------------
+# PERMISSION CHECK
+# --------------------------------------------------
 
 def has_permission(permission):
+    username = st.session_state.get("username", "")
+    role = st.session_state.get("role", "")
 
-    # Get the logged-in username
-    username = st.session_state.get(
-        "username",
-        ""
-    )
-
-    # Get the logged-in user's role
-    role = st.session_state.get(
-        "role",
-        ""
-    )
-
-    # If the user does not exist, deny access
     if username not in users:
         return False
 
@@ -318,11 +297,11 @@ def has_permission(permission):
     if permission == "questions":
         return True
 
-    # Check for administrator changes
+    # Use administrator-customised permissions if available
     if username in user_permissions:
         return permission in user_permissions[username]
 
-    # Otherwise use the original role permissions
+    # Otherwise use default role permissions
     if role not in permissions:
         return False
 
